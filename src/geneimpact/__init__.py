@@ -33,6 +33,11 @@ from .behive import (
     integrate_behive_efficiency,
     normalize_behive_efficiency,
 )
+from .behive_validation import (
+    BehiveValidationMetrics,
+    BehiveValidationReport,
+    evaluate_behive_validation,
+)
 
 __all__ = [
     "AssessmentRecord",
@@ -46,6 +51,8 @@ __all__ = [
     "BehiveApplicability",
     "BehiveEfficiencyPrediction",
     "BehiveEfficiencyRequest",
+    "BehiveValidationMetrics",
+    "BehiveValidationReport",
     "BinaryCalibrationMetrics",
     "ConstantSignificanceModel",
     "EditAssessment",
@@ -80,6 +87,7 @@ __all__ = [
     "create_mgi_snapshot",
     "expected_calibration_error",
     "evaluate_benchmark",
+    "evaluate_behive_validation",
     "evaluate_impc_calibration",
     "integrate_outputs",
     "integrate_behive_efficiency",

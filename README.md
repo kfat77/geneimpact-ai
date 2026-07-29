@@ -97,6 +97,7 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [x] Bounded independent IMPC validation builder with tested outcomes
 - [x] Gene-disjoint IMPC Brier/ECE calibration baseline
 - [x] Version-locked BE-Hive mES efficiency import and audit adapter
+- [x] Leakage- and domain-gated BE-Hive independent validation evaluator
 - [ ] IMPC phenotype snapshot adapter
 - [ ] Isolated, license-reviewed BE-Hive execution environment
 - [ ] Held-out mES efficiency comparison against an independent experimental dataset

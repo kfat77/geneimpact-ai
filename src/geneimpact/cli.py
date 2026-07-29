@@ -8,6 +8,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from .behive import normalize_behive_efficiency
+from .behive_validation import evaluate_behive_validation
 from .datasources import check_ensembl_profile
 from .benchmark import build_mgi_benchmark
 from .baseline import evaluate_benchmark
@@ -83,6 +84,12 @@ def main() -> None:
     )
     behive_import.add_argument("--input", required=True, type=Path)
     behive_import.add_argument("--output", type=Path)
+    behive_validation = subparsers.add_parser(
+        "validate-behive-efficiency",
+        help="Evaluate BE-Hive on a leakage-audited independent mES dataset.",
+    )
+    behive_validation.add_argument("--input", required=True, type=Path)
+    behive_validation.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
 
     if args.command == "source-check":
@@ -193,6 +200,16 @@ def main() -> None:
             print(f"BE-Hive audit record written to {args.output}")
         else:
             print(rendered, end="")
+        return
+    if args.command == "validate-behive-efficiency":
+        try:
+            report = evaluate_behive_validation(args.input)
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
+        rendered = json.dumps(asdict(report), indent=2, ensure_ascii=False) + "\n"
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(rendered, encoding="utf-8")
+        print(f"BE-Hive validation report written to {args.output}")
         return
 
     try:
