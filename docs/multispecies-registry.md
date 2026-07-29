@@ -53,7 +53,8 @@ reported as an error rather than silently accepting coordinate drift.
 | BE-Hive mES efficiency and bystander import | Narrow mES scope | Out of scope | Out of scope | Out of scope | Out of scope | Out of scope |
 | inDelphi repair-outcome import | Narrow mESC scope | Out of scope | Out of scope | Out of scope | Out of scope | Out of scope |
 | CRISPRscan guide-activity scoring | Out of scope | Out of scope | Narrow embryo scope | Out of scope | Out of scope | Out of scope |
-| Independent species-specific transfer evidence | Mouse embryo retrospective | Pending | Zebrafish RNP retrospective | Pending | Pending | Pending |
+| Housden guide-activity ranking | Out of scope | Out of scope | Out of scope | Narrow S2R+ cell scope | Out of scope | Out of scope |
+| Independent species-specific transfer evidence | Mouse embryo retrospective | Public label gap | Zebrafish RNP retrospective | Qualitative published comparisons | Hazard evidence only | Hazard evidence only |
 
 An output from a human-cell or mouse-cell model is not promoted to another
 species. It may remain in an audit report as `out_of_scope`, but it must not
@@ -65,7 +66,14 @@ The same matrix is available as machine-readable JSON:
 python -m geneimpact capabilities --species mouse
 python -m geneimpact capabilities --species zebrafish
 python -m geneimpact capabilities --species rhesus_macaque
+python -m geneimpact readiness --species fruit_fly
+python -m geneimpact readiness --all
 ```
+
+The `readiness` command additionally qualifies public datasets and papers as
+`usable_adapter`, `transfer_evidence_only`, `hazard_evidence_only`, or
+`insufficient_public_data`. A hazard observation or method paper is never
+promoted to executable prediction capability.
 
 Status meanings:
 

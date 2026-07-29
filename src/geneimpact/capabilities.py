@@ -31,6 +31,7 @@ class PredictorCapability:
 _CRISPRITZ_REFERENCE = "https://pubmed.ncbi.nlm.nih.gov/31764961/"
 _CRISPRSCAN_REFERENCE = "https://pmc.ncbi.nlm.nih.gov/articles/PMC4589495/"
 _INDELPHI_REFERENCE = "https://www.nature.com/articles/s41586-018-0686-x"
+_HOUSDEN_REFERENCE = "https://pmc.ncbi.nlm.nih.gov/articles/PMC4642709/"
 
 
 def capabilities_for_species(species_profile: str) -> tuple[PredictorCapability, ...]:
@@ -119,7 +120,39 @@ def capabilities_for_species(species_profile: str) -> tuple[PredictorCapability,
                 ),
             )
         )
-    elif species_profile in {"rat", "fruit_fly"}:
+    elif species_profile == "fruit_fly":
+        capabilities.extend(
+            (
+                PredictorCapability(
+                    species_profile="fruit_fly",
+                    predictor="Housden",
+                    task="guide_activity_ranking",
+                    edit_classes=("knockout",),
+                    status=CapabilityStatus.AVAILABLE_DECLARED_DOMAIN,
+                    biological_domain="Drosophila S2R+ cell culture",
+                    evidence_reference=_HOUSDEN_REFERENCE,
+                    note=(
+                        "Official FlyRNAi external-result import is available. "
+                        "The live service is unversioned, the score is not a "
+                        "probability, and in-vivo validity is not established."
+                    ),
+                ),
+                PredictorCapability(
+                    species_profile="fruit_fly",
+                    predictor="CRISPRscan",
+                    task="guide_activity",
+                    edit_classes=("knockout",),
+                    status=CapabilityStatus.OUT_OF_DOMAIN_ONLY,
+                    biological_domain="model trained on zebrafish in-vivo activity",
+                    evidence_reference=_CRISPRSCAN_REFERENCE,
+                    note=(
+                        "The service exposes this genome, but the activity model is "
+                        "not treated as species-validated for this profile."
+                    ),
+                ),
+            )
+        )
+    elif species_profile == "rat":
         capabilities.append(
             PredictorCapability(
                 species_profile=species_profile,

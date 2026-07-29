@@ -5,6 +5,7 @@ import pytest
 
 from geneimpact.crispritz import CRISPRITZ_COMMIT
 from geneimpact.dossier import build_research_dossier, verify_dossier_integrity
+from geneimpact.housden import HOUSDEN_SERVICE_URL
 
 
 CRISPRSCAN_CONTEXT = "ACCTGGATCGATGCTGATGCTAGATAAGGTTGAGC"
@@ -69,6 +70,29 @@ def _request(**context_overrides):
             "welfare_relevance": 0.6,
         },
         "predictors": {},
+    }
+
+
+def _housden_result():
+    return {
+        "request": {
+            "guide_id": "drsc-guide-01",
+            "species_profile": "fruit_fly",
+            "genome_build": "Release 6 plus ISO1 MT",
+            "assembly_accession": "GCF_000001215.4",
+            "sequence_source_strain_or_isolate": "ISO-1",
+            "protospacer": "ATCTGACCTCCCGGCTAATT",
+            "nuclease": "SpCas9",
+            "guide_expression": "u6_sgrna",
+            "developmental_context": "drosophila_s2r_plus_cell_culture",
+        },
+        "execution": {
+            "source": "flyrnai_evaluate_crispr",
+            "source_url": HOUSDEN_SERVICE_URL,
+            "retrieved_at": "2026-07-29T09:30:00+00:00",
+            "source_response_sha256": "a" * 64,
+        },
+        "raw_output": {"housden_score": 6.9},
     }
 
 
@@ -224,6 +248,54 @@ def test_rejects_indelphi_context_mismatch(tmp_path):
         developmental_context="one_cell_embryo",
     )
     request["predictors"]["indelphi"] = {"result_files": ["guide.json"]}
+
+    with pytest.raises(ValueError, match="developmental_context"):
+        build_research_dossier(request, attachment_base_dir=tmp_path)
+
+
+def test_integrates_housden_only_for_matching_fruit_fly_cell_context(tmp_path):
+    result_path = tmp_path / "housden.json"
+    result_path.write_text(json.dumps(_housden_result()), encoding="utf-8")
+    request = _request(
+        study_id="fruit-fly-cell-study",
+        species_profile="fruit_fly",
+        strain_or_breed="ISO-1",
+        genome_build="Release 6 plus ISO1 MT",
+        assembly_accession="GCF_000001215.4",
+        delivery_context="u6_sgrna",
+        developmental_context="drosophila_s2r_plus_cell_culture",
+    )
+    request["predictors"]["housden"] = {"result_files": ["housden.json"]}
+
+    dossier = build_research_dossier(request, attachment_base_dir=tmp_path)
+
+    prediction = next(
+        row
+        for row in dossier["model_predictions"]
+        if row["predictor"] == "Housden"
+    )
+    assert prediction["housden_score"] == 6.9
+    assert "ATCTGACCTCCCGGCTAATT" not in json.dumps(dossier)
+    assert any(
+        row["predictor"] == "Housden"
+        and row["execution_state"] == "included"
+        for row in dossier["capability_coverage"]
+    )
+
+
+def test_rejects_housden_result_for_fruit_fly_embryo_study(tmp_path):
+    result_path = tmp_path / "housden.json"
+    result_path.write_text(json.dumps(_housden_result()), encoding="utf-8")
+    request = _request(
+        study_id="fruit-fly-embryo-study",
+        species_profile="fruit_fly",
+        strain_or_breed="ISO-1",
+        genome_build="Release 6 plus ISO1 MT",
+        assembly_accession="GCF_000001215.4",
+        delivery_context="u6_sgrna",
+        developmental_context="fruit_fly_embryo",
+    )
+    request["predictors"]["housden"] = {"result_files": ["housden.json"]}
 
     with pytest.raises(ValueError, match="developmental_context"):
         build_research_dossier(request, attachment_base_dir=tmp_path)

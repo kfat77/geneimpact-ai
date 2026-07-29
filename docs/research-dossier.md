@@ -75,6 +75,8 @@ The dossier can currently include:
 - externally generated BE-Hive efficiency and bystander results in mouse mES;
 - externally executed, version-locked inDelphi mESC repair-outcome results for
   mouse knockout studies;
+- official FlyRNAi Housden results for fruit-fly S2R+ cell-culture knockout
+  studies;
 - validated generic concern outputs under the predictor adapter contract.
 
 For CRISPRitz, `targets_file` must be a relative path beneath the request file's
@@ -86,6 +88,11 @@ request directory. Every result is checked against the dossier's assembly,
 delivery context, and developmental context. The adapter recalculates the
 reported distribution statistics and includes pinned external mouse-embryo
 transfer evidence. See the [inDelphi adapter](indelphi-adapter.md).
+
+For Housden, `result_files` contains 1–100 relative JSON envelopes. Every
+result is checked against the fruit-fly assembly, U6 guide-expression context,
+and exact S2R+ cell-culture developmental context. An embryo or in-vivo dossier
+cannot include the score. See the [Housden adapter](housden-adapter.md).
 
 Every capability relevant to the selected species and edit class is listed as
 `included`, `available_not_run`, `not_integrated`, `out_of_domain`, or

@@ -68,7 +68,10 @@ python -m geneimpact import-behive-efficiency --input examples/behive-efficiency
 python -m geneimpact import-behive-bystander --input examples/behive-bystander-import.json --output behive-bystander-audit.json
 python -m geneimpact import-indelphi --input examples/indelphi-mouse-result.json --output indelphi-audit.json
 python -m geneimpact dossier examples/dossier-mouse-indelphi-request.json --output mouse-research-dossier.json
+python -m geneimpact import-housden --input examples/housden-fruit-fly-result.json --output housden-audit.json
+python -m geneimpact dossier examples/dossier-fruit-fly-housden-request.json --output fruit-fly-cell-dossier.json
 python -m geneimpact capabilities --species zebrafish
+python -m geneimpact readiness --all
 python -m geneimpact import-crispritz --metadata examples/crispritz-rat-metadata.json --targets examples/crispritz-synthetic.targets.txt --output crispritz-audit.json
 python -m geneimpact score-crisprscan --input examples/crisprscan-zebrafish-request.json --output crisprscan-report.json
 python -m geneimpact validate-crisprscan-transfer --input data/benchmarks/crisprscan-nhgri1-2022.json --output crisprscan-transfer-report.json
@@ -85,6 +88,9 @@ reference-search auditing and its interpretation limits. The
 zebrafish embryo activity-scoring domain. The
 [inDelphi adapter guide](docs/indelphi-adapter.md) documents the licensed
 external-result workflow and mouse-embryo transfer evidence.
+The [Housden adapter guide](docs/housden-adapter.md) documents the
+external-result workflow for fruit-fly S2R+ cell guide ranking and its strict
+no-in-vivo-extrapolation rule.
 
 ## Initial API concept
 
@@ -119,6 +125,8 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [x] Independent 50-guide zebrafish RNP transfer benchmark with honest domain labeling
 - [x] Unified multi-species research dossier with target-gene interactions and integrity verification
 - [x] Version-locked inDelphi mESC repair-outcome import with external mouse-embryo transfer evidence
+- [x] Machine-readable evidence qualification for every registered species
+- [x] Official-service Housden result import for fruit-fly S2R+ cell culture
 - [x] Checksum-bearing MGI phenotype snapshot adapter
 - [x] Streaming MGI genome-edit evidence normalization
 - [x] Bounded IMPC significant gene-phenotype query adapter

@@ -13,6 +13,7 @@ from typing import Any, Mapping, Sequence
 from .capabilities import CapabilityStatus, capabilities_for_species
 from .crispritz import import_crispritz_targets
 from .crisprscan import score_crisprscan
+from .housden import normalize_housden
 from .indelphi import normalize_indelphi
 from .interactions import rank_interactions
 from .species import PROFILES
@@ -229,6 +230,70 @@ def build_research_dossier(
             indelphi_predictions.append(asdict(prediction))
         model_predictions.extend(indelphi_predictions)
         executed_predictors.add("inDelphi")
+
+    if "housden" in predictors:
+        if profile_key != "fruit_fly" or context["edit_class"] != "knockout":
+            raise ValueError(
+                "predictors.housden is available only for fruit_fly knockout studies."
+            )
+        config = _mapping(predictors, "housden")
+        result_files = config.get("result_files")
+        if (
+            not isinstance(result_files, Sequence)
+            or isinstance(result_files, (str, bytes))
+            or not 1 <= len(result_files) <= 100
+        ):
+            raise ValueError(
+                "predictors.housden.result_files must contain 1-100 relative paths."
+            )
+        housden_predictions = []
+        guide_ids: set[str] = set()
+        for raw_result_path in result_files:
+            result_path = _resolve_attachment(
+                raw_result_path,
+                attachment_base_dir,
+                "predictors.housden.result_files",
+            )
+            result_bytes = result_path.read_bytes()
+            try:
+                result_document = json.loads(result_bytes.decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError) as error:
+                raise ValueError(
+                    f"Housden result is not valid UTF-8 JSON: {raw_result_path}"
+                ) from error
+            if not isinstance(result_document, Mapping):
+                raise ValueError("each Housden result must be a JSON object.")
+            prediction = normalize_housden(
+                result_document,
+                source_document_sha256=sha256(result_bytes).hexdigest(),
+            )
+            if prediction.genome_build.casefold() != str(
+                context["genome_build"]
+            ).casefold():
+                raise ValueError(
+                    "Housden result genome_build must match study_context."
+                )
+            if prediction.assembly_accession != context["assembly_accession"]:
+                raise ValueError(
+                    "Housden result assembly_accession must match study_context."
+                )
+            if prediction.guide_expression != context["delivery_context"]:
+                raise ValueError(
+                    "Housden result guide_expression must match "
+                    "study_context.delivery_context."
+                )
+            if prediction.developmental_context != context[
+                "developmental_context"
+            ]:
+                raise ValueError(
+                    "Housden result developmental_context must match study_context."
+                )
+            if prediction.guide_id in guide_ids:
+                raise ValueError("Housden result guide_id values must be unique.")
+            guide_ids.add(prediction.guide_id)
+            housden_predictions.append(asdict(prediction))
+        model_predictions.extend(housden_predictions)
+        executed_predictors.add("Housden")
 
     capability_coverage = _capability_coverage(
         profile_key,

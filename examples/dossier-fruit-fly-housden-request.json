@@ -1,0 +1,43 @@
+{
+  "dossier_schema_version": "1.0",
+  "study_context": {
+    "study_id": "fruit-fly-s2r-demo",
+    "species_profile": "fruit_fly",
+    "strain_or_breed": "ISO-1",
+    "genome_build": "Release 6 plus ISO1 MT",
+    "assembly_accession": "GCF_000001215.4",
+    "edit_class": "knockout",
+    "delivery_context": "u6_sgrna",
+    "developmental_context": "drosophila_s2r_plus_cell_culture",
+    "evidence_snapshot_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "target_genes": [
+    {
+      "gene_id": "FBgn0000008",
+      "gene_symbol": "a",
+      "intended_change": "loss_of_function",
+      "evidence_signal": 0.5,
+      "evidence_reference": "replace-with-curated-flybase-snapshot"
+    }
+  ],
+  "intended_outcomes": [
+    "Declared target disruption in S2R+ cells"
+  ],
+  "welfare_endpoints": [
+    "Not applicable to this cell-culture demonstration"
+  ],
+  "interaction_evidence": [],
+  "evidence": {
+    "on_target_uncertainty": 0.5,
+    "off_target_evidence": 0.5,
+    "network_impact_evidence": 0.5,
+    "welfare_relevance": 0.5
+  },
+  "predictors": {
+    "housden": {
+      "result_files": [
+        "housden-fruit-fly-result.json"
+      ]
+    }
+  }
+}

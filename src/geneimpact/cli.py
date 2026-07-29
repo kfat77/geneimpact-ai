@@ -17,6 +17,7 @@ from .crisprscan import score_crisprscan
 from .crisprscan_validation import PREDICTION_FIELDS, evaluate_crisprscan_transfer
 from .datasources import check_ncbi_profile
 from .dossier import build_research_dossier, verify_dossier_integrity
+from .housden import normalize_housden
 from .benchmark import build_mgi_benchmark
 from .baseline import evaluate_benchmark
 from .impc import ImpcClient
@@ -24,6 +25,7 @@ from .impc_validation import build_impc_validation
 from .impc_calibration import evaluate_impc_calibration
 from .indelphi import normalize_indelphi
 from .mgi import normalize_phenotypic_alleles
+from .readiness import readiness_for_species, readiness_matrix
 from .snapshots import MGI_REPORTS, create_mgi_snapshot
 from .species import PROFILES
 from .workflow import DEFAULT_MODEL_VERSION, assess_request
@@ -110,11 +112,24 @@ def main() -> None:
     )
     indelphi_import.add_argument("--input", required=True, type=Path)
     indelphi_import.add_argument("--output", type=Path)
+    housden_import = subparsers.add_parser(
+        "import-housden",
+        help="Validate an official FlyRNAi Housden result envelope.",
+    )
+    housden_import.add_argument("--input", required=True, type=Path)
+    housden_import.add_argument("--output", type=Path)
     capabilities = subparsers.add_parser(
         "capabilities",
         help="Show available and candidate predictors for a registered species.",
     )
     capabilities.add_argument("--species", required=True, choices=sorted(PROFILES))
+    readiness = subparsers.add_parser(
+        "readiness",
+        help="Show qualified evidence maturity without promoting hazard observations.",
+    )
+    readiness_scope = readiness.add_mutually_exclusive_group(required=True)
+    readiness_scope.add_argument("--species", choices=sorted(PROFILES))
+    readiness_scope.add_argument("--all", action="store_true")
     crispritz_import = subparsers.add_parser(
         "import-crispritz",
         help="Validate a version-locked external CRISPRitz targets file.",
@@ -316,6 +331,36 @@ def main() -> None:
         else:
             print(rendered, end="")
         return
+    if args.command == "import-housden":
+        try:
+            input_bytes = args.input.read_bytes()
+            document = json.loads(input_bytes.decode("utf-8"))
+            if not isinstance(document, dict):
+                raise ValueError("Housden input must be a JSON object.")
+            prediction = normalize_housden(
+                document,
+                source_document_sha256=sha256(input_bytes).hexdigest(),
+            )
+        except (
+            OSError,
+            UnicodeDecodeError,
+            json.JSONDecodeError,
+            TypeError,
+            ValueError,
+        ) as error:
+            parser.error(str(error))
+        rendered = json.dumps(
+            asdict(prediction),
+            indent=2,
+            ensure_ascii=False,
+        ) + "\n"
+        if args.output:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(rendered, encoding="utf-8")
+            print(f"Housden audit record written to {args.output}")
+        else:
+            print(rendered, end="")
+        return
     if args.command == "capabilities":
         rows = [
             {
@@ -325,6 +370,16 @@ def main() -> None:
             for item in capabilities_for_species(args.species)
         ]
         print(json.dumps(rows, indent=2, ensure_ascii=False))
+        return
+    if args.command == "readiness":
+        if args.all:
+            report = {
+                key: asdict(value)
+                for key, value in readiness_matrix().items()
+            }
+        else:
+            report = asdict(readiness_for_species(args.species))
+        print(json.dumps(report, indent=2, ensure_ascii=False))
         return
     if args.command == "import-crispritz":
         try:

@@ -69,3 +69,22 @@ The article and supplementary workbook are marked CC BY-NC-ND 4.0. GeneImpact
 AI does not copy or transform the workbook rows. It stores the source URL,
 SHA-256 checksum, and aggregate factual metrics independently recomputed from
 the unmodified source.
+
+## Housden score and FlyRNAi service
+
+GeneImpact AI does not redistribute the Housden coefficient table, CRISPOR
+implementation, or FlyRNAi service code. The adapter accepts a researcher-
+declared result from the official DRSC/FlyRNAi service and retains a checksum
+of the original response.
+
+The method is attributed to:
+
+Housden BE, Valvezan AJ, Kelley C, et al. "Identification of potential drug
+targets for Tuberous Sclerosis Complex by synthetic screens combining CRISPR-
+based knockouts with RNAi." Science Signaling 8, rs9 (2015).
+<https://doi.org/10.1126/scisignal.aab3729>
+
+Official service: <https://www.flyrnai.org/evaluateCrispr/>.
+
+The GeneImpact adapter contains independently written validation and
+normalization logic. It does not include the upstream position coefficients.

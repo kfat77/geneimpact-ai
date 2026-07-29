@@ -1,0 +1,22 @@
+{
+  "request": {
+    "guide_id": "drsc-guide-01",
+    "species_profile": "fruit_fly",
+    "genome_build": "Release 6 plus ISO1 MT",
+    "assembly_accession": "GCF_000001215.4",
+    "sequence_source_strain_or_isolate": "ISO-1",
+    "protospacer": "ATCTGACCTCCCGGCTAATT",
+    "nuclease": "SpCas9",
+    "guide_expression": "u6_sgrna",
+    "developmental_context": "drosophila_s2r_plus_cell_culture"
+  },
+  "execution": {
+    "source": "flyrnai_evaluate_crispr",
+    "source_url": "https://www.flyrnai.org/evaluateCrispr/",
+    "retrieved_at": "2026-07-29T09:30:00+00:00",
+    "source_response_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "raw_output": {
+    "housden_score": 6.9
+  }
+}
