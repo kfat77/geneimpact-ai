@@ -10,7 +10,7 @@ from pathlib import Path
 from .behive import normalize_behive_efficiency
 from .behive_bystander import normalize_behive_bystander
 from .behive_validation import evaluate_behive_validation
-from .datasources import check_ensembl_profile
+from .datasources import check_ncbi_profile
 from .benchmark import build_mgi_benchmark
 from .baseline import evaluate_benchmark
 from .impc import ImpcClient
@@ -30,7 +30,7 @@ def main() -> None:
     assess.add_argument("--output", "-o", type=Path, help="Write the report to this JSON file.")
     assess.add_argument("--model-version", default=DEFAULT_MODEL_VERSION)
     source_check = subparsers.add_parser(
-        "source-check", help="Verify a registered species profile against Ensembl."
+        "source-check", help="Verify a registered species profile against its authoritative assembly record."
     )
     source_check.add_argument("--species", default="mouse", choices=sorted(PROFILES))
     snapshot = subparsers.add_parser(
@@ -101,7 +101,7 @@ def main() -> None:
 
     if args.command == "source-check":
         try:
-            result = check_ensembl_profile(PROFILES[args.species])
+            result = check_ncbi_profile(PROFILES[args.species])
         except (OSError, ValueError) as error:
             parser.error(str(error))
         print(json.dumps({

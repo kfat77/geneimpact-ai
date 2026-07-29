@@ -19,6 +19,11 @@ The first release focuses on a transparent pipeline:
 
 Every assessment is also bound to a species, strain/breed, genome build, edit class, evidence snapshot, and model version. This prevents a result from being reused outside its demonstrated setting.
 
+Registered contexts now cover mouse, rat, zebrafish, fruit fly, rhesus
+macaque, and cynomolgus macaque. Registration provides strict context and
+assembly auditing; predictor validation remains separately reported for each
+species. See the [multi-species registry](docs/multispecies-registry.md).
+
 ## Scientific guardrails
 
 - **Predictions are not guarantees.** Outputs distinguish biological plausibility, replicated empirical evidence, and uncertainty.
@@ -89,7 +94,9 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [x] Animal-edit pre-registration and evidence-grading templates
 - [x] Audit-ready study context and held-out calibration metrics
 - [x] Runnable JSON-to-report researcher workflow
-- [x] Registered mouse/GRCm39 profile and live Ensembl metadata adapter
+- [x] Registered mouse/GRCm39 profile and live authoritative metadata adapter
+- [x] Current NCBI reference profiles for rat, zebrafish, fruit fly, rhesus macaque, and cynomolgus macaque
+- [x] Ambiguity rejection and strain/isolate warnings across registered species
 - [x] Checksum-bearing MGI phenotype snapshot adapter
 - [x] Streaming MGI genome-edit evidence normalization
 - [x] Bounded IMPC significant gene-phenotype query adapter

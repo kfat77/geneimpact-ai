@@ -11,6 +11,7 @@ from .species import SpeciesProfile
 
 
 ENSEMBL_REST_URL = "https://rest.ensembl.org"
+NCBI_DATASETS_URL = "https://api.ncbi.nlm.nih.gov/datasets/v2"
 
 
 @dataclass(frozen=True)
@@ -32,6 +33,19 @@ class SourceCheck:
     matches: bool
     checked_release: str
     errors: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class NcbiAssemblyMetadata:
+    """Current NCBI assembly identity used to verify a species profile."""
+
+    organism_name: str
+    taxon_id: str
+    assembly: str
+    accession: str
+    status: str
+    reference_category: str
+    release_date: str
 
 
 class EnsemblMetadataClient:
@@ -70,6 +84,42 @@ class EnsemblMetadataClient:
         )
 
 
+class NcbiDatasetsClient:
+    """Minimal NCBI Datasets genome client with an injectable reader."""
+
+    def __init__(
+        self,
+        base_url: str = NCBI_DATASETS_URL,
+        reader: Callable[[str], Mapping[str, Any]] | None = None,
+    ) -> None:
+        self.base_url = base_url.rstrip("/")
+        self.reader = reader or _read_json
+
+    def assembly_metadata(self, accession: str) -> NcbiAssemblyMetadata:
+        payload = self.reader(
+            f"{self.base_url}/genome/accession/{accession}/dataset_report"
+        )
+        reports = payload.get("reports")
+        if not isinstance(reports, list) or len(reports) != 1:
+            raise ValueError("NCBI response must contain exactly one assembly report.")
+        report = reports[0]
+        if not isinstance(report, Mapping):
+            raise ValueError("NCBI assembly report must be an object.")
+        organism = report.get("organism")
+        assembly_info = report.get("assembly_info")
+        if not isinstance(organism, Mapping) or not isinstance(assembly_info, Mapping):
+            raise ValueError("NCBI report is missing organism or assembly metadata.")
+        return NcbiAssemblyMetadata(
+            organism_name=str(organism["organism_name"]),
+            taxon_id=str(organism["tax_id"]),
+            assembly=str(assembly_info["assembly_name"]),
+            accession=str(report["accession"]),
+            status=str(assembly_info["assembly_status"]),
+            reference_category=str(assembly_info.get("refseq_category", "")),
+            release_date=str(assembly_info["release_date"]),
+        )
+
+
 def check_ensembl_profile(
     profile: SpeciesProfile, client: EnsemblMetadataClient | None = None
 ) -> SourceCheck:
@@ -77,8 +127,8 @@ def check_ensembl_profile(
     metadata = (client or EnsemblMetadataClient()).species_metadata(profile.scientific_name)
     expected = {
         "taxon_id": profile.taxon_id,
-        "assembly": profile.genome_build,
-        "accession": profile.assembly_accession,
+        "assembly": profile.ensembl_genome_build or profile.genome_build,
+        "accession": profile.ensembl_assembly_accession or profile.assembly_accession,
     }
     observed = {
         "taxon_id": metadata.taxon_id,
@@ -94,6 +144,35 @@ def check_ensembl_profile(
         source="Ensembl REST",
         matches=not errors,
         checked_release=metadata.release,
+        errors=errors,
+    )
+
+
+def check_ncbi_profile(
+    profile: SpeciesProfile, client: NcbiDatasetsClient | None = None
+) -> SourceCheck:
+    """Verify a registered profile against its exact NCBI assembly report."""
+    metadata = (client or NcbiDatasetsClient()).assembly_metadata(
+        profile.assembly_accession
+    )
+    expected_name = profile.scientific_name.replace("_", " ").casefold()
+    checks = {
+        "organism": (expected_name, metadata.organism_name.casefold()),
+        "taxon_id": (profile.taxon_id, metadata.taxon_id),
+        "assembly": (profile.genome_build, metadata.assembly),
+        "accession": (profile.assembly_accession, metadata.accession),
+        "status": ("current", metadata.status),
+        "reference_category": ("reference genome", metadata.reference_category),
+    }
+    errors = tuple(
+        f"{field} changed: expected {expected!r}, observed {observed!r}."
+        for field, (expected, observed) in checks.items()
+        if expected != observed
+    )
+    return SourceCheck(
+        source="NCBI Datasets",
+        matches=not errors,
+        checked_release=metadata.release_date,
         errors=errors,
     )
 

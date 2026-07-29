@@ -121,3 +121,38 @@ def test_request_integrates_bystander_distribution_as_task_specific_output():
     assert prediction["applicability"] == "declared_match"
     assert prediction["top_outcomes"][0]["edits"] == ("C3>T",)
     assert sequence not in str(prediction)
+
+
+@pytest.mark.parametrize(
+    ("species", "strain", "build", "profile_key"),
+    [
+        ("rat", "BN/NHsdMcwi", "GRCr8", "rat"),
+        ("zebrafish", "Tuebingen", "GRCz12tu", "zebrafish"),
+        ("fruit_fly", "ISO-1", "dm6", "fruit_fly"),
+        ("rhesus_macaque", "MMU2019108-1", "T2T-MMU8v2.0", "rhesus_macaque"),
+        ("cynomolgus_macaque", "582-1", "T2T-MFA8v1.1", "cynomolgus_macaque"),
+    ],
+)
+def test_assessment_report_is_bound_to_each_registered_species(
+    species, strain, build, profile_key
+):
+    report = assess_request(
+        {
+            "study_context": {
+                "species": species,
+                "strain_or_breed": strain,
+                "genome_build": build,
+                "edit_class": "knockout",
+                "evidence_snapshot": "species-specific-snapshot",
+            },
+            "evidence": {
+                "on_target_uncertainty": 0.2,
+                "off_target_evidence": 0.2,
+                "network_impact_evidence": 0.2,
+                "welfare_relevance": 0.2,
+            },
+        }
+    )
+
+    assert report["species_validation"]["supported"]
+    assert report["species_validation"]["profile_key"] == profile_key

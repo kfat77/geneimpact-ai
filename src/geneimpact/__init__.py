@@ -6,7 +6,17 @@ from .interactions import InteractionResult, rank_interactions
 from .calibration import brier_score, expected_calibration_error
 from .provenance import AssessmentRecord, StudyContext, create_record
 from .predictors import Applicability, PredictionTask, PredictorOutput, integrate_outputs
-from .species import MOUSE_PROFILE, SpeciesProfile, SpeciesValidation, validate_study_context
+from .species import (
+    CYNOMOLGUS_MACAQUE_PROFILE,
+    FRUIT_FLY_PROFILE,
+    MOUSE_PROFILE,
+    RAT_PROFILE,
+    RHESUS_MACAQUE_PROFILE,
+    ZEBRAFISH_PROFILE,
+    SpeciesProfile,
+    SpeciesValidation,
+    validate_study_context,
+)
 from .snapshots import MGI_REPORTS, SnapshotManifest, create_mgi_snapshot
 from .mgi import MgiAlleleEvidence, NormalizationSummary, normalize_phenotypic_alleles
 from .impc import ImpcClient, ImpcGeneEvidence, ImpcGenePhenotype
@@ -68,9 +78,11 @@ __all__ = [
     "BehiveValidationReport",
     "BinaryCalibrationMetrics",
     "ConstantSignificanceModel",
+    "CYNOMOLGUS_MACAQUE_PROFILE",
     "EditAssessment",
     "EditEvidence",
     "EvidenceLevel",
+    "FRUIT_FLY_PROFILE",
     "InteractionResult",
     "ImpcClient",
     "ImpcGeneEvidence",
@@ -86,11 +98,14 @@ __all__ = [
     "PredictorOutput",
     "PhenotypePriorModel",
     "RankingMetrics",
+    "RAT_PROFILE",
+    "RHESUS_MACAQUE_PROFILE",
     "ReviewTier",
     "SpeciesProfile",
     "SpeciesValidation",
     "SnapshotManifest",
     "StudyContext",
+    "ZEBRAFISH_PROFILE",
     "assess_edit",
     "assign_gene_split",
     "brier_score",

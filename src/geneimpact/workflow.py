@@ -30,7 +30,7 @@ REQUIRED_EVIDENCE = (
     "network_impact_evidence",
     "welfare_relevance",
 )
-DEFAULT_MODEL_VERSION = "0.6.0"
+DEFAULT_MODEL_VERSION = "0.7.0"
 
 
 def assess_request(
