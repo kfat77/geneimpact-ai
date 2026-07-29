@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "geneimpact-ai"
+version = "0.1.0"
+description = "Evidence-aware gene and gene-interaction research tooling."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [{name = "GeneImpact AI contributors"}]
+classifiers = ["Programming Language :: Python :: 3"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
