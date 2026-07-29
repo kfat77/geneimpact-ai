@@ -9,6 +9,7 @@ from pathlib import Path
 
 from .datasources import check_ensembl_profile
 from .benchmark import build_mgi_benchmark
+from .baseline import evaluate_benchmark
 from .impc import ImpcClient
 from .mgi import normalize_phenotypic_alleles
 from .snapshots import MGI_REPORTS, create_mgi_snapshot
@@ -57,6 +58,11 @@ def main() -> None:
         action="store_true",
         help="Include MGI rows marked as IMPC-derived; unsafe for independent IMPC validation.",
     )
+    baseline = subparsers.add_parser(
+        "evaluate-baseline", help="Fit and evaluate the transparent phenotype-frequency baseline."
+    )
+    baseline.add_argument("--benchmark-dir", required=True, type=Path)
+    baseline.add_argument("--k", type=int, default=5)
     args = parser.parse_args()
 
     if args.command == "source-check":
@@ -128,6 +134,13 @@ def main() -> None:
         except (OSError, ValueError) as error:
             parser.error(str(error))
         print(json.dumps(asdict(manifest), indent=2))
+        return
+    if args.command == "evaluate-baseline":
+        try:
+            report = evaluate_benchmark(args.benchmark_dir, k=args.k)
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
+        print(json.dumps(asdict(report), indent=2))
         return
 
     try:

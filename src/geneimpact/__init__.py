@@ -11,12 +11,14 @@ from .snapshots import MGI_REPORTS, SnapshotManifest, create_mgi_snapshot
 from .mgi import MgiAlleleEvidence, NormalizationSummary, normalize_phenotypic_alleles
 from .impc import ImpcClient, ImpcGeneEvidence, ImpcGenePhenotype
 from .benchmark import BenchmarkManifest, BenchmarkRecord, assign_gene_split, build_mgi_benchmark
+from .baseline import BaselineReport, PhenotypePriorModel, RankingMetrics, evaluate_benchmark
 
 __all__ = [
     "AssessmentRecord",
     "Applicability",
     "BenchmarkManifest",
     "BenchmarkRecord",
+    "BaselineReport",
     "EditAssessment",
     "EditEvidence",
     "EvidenceLevel",
@@ -30,6 +32,8 @@ __all__ = [
     "NormalizationSummary",
     "PredictionTask",
     "PredictorOutput",
+    "PhenotypePriorModel",
+    "RankingMetrics",
     "ReviewTier",
     "SpeciesProfile",
     "SpeciesValidation",
@@ -42,6 +46,7 @@ __all__ = [
     "create_record",
     "create_mgi_snapshot",
     "expected_calibration_error",
+    "evaluate_benchmark",
     "integrate_outputs",
     "normalize_phenotypic_alleles",
     "permitted_wording",

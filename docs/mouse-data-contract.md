@@ -73,3 +73,15 @@ python -m geneimpact benchmark-mgi \
 All records for the same gene are assigned to one deterministic split, preventing the same gene from appearing in training and evaluation. The default builder also excludes MGI alleles marked as IMPC-derived, because using those records for training and IMPC results for validation would create source leakage.
 
 The current benchmark contains positive high-level MP associations only. Missing annotations are not negative labels, so this dataset supports coverage and ranking evaluation but is not yet a valid binary safety classifier dataset.
+
+## Establish the baseline hurdle
+
+```bash
+python -m geneimpact evaluate-baseline \
+  --benchmark-dir data/benchmarks/mgi-v1 \
+  --k 5
+```
+
+The baseline ranks MP terms only by their frequency in the training split, then reports macro Recall@K and gene hit rate without adapting to validation or test data. Its report is bound to the benchmark manifest checksum.
+
+This is intentionally a weak but honest baseline. A future predictor must beat it on untouched genes. Calibration is marked not applicable because the current benchmark contains positive associations rather than positive and tested-negative labels.
