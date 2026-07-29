@@ -37,3 +37,15 @@ python -m geneimpact snapshot-mgi \
 ```
 
 The download is accompanied by a JSON manifest containing the exact source URL, UTC retrieval time, byte count, and SHA-256 checksum. The `data/` directory is ignored by Git because public source files may be large and restricted study data must never be committed.
+
+## Normalize genome-editing evidence
+
+```bash
+python -m geneimpact normalize-mgi \
+  --input data/mgi/MGI_PhenotypicAllele.rpt \
+  --output data/mgi/endonuclease-alleles.jsonl
+```
+
+By default, normalization retains only MGI rows classified as `Endonuclease-mediated`. Each JSONL record preserves the allele, marker, Ensembl gene, allele attributes, publication reference, and high-level Mammalian Phenotype identifiers. A companion manifest records input/output SHA-256 values and record counts for audit.
+
+These records are prior phenotype evidence, not direct measurements of a proposed edit and not causal labels. Missing phenotype annotations remain missing; they are not interpreted as “no phenotype.”

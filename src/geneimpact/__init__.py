@@ -8,6 +8,7 @@ from .provenance import AssessmentRecord, StudyContext, create_record
 from .predictors import Applicability, PredictionTask, PredictorOutput, integrate_outputs
 from .species import MOUSE_PROFILE, SpeciesProfile, SpeciesValidation, validate_study_context
 from .snapshots import MGI_REPORTS, SnapshotManifest, create_mgi_snapshot
+from .mgi import MgiAlleleEvidence, NormalizationSummary, normalize_phenotypic_alleles
 
 __all__ = [
     "AssessmentRecord",
@@ -18,6 +19,8 @@ __all__ = [
     "InteractionResult",
     "MOUSE_PROFILE",
     "MGI_REPORTS",
+    "MgiAlleleEvidence",
+    "NormalizationSummary",
     "PredictionTask",
     "PredictorOutput",
     "ReviewTier",
@@ -31,6 +34,7 @@ __all__ = [
     "create_mgi_snapshot",
     "expected_calibration_error",
     "integrate_outputs",
+    "normalize_phenotypic_alleles",
     "permitted_wording",
     "rank_interactions",
     "validate_study_context",

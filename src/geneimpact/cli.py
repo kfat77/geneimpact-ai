@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 from .datasources import check_ensembl_profile
+from .mgi import normalize_phenotypic_alleles
 from .snapshots import MGI_REPORTS, create_mgi_snapshot
 from .species import PROFILES
 from .workflow import DEFAULT_MODEL_VERSION, assess_request
@@ -28,6 +29,16 @@ def main() -> None:
     )
     snapshot.add_argument("--report", required=True, choices=sorted(MGI_REPORTS))
     snapshot.add_argument("--output-dir", required=True, type=Path)
+    normalize = subparsers.add_parser(
+        "normalize-mgi", help="Normalize an MGI phenotypic allele report to JSONL."
+    )
+    normalize.add_argument("--input", required=True, type=Path)
+    normalize.add_argument("--output", required=True, type=Path)
+    normalize.add_argument(
+        "--all-alleles",
+        action="store_true",
+        help="Include non-endonuclease-mediated alleles.",
+    )
     args = parser.parse_args()
 
     if args.command == "source-check":
@@ -54,6 +65,26 @@ def main() -> None:
             "sha256": manifest.sha256,
             "byte_count": manifest.byte_count,
             "retrieved_at": manifest.retrieved_at,
+        }, indent=2))
+        return
+    if args.command == "normalize-mgi":
+        try:
+            summary = normalize_phenotypic_alleles(
+                args.input,
+                args.output,
+                genome_edited_only=not args.all_alleles,
+            )
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
+        print(json.dumps({
+            "input_sha256": summary.input_sha256,
+            "output_sha256": summary.output_sha256,
+            "total_records": summary.total_records,
+            "genome_edited_records": summary.genome_edited_records,
+            "phenotype_annotated_records": summary.phenotype_annotated_records,
+            "output_phenotype_annotated_records": summary.output_phenotype_annotated_records,
+            "output_records": summary.output_records,
+            "output": str(args.output),
         }, indent=2))
         return
 
