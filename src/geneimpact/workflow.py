@@ -10,6 +10,7 @@ from .behive import (
     integrate_behive_efficiency,
     normalize_behive_efficiency,
 )
+from .behive_bystander import BehiveBystanderPrediction, normalize_behive_bystander
 from .edit_assessment import EditEvidence, assess_edit
 from .predictors import PredictionTask, PredictorOutput, integrate_outputs
 from .provenance import StudyContext, create_record
@@ -29,7 +30,7 @@ REQUIRED_EVIDENCE = (
     "network_impact_evidence",
     "welfare_relevance",
 )
-DEFAULT_MODEL_VERSION = "0.5.0"
+DEFAULT_MODEL_VERSION = "0.6.0"
 
 
 def assess_request(
@@ -82,6 +83,25 @@ def assess_request(
         prediction = asdict(item.prediction)
         prediction["applicability"] = item.applicability
         prediction["applicability_note"] = item.note
+        result["model_predictions"].append(prediction)
+    bystander_outputs = _behive_bystander_outputs(
+        request.get("behive_bystander_outputs", [])
+    )
+    bystander_matches = (
+        context.species.casefold() in {"mouse", "mus musculus"}
+        and context.edit_class.casefold().replace("-", "_").replace(" ", "_")
+        in {"base_editing", "base_editor"}
+    )
+    for output in bystander_outputs:
+        prediction = asdict(output)
+        prediction["applicability"] = (
+            "declared_match" if bystander_matches else "out_of_scope"
+        )
+        prediction["applicability_note"] = (
+            "Matches the declared mouse/base-editing scope, limited to mES culture."
+            if bystander_matches
+            else "Does not match the declared mouse and base-editing scope; not used as applicable evidence."
+        )
         result["model_predictions"].append(prediction)
     result["report_notice"] = (
         "Research decision-support only. This report does not establish safety, "
@@ -139,4 +159,20 @@ def _behive_outputs(raw_outputs: Any) -> tuple[BehiveEfficiencyPrediction, ...]:
             outputs.append(normalize_behive_efficiency(raw))
         except (TypeError, ValueError) as error:
             raise ValueError(f"invalid BE-Hive efficiency output: {error}") from error
+    return tuple(outputs)
+
+
+def _behive_bystander_outputs(
+    raw_outputs: Any,
+) -> tuple[BehiveBystanderPrediction, ...]:
+    if not isinstance(raw_outputs, list):
+        raise ValueError("behive_bystander_outputs must be a list.")
+    outputs: list[BehiveBystanderPrediction] = []
+    for raw in raw_outputs:
+        if not isinstance(raw, Mapping):
+            raise ValueError("each BE-Hive bystander output must be an object.")
+        try:
+            outputs.append(normalize_behive_bystander(raw))
+        except (TypeError, ValueError) as error:
+            raise ValueError(f"invalid BE-Hive bystander output: {error}") from error
     return tuple(outputs)

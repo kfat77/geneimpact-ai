@@ -58,6 +58,7 @@ python -m geneimpact evaluate-baseline --benchmark-dir data/benchmarks/mgi-v1 --
 python -m geneimpact benchmark-impc --gene Prkdc --gene Kit --output data/benchmarks/impc-validation.jsonl
 python -m geneimpact calibrate-impc --calibration data/benchmarks/impc-calibration-v1.jsonl --test data/benchmarks/impc-test-v1.jsonl --output data/benchmarks/impc-calibration-report-v1.json
 python -m geneimpact import-behive-efficiency --input examples/behive-efficiency-import.json --output behive-audit.json
+python -m geneimpact import-behive-bystander --input examples/behive-bystander-import.json --output behive-bystander-audit.json
 ```
 
 Read the [researcher guide](docs/researcher-guide.md) before using the tool with
@@ -97,6 +98,7 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [x] Bounded independent IMPC validation builder with tested outcomes
 - [x] Gene-disjoint IMPC Brier/ECE calibration baseline
 - [x] Version-locked BE-Hive mES efficiency import and audit adapter
+- [x] Version-locked BE-Hive mES bystander-outcome import and audit adapter
 - [x] Leakage- and domain-gated BE-Hive independent validation evaluator
 - [ ] IMPC phenotype snapshot adapter
 - [ ] Isolated, license-reviewed BE-Hive execution environment

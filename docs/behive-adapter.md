@@ -1,4 +1,4 @@
-# BE-Hive efficiency adapter
+# BE-Hive adapters
 
 ## What this integration does
 
@@ -151,3 +151,41 @@ indexed studies primarily use human K562 or HEK293T cells. The original study
 is useful for reproduction but does not satisfy this independent-validation
 gate. No independent mES performance number is reported until an eligible
 dataset is registered.
+
+## Bystander outcome adapter
+
+The second adapter normalizes the outcome distribution produced by the
+official [BE-Hive bystander repository](https://github.com/maxwshen/be_predict_bystander)
+at reviewed commit
+[`31aadd04a25c604857c7592b226ee987e9e20b31`](https://github.com/maxwshen/be_predict_bystander/tree/31aadd04a25c604857c7592b226ee987e9e20b31).
+It has the same 50-nt, NGG, mES, version-lock, and external-execution
+requirements as the efficiency adapter.
+
+After calling the upstream `add_genotype_column` helper, export the returned
+statistics and outcome rows in the structure shown in
+[`examples/behive-bystander-import.json`](../examples/behive-bystander-import.json).
+Then run:
+
+```bash
+python -m geneimpact import-behive-bystander \
+  --input examples/behive-bystander-import.json \
+  --output behive-bystander-audit.json
+```
+
+The importer checks that:
+
+- request, upstream statistics, editor, cell type, sequence, and protospacer agree;
+- every genotype is a unique 50-nt DNA sequence;
+- every frequency is finite and bounded;
+- outcome frequencies equal the upstream `Total predicted probability`;
+- the external output uses the reviewed mES/editor combination.
+
+The audit record hashes the target sequence and each genotype, represents
+differences as position-labelled edits, and embeds only the 25
+highest-frequency outcomes. A checksum binds the complete external output.
+The record preserves unreported probability mass from the upstream heuristic
+instead of silently renormalizing it.
+
+These frequencies describe a conditional distribution over predicted local
+base-editing outcomes. They are not probabilities of phenotype, animal-welfare
+impact, mosaicism, germline transmission, or off-target effects.

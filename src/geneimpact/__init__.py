@@ -38,6 +38,14 @@ from .behive_validation import (
     BehiveValidationReport,
     evaluate_behive_validation,
 )
+from .behive_bystander import (
+    BEHIVE_BYSTANDER_COMMIT,
+    BEHIVE_BYSTANDER_MOUSE_EDITORS,
+    BEHIVE_BYSTANDER_REFERENCE,
+    BehiveBystanderOutcome,
+    BehiveBystanderPrediction,
+    normalize_behive_bystander,
+)
 
 __all__ = [
     "AssessmentRecord",
@@ -48,6 +56,11 @@ __all__ = [
     "BEHIVE_EFFICIENCY_COMMIT",
     "BEHIVE_EFFICIENCY_REFERENCE",
     "BEHIVE_MOUSE_EDITORS",
+    "BEHIVE_BYSTANDER_COMMIT",
+    "BEHIVE_BYSTANDER_MOUSE_EDITORS",
+    "BEHIVE_BYSTANDER_REFERENCE",
+    "BehiveBystanderOutcome",
+    "BehiveBystanderPrediction",
     "BehiveApplicability",
     "BehiveEfficiencyPrediction",
     "BehiveEfficiencyRequest",
@@ -93,6 +106,7 @@ __all__ = [
     "integrate_behive_efficiency",
     "normalize_phenotypic_alleles",
     "normalize_behive_efficiency",
+    "normalize_behive_bystander",
     "permitted_wording",
     "rank_interactions",
     "validate_study_context",

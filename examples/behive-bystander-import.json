@@ -1,0 +1,27 @@
+{
+  "request": {
+    "sequence": "TATCAGCGGGAATTCAAGCGCACCAGCCAGAGGTGTACCGTGGACGTGAG",
+    "base_editor": "BE4",
+    "cell_type": "mES",
+    "model_commit": "31aadd04a25c604857c7592b226ee987e9e20b31"
+  },
+  "raw_output": {
+    "stats": {
+      "Total predicted probability": 0.95,
+      "50-nt target sequence": "TATCAGCGGGAATTCAAGCGCACCAGCCAGAGGTGTACCGTGGACGTGAG",
+      "Assumed protospacer sequence": "CACCAGCCAGAGGTGTACCG",
+      "Celltype": "mES",
+      "Base editor": "BE4"
+    },
+    "outcomes": [
+      {
+        "Genotype": "TATCAGCGGGAATTCAAGCGCATCAGCCAGAGGTGTACCGTGGACGTGAG",
+        "Predicted frequency": 0.7
+      },
+      {
+        "Genotype": "TATCAGCGGGAATTCAAGCGCATCAGTCAGAGGTGTACCGTGGACGTGAG",
+        "Predicted frequency": 0.25
+      }
+    ]
+  }
+}
