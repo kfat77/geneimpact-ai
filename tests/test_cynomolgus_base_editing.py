@@ -203,7 +203,7 @@ def test_evaluates_only_within_context_and_hides_source_labels(tmp_path):
         {
             "name": "synthetic-oracle",
             "version": "test-v1",
-            "code_revision": "test-commit",
+            "submitted_code_revision": "test-commit",
             "score_semantics": "expected_edit_fraction",
             "training_overlap_status": "declared_no_overlap",
             "evidence_reference": "https://example.test/model",
@@ -229,7 +229,8 @@ def test_evaluates_only_within_context_and_hides_source_labels(tmp_path):
     assert report.source_assembly_accession == "synthetic-build"
     assert report.target_assembly_accession == "GCF_037993035.2"
     assert report.liftover_status == "not_performed"
-    assert report.target_sequence_verified_on_source is True
+    assert report.publisher_target_sequence_record_verified is True
+    assert report.target_sequence_verified_on_source_assembly is False
     assert report.target_sequence_verified_on_target is False
     assert report.record_count == 3
     assert report.context_count == 2
@@ -237,6 +238,7 @@ def test_evaluates_only_within_context_and_hides_source_labels(tmp_path):
     assert report.embryo_base_observation_count == 6
     assert report.clone_denominator_count == 80
     assert report.metrics.within_context_candidate_pair_count == 1
+    assert report.metrics.within_context_eligible_pair_count == 1
     assert report.metrics.within_context_observation_tie_pair_count == 0
     assert report.metrics.within_context_prediction_tie_pair_count == 0
     assert report.metrics.within_context_pair_count == 1
@@ -275,7 +277,7 @@ def test_does_not_compare_scores_across_editors_in_one_injection_context(
         {
             "name": "mixed-editor-test",
             "version": "test-v1",
-            "code_revision": "test-commit",
+            "submitted_code_revision": "test-commit",
             "score_semantics": "ranking_score",
             "training_overlap_status": "declared_no_overlap",
             "evidence_reference": "https://example.test/model",
@@ -311,7 +313,7 @@ def test_prediction_ties_are_visible_and_score_as_half_credit(tmp_path):
         {
             "name": "constant-ranking-model",
             "version": "test-v1",
-            "code_revision": "test-commit",
+            "submitted_code_revision": "test-commit",
             "score_semantics": "ranking_score",
             "training_overlap_status": "declared_no_overlap",
             "evidence_reference": "https://example.test/model",
@@ -335,6 +337,9 @@ def test_prediction_ties_are_visible_and_score_as_half_credit(tmp_path):
         0.0
     )
     assert report.metrics.within_context_pairwise_accuracy == pytest.approx(0.5)
+    assert report.metrics.within_context_weighted_concordant_score == pytest.approx(
+        0.5
+    )
 
 
 def test_unknown_training_overlap_is_descriptive_not_external_validation(
@@ -350,7 +355,7 @@ def test_unknown_training_overlap_is_descriptive_not_external_validation(
         {
             "name": "unknown-overlap-model",
             "version": "test-v1",
-            "code_revision": "test-commit",
+            "submitted_code_revision": "test-commit",
             "score_semantics": "ranking_score",
             "training_overlap_status": "unknown",
             "evidence_reference": "https://example.test/model",
@@ -370,6 +375,37 @@ def test_unknown_training_overlap_is_descriptive_not_external_validation(
         "descriptive_evaluation_with_unverified_overlap"
     )
     assert report.use == "descriptive_only_unverified_overlap"
+
+
+def test_ranking_scores_do_not_trigger_fraction_error_overflow(tmp_path):
+    targets, source_data, source = _write_sources(tmp_path)
+    predictions = prepare_cynomolgus_base_editing_transfer_template(
+        targets,
+        source_data,
+        source=source,
+    )
+    predictions["prediction"].update(
+        {
+            "name": "large-ranking-model",
+            "version": "test-v1",
+            "submitted_code_revision": "test-commit",
+            "score_semantics": "ranking_score",
+            "training_overlap_status": "declared_no_overlap",
+            "evidence_reference": "https://example.test/model",
+        }
+    )
+    for index, record in enumerate(predictions["records"]):
+        record["predicted_score"] = 1e308 if index % 2 else -1e308
+
+    report = evaluate_cynomolgus_base_editing_transfer(
+        targets,
+        source_data,
+        predictions,
+        source=source,
+    )
+
+    assert report.metrics.mean_absolute_error is None
+    assert report.metrics.root_mean_squared_error is None
 
 
 def test_rejects_tampered_publisher_workbook(tmp_path):
@@ -395,7 +431,7 @@ def test_rejects_known_training_overlap(tmp_path):
         {
             "name": "overlapping-model",
             "version": "test-v1",
-            "code_revision": "test-commit",
+            "submitted_code_revision": "test-commit",
             "training_overlap_status": "overlap_detected",
             "evidence_reference": "https://example.test/model",
         }
@@ -462,7 +498,7 @@ def test_validate_cli_writes_bounded_transfer_report(
         {
             "name": "synthetic-ranking-model",
             "version": "test-v1",
-            "code_revision": "test-commit",
+            "submitted_code_revision": "test-commit",
             "training_overlap_status": "unknown",
             "evidence_reference": "https://example.test/model",
         }

@@ -127,10 +127,12 @@ class CynomolgusBaseEditingTransferMetrics:
     """Metrics that do not compare arbitrary scores across contexts."""
 
     within_context_candidate_pair_count: int
+    within_context_eligible_pair_count: int
     within_context_observation_tie_pair_count: int
     within_context_prediction_tie_pair_count: int
     within_context_pair_count: int
     within_context_concordant_pair_count: int
+    within_context_weighted_concordant_score: float
     within_context_pairwise_accuracy: float | None
     within_context_prediction_coverage: float | None
     mean_absolute_error: float | None
@@ -155,13 +157,15 @@ class CynomolgusBaseEditingTransferReport:
     source_assembly_accession: str
     target_assembly_accession: str
     liftover_status: str
-    target_sequence_verified_on_source: bool
+    publisher_target_sequence_record_verified: bool
+    target_sequence_verified_on_source_assembly: bool
     target_sequence_verified_on_target: bool
     target_sites_sha256: str
     source_data_sha256: str
     source_verification: str
     evidence_snapshot_identifier: str
-    code_revision: str
+    submitted_code_revision: str
+    code_revision_verified: bool
     data_split_identifier: str
     study_context: str
     population_or_strain: str
@@ -404,7 +408,8 @@ def prepare_cynomolgus_base_editing_transfer_template(
                 CYNOMOLGUS_BASE_EDITING_TARGET_ASSEMBLY_ACCESSION
             ),
             "liftover_status": "not_performed",
-            "target_sequence_verified_on_source": True,
+            "publisher_target_sequence_record_verified": True,
+            "target_sequence_verified_on_source_assembly": False,
             "target_sequence_verified_on_target": False,
             "data_split_identifier": (
                 CYNOMOLGUS_BASE_EDITING_DATA_SPLIT_IDENTIFIER
@@ -414,7 +419,7 @@ def prepare_cynomolgus_base_editing_transfer_template(
         "prediction": {
             "name": "REPLACE_WITH_PREDICTOR_NAME",
             "version": "REPLACE_WITH_VERSION_OR_COMMIT",
-            "code_revision": "REPLACE_WITH_CODE_COMMIT",
+            "submitted_code_revision": "REPLACE_WITH_CODE_COMMIT",
             "score_direction": "higher_is_more_edited",
             "score_semantics": "ranking_score",
             "prediction_target": (
@@ -475,14 +480,17 @@ def evaluate_cynomolgus_base_editing_transfer(
     expected_fractions = (
         metadata["score_semantics"] == "expected_edit_fraction"
     )
-    absolute_errors = [
-        abs(scores[record.record_id] - observed[record.record_id])
-        for record in records
-    ]
-    squared_errors = [
-        (scores[record.record_id] - observed[record.record_id]) ** 2
-        for record in records
-    ]
+    absolute_errors: list[float] = []
+    squared_errors: list[float] = []
+    if expected_fractions:
+        absolute_errors = [
+            abs(scores[record.record_id] - observed[record.record_id])
+            for record in records
+        ]
+        squared_errors = [
+            (scores[record.record_id] - observed[record.record_id]) ** 2
+            for record in records
+        ]
     overlap_is_verified = metadata["training_overlap_status"] == (
         "declared_no_overlap"
     )
@@ -513,13 +521,15 @@ def evaluate_cynomolgus_base_editing_transfer(
         source_assembly_accession=source.source_genome_build,
         target_assembly_accession=CYNOMOLGUS_BASE_EDITING_TARGET_ASSEMBLY_ACCESSION,
         liftover_status="not_performed",
-        target_sequence_verified_on_source=True,
+        publisher_target_sequence_record_verified=True,
+        target_sequence_verified_on_source_assembly=False,
         target_sequence_verified_on_target=False,
         target_sites_sha256=digests[0],
         source_data_sha256=digests[1],
         source_verification="pinned_workbooks_verified",
         evidence_snapshot_identifier=source.source_id,
-        code_revision=metadata["code_revision"],
+        submitted_code_revision=metadata["submitted_code_revision"],
+        code_revision_verified=False,
         data_split_identifier=CYNOMOLGUS_BASE_EDITING_DATA_SPLIT_IDENTIFIER,
         study_context=(
             "cynomolgus zygote editor mRNA/T7 sgRNA cytoplasmic microinjection "
@@ -576,6 +586,7 @@ def evaluate_cynomolgus_base_editing_transfer(
         ),
         metrics=CynomolgusBaseEditingTransferMetrics(
             within_context_candidate_pair_count=pairwise.candidate_pair_count,
+            within_context_eligible_pair_count=pairwise.eligible_pair_count,
             within_context_observation_tie_pair_count=(
                 pairwise.observation_tie_pair_count
             ),
@@ -584,6 +595,9 @@ def evaluate_cynomolgus_base_editing_transfer(
             ),
             within_context_pair_count=pairwise.strict_pair_count,
             within_context_concordant_pair_count=pairwise.concordant_pair_count,
+            within_context_weighted_concordant_score=(
+                pairwise.weighted_concordant_score
+            ),
             within_context_pairwise_accuracy=pairwise.accuracy,
             within_context_prediction_coverage=pairwise.prediction_coverage,
             mean_absolute_error=(
@@ -644,7 +658,8 @@ def _validate_predictions(
         "source_assembly_accession": source.source_genome_build,
         "target_assembly_accession": CYNOMOLGUS_BASE_EDITING_TARGET_ASSEMBLY_ACCESSION,
         "liftover_status": "not_performed",
-        "target_sequence_verified_on_source": True,
+        "publisher_target_sequence_record_verified": True,
+        "target_sequence_verified_on_source_assembly": False,
         "target_sequence_verified_on_target": False,
         "data_split_identifier": CYNOMOLGUS_BASE_EDITING_DATA_SPLIT_IDENTIFIER,
         "license_note": source.license_note,
@@ -666,7 +681,7 @@ def _validate_predictions(
         for key in (
             "name",
             "version",
-            "code_revision",
+            "submitted_code_revision",
             "score_direction",
             "score_semantics",
             "prediction_target",
@@ -680,13 +695,13 @@ def _validate_predictions(
         or values["name"].startswith("REPLACE_WITH")
         or not values["version"]
         or values["version"].startswith("REPLACE_WITH")
-        or not values["code_revision"]
-        or values["code_revision"].startswith("REPLACE_WITH")
+        or not values["submitted_code_revision"]
+        or values["submitted_code_revision"].startswith("REPLACE_WITH")
         or not values["evidence_reference"]
         or values["evidence_reference"].startswith("REPLACE_WITH")
     ):
         raise ValueError(
-            "predictor name, version, code revision, and evidence reference "
+            "predictor name, version, submitted code revision, and evidence "
             "are required."
         )
     if values["score_direction"] != "higher_is_more_edited":
@@ -764,10 +779,12 @@ def _validate_predictions(
 @dataclass(frozen=True)
 class _PairwiseConcordance:
     candidate_pair_count: int
+    eligible_pair_count: int
     observation_tie_pair_count: int
     prediction_tie_pair_count: int
     strict_pair_count: int
     concordant_pair_count: int
+    weighted_concordant_score: float
     accuracy: float | None
     prediction_coverage: float | None
 
@@ -815,10 +832,12 @@ def _within_context_concordance(
     eligible_pairs = candidate_pairs - observation_ties
     return _PairwiseConcordance(
         candidate_pair_count=candidate_pairs,
+        eligible_pair_count=eligible_pairs,
         observation_tie_pair_count=observation_ties,
         prediction_tie_pair_count=prediction_ties,
         strict_pair_count=strict_pairs,
         concordant_pair_count=concordant,
+        weighted_concordant_score=weighted_concordant,
         accuracy=(
             weighted_concordant / eligible_pairs
             if eligible_pairs

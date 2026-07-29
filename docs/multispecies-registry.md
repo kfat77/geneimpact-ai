@@ -56,7 +56,7 @@ reported as an error rather than silently accepting coordinate drift.
 | Housden guide-activity ranking | Out of scope | Out of scope | Out of scope | Narrow S2R+ cell scope | Out of scope | Out of scope |
 | Port 2026 Cas12a array LOH evidence | Out of scope | Out of scope | Out of scope | Bounded in-vivo array audit | Out of scope | Out of scope |
 | Zhang 2020 embryo base-editing transfer | Out of scope | Out of scope | Out of scope | Out of scope | Out of scope | Bounded 11-locus benchmark |
-| Independent species-specific transfer evidence | Mouse embryo retrospective | 14-guide rat embryo retrospective | Zebrafish RNP retrospective | Qualitative published comparisons | Hazard evidence only | Hazard evidence only |
+| Independent species-specific transfer evidence | Mouse embryo retrospective | 14-guide rat embryo retrospective | Zebrafish RNP retrospective | Qualitative published comparisons | Hazard evidence only | Bounded retrospective base-editing transfer; overlap self-declared; hazard evidence remains separate |
 
 An output from a human-cell or mouse-cell model is not promoted to another
 species. It may remain in an audit report as `out_of_scope`, but it must not

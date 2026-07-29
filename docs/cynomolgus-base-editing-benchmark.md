@@ -48,7 +48,7 @@ emit the source target sequence or observed editing label.
 Run the external model using the publisher target sequence, then fill:
 
 - immutable model name and version or commit;
-- `code_revision`: the exact GeneImpact AI code commit used for evaluation;
+- `submitted_code_revision`: the caller-supplied model-run code revision;
 - `score_semantics`: `ranking_score` or `expected_edit_fraction`;
 - training-overlap status;
 - model/run evidence reference;
@@ -56,6 +56,8 @@ Run the external model using the publisher target sequence, then fill:
 
 Known training overlap is rejected. An `unknown` overlap declaration remains
 visible and does not become an independently verified test.
+The report marks `code_revision_verified=false`: the caller-supplied revision
+is retained for lineage but is not cryptographically checked by this workflow.
 
 ## Evaluate the submission
 
@@ -73,8 +75,9 @@ contexts therefore form seven comparison strata because one context combines
 SaKKH-BE3 and ABE7.10. This prevents an arbitrary BE3 score from being ranked
 directly against ABE7.10 or against a different multiplex delivery.
 Prediction ties receive half credit, observation ties are excluded, and the
-report exposes candidate-pair count and prediction coverage so ties cannot be
-hidden by a point estimate.
+report exposes candidate-pair count, eligible-pair count, weighted concordance,
+strict-pair count, and prediction coverage so ties cannot be hidden by a point
+estimate.
 
 If the submitted values explicitly represent expected edit fractions, the
 report additionally computes MAE and RMSE against the pooled intended
@@ -83,8 +86,11 @@ calibration metrics.
 
 The report records the fixed external-transfer split identifier, source and
 target assembly accessions, `liftover_status=not_performed`, and an explicit
-confidence-interval status. No interval is reported here because the source
-observations are clustered within embryo batches and injection contexts.
+confidence-interval status. The publisher target-sequence record is checked,
+but the sequence is not independently reconstructed from the source assembly;
+the report therefore keeps `target_sequence_verified_on_source_assembly=false`.
+No interval is reported here because the source observations are clustered
+within embryo batches and injection contexts.
 
 ## Interpretation limits
 
