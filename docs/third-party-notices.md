@@ -125,3 +125,21 @@ CRISPR-Cas12a." Nature Communications (2026).
 The article and its source data are distributed under the Creative Commons
 Attribution 4.0 International License:
 <https://creativecommons.org/licenses/by/4.0/>.
+
+## Zhang et al. cynomolgus embryo base-editing evidence
+
+GeneImpact AI does not bundle the publisher's target-site or source-data
+workbooks. Researchers download both files from the publisher. The adapter
+verifies their SHA-256 checksums, emits target-sequence hashes in a prediction
+template, and emits aggregate transfer metrics rather than source labels or
+raw target sequences.
+
+The source is attributed to:
+
+Zhang W, Aida T, del Rosario RCH, et al. "Multiplex precise base editing in
+cynomolgus monkeys." Nature Communications 11, 2325 (2020).
+<https://doi.org/10.1038/s41467-020-16173-0>
+
+The article and supplementary files are distributed under the Creative
+Commons Attribution 4.0 International License:
+<https://creativecommons.org/licenses/by/4.0/>.

@@ -13,6 +13,7 @@ from .housden import (
     HOUSDEN_TRAINING_DOMAIN,
 )
 from .fruit_fly_cas12a import FRUIT_FLY_CAS12A_REFERENCE
+from .cynomolgus_base_editing import CYNOMOLGUS_BASE_EDITING_REFERENCE
 from .species import PROFILES
 
 
@@ -210,6 +211,29 @@ def capabilities_for_species(species_profile: str) -> tuple[PredictorCapability,
                         "The service exposes this genome, but the activity model is not "
                         "treated as species-validated for this profile."
                     ),
+                ),
+            )
+        )
+    elif species_profile == "cynomolgus_macaque":
+        capabilities.append(
+            PredictorCapability(
+                species_profile=species_profile,
+                predictor=(
+                    "Zhang 2020 cynomolgus embryo base-editing benchmark"
+                ),
+                task="base_editing_embryo_transfer_validation",
+                edit_classes=("base_editing",),
+                status=CapabilityStatus.USABLE_BOUNDED_BENCHMARK,
+                biological_domain=(
+                    "BE3, ABE7.10, and SaKKH-BE3 mRNA/T7-sgRNA editing in "
+                    "cynomolgus zygotes across 11 published target sites"
+                ),
+                evidence_reference=CYNOMOLGUS_BASE_EDITING_REFERENCE,
+                note=(
+                    "A checksum-pinned external-score evaluator is available. "
+                    "This is not a predictor or species-level calibration; "
+                    "ranking is compared only within shared editor and "
+                    "multiplex injection contexts."
                 ),
             )
         )

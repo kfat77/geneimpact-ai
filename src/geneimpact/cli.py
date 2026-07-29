@@ -15,6 +15,11 @@ from .capabilities import capabilities_for_species
 from .crispritz import import_crispritz_targets
 from .crisprscan import score_crisprscan
 from .crisprscan_validation import PREDICTION_FIELDS, evaluate_crisprscan_transfer
+from .cynomolgus_base_editing import (
+    ZHANG_2020_CYNOMOLGUS_BASE_EDITING_SOURCE,
+    evaluate_cynomolgus_base_editing_transfer,
+    prepare_cynomolgus_base_editing_transfer_template,
+)
 from .datasources import check_ncbi_profile
 from .dossier import build_research_dossier, verify_dossier_integrity
 from .housden import normalize_housden
@@ -184,6 +189,47 @@ def main() -> None:
     rat_validation.add_argument("--table5", required=True, type=Path)
     rat_validation.add_argument("--predictions", required=True, type=Path)
     rat_validation.add_argument("--output", required=True, type=Path)
+    cynomolgus_template = subparsers.add_parser(
+        "prepare-cynomolgus-base-editing-transfer",
+        help=(
+            "Prepare a sequence-redacted external-prediction template from "
+            "pinned cynomolgus embryo base-editing evidence."
+        ),
+    )
+    cynomolgus_template.add_argument(
+        "--target-sites",
+        required=True,
+        type=Path,
+    )
+    cynomolgus_template.add_argument(
+        "--source-data",
+        required=True,
+        type=Path,
+    )
+    cynomolgus_template.add_argument("--output", required=True, type=Path)
+    cynomolgus_validation = subparsers.add_parser(
+        "validate-cynomolgus-base-editing-transfer",
+        help=(
+            "Evaluate external base-editing scores on the bounded "
+            "cynomolgus embryo transfer benchmark."
+        ),
+    )
+    cynomolgus_validation.add_argument(
+        "--target-sites",
+        required=True,
+        type=Path,
+    )
+    cynomolgus_validation.add_argument(
+        "--source-data",
+        required=True,
+        type=Path,
+    )
+    cynomolgus_validation.add_argument(
+        "--predictions",
+        required=True,
+        type=Path,
+    )
+    cynomolgus_validation.add_argument("--output", required=True, type=Path)
     fruit_fly_cas12a = subparsers.add_parser(
         "audit-fruit-fly-cas12a-evidence",
         help=(
@@ -504,6 +550,53 @@ def main() -> None:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(rendered, encoding="utf-8")
         print(f"Rat guide-transfer report written to {args.output}")
+        return
+    if args.command == "prepare-cynomolgus-base-editing-transfer":
+        try:
+            template = prepare_cynomolgus_base_editing_transfer_template(
+                args.target_sites,
+                args.source_data,
+                source=ZHANG_2020_CYNOMOLGUS_BASE_EDITING_SOURCE,
+            )
+        except (OSError, TypeError, ValueError) as error:
+            parser.error(str(error))
+        rendered = json.dumps(template, indent=2, ensure_ascii=False) + "\n"
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(rendered, encoding="utf-8")
+        print(
+            "Cynomolgus base-editing prediction template written to "
+            f"{args.output}"
+        )
+        return
+    if args.command == "validate-cynomolgus-base-editing-transfer":
+        try:
+            predictions = json.loads(
+                args.predictions.read_text(encoding="utf-8")
+            )
+            if not isinstance(predictions, dict):
+                raise ValueError(
+                    "cynomolgus base-editing predictions must be a JSON object."
+                )
+            report = evaluate_cynomolgus_base_editing_transfer(
+                args.target_sites,
+                args.source_data,
+                predictions,
+                source=ZHANG_2020_CYNOMOLGUS_BASE_EDITING_SOURCE,
+            )
+        except (
+            OSError,
+            json.JSONDecodeError,
+            TypeError,
+            ValueError,
+        ) as error:
+            parser.error(str(error))
+        rendered = json.dumps(asdict(report), indent=2, ensure_ascii=False) + "\n"
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(rendered, encoding="utf-8")
+        print(
+            "Cynomolgus base-editing transfer report written to "
+            f"{args.output}"
+        )
         return
     if args.command == "audit-fruit-fly-cas12a-evidence":
         try:

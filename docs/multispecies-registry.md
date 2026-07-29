@@ -55,7 +55,8 @@ reported as an error rather than silently accepting coordinate drift.
 | CRISPRscan guide-activity scoring | Out of scope | Out of scope | Narrow embryo scope | Out of scope | Out of scope | Out of scope |
 | Housden guide-activity ranking | Out of scope | Out of scope | Out of scope | Narrow S2R+ cell scope | Out of scope | Out of scope |
 | Port 2026 Cas12a array LOH evidence | Out of scope | Out of scope | Out of scope | Bounded in-vivo array audit | Out of scope | Out of scope |
-| Independent species-specific transfer evidence | Mouse embryo retrospective | 14-guide rat embryo retrospective | Zebrafish RNP retrospective | Qualitative published comparisons | Hazard evidence only | Hazard evidence only |
+| Zhang 2020 embryo base-editing transfer | Out of scope | Out of scope | Out of scope | Out of scope | Out of scope | Bounded 11-locus benchmark |
+| Independent species-specific transfer evidence | Mouse embryo retrospective | 14-guide rat embryo retrospective | Zebrafish RNP retrospective | Qualitative published comparisons | Hazard evidence only | Bounded retrospective base-editing transfer; overlap self-declared; hazard evidence remains separate |
 
 An output from a human-cell or mouse-cell model is not promoted to another
 species. It may remain in an audit report as `out_of_scope`, but it must not
@@ -86,6 +87,12 @@ For fruit fly, `usable_bounded_benchmark` identifies checksum-pinned Port 2026
 Cas12a evidence at the three- or four-guide array level. It does not mean that
 the component guides, repair outcomes, phenotypes, or safety are predictable.
 See the [fruit-fly Cas12a evidence guide](fruit-fly-cas12a-evidence.md).
+
+For cynomolgus macaque, the same status identifies a checksum-pinned
+external-score evaluator for Zhang 2020 base editing in zygotes. It covers 11
+legacy-assembly target sites and compares rankings only within one editor and
+multiplex injection context. It is not a cynomolgus predictor or calibration.
+See the [cynomolgus benchmark guide](cynomolgus-base-editing-benchmark.md).
 
 Status meanings:
 

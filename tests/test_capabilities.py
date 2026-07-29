@@ -89,6 +89,19 @@ def test_rat_transfer_benchmark_is_candidate_not_available_predictor():
     )
 
 
+def test_cynomolgus_base_editing_has_bounded_transfer_benchmark():
+    cynomolgus = capabilities_for_species("cynomolgus_macaque")
+    benchmark = next(
+        item
+        for item in cynomolgus
+        if item.task == "base_editing_embryo_transfer_validation"
+    )
+
+    assert benchmark.status is CapabilityStatus.USABLE_BOUNDED_BENCHMARK
+    assert benchmark.edit_classes == ("base_editing",)
+    assert "not a predictor" in benchmark.note
+
+
 def test_unknown_profile_is_rejected():
     with pytest.raises(ValueError, match="unknown species"):
         capabilities_for_species("monkey")
