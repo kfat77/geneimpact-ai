@@ -1,0 +1,1133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="GeneImpact AI — versioned AI prediction and biostatistics for genetic research." />
+    <meta name="theme-color" content="#ffffff" />
+    <title>GeneImpact AI — Genetic Impact Prediction</title>
+    <link rel="icon" href="data:," />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+      :root {
+        color-scheme: light;
+        --background: #ffffff;
+        --surface: rgba(255, 255, 255, 0.8);
+        --surface-strong: rgba(255, 255, 255, 0.96);
+        --foreground: #0f172a;
+        --muted: #526174;
+        --soft: #f3f7fb;
+        --border: rgba(148, 163, 184, 0.25);
+        --primary: #2563eb;
+        --primary-strong: #1d4ed8;
+        --cyan: #0891b2;
+        --emerald: #059669;
+        --danger: #b91c1c;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; scroll-padding-top: 6rem; }
+      body {
+        margin: 0;
+        min-width: 320px;
+        overflow-x: hidden;
+        background:
+          radial-gradient(circle at 10% 5%, rgba(14, 165, 233, 0.1), transparent 27rem),
+          radial-gradient(circle at 91% 12%, rgba(16, 185, 129, 0.09), transparent 28rem),
+          linear-gradient(180deg, #ffffff 0%, #f8fbff 47%, #ffffff 100%);
+        color: var(--foreground);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "PingFang SC", "Microsoft YaHei", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      button, a, input, select, textarea { touch-action: manipulation; }
+      button, a { -webkit-tap-highlight-color: transparent; }
+      button { cursor: pointer; }
+      ::selection { color: #0f172a; background: rgba(14, 165, 233, 0.22); }
+
+      .glass {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 60px rgba(37, 99, 235, 0.08), 0 2px 10px rgba(15, 23, 42, 0.04);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+      }
+
+      .glass-strong {
+        background: var(--surface-strong);
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        box-shadow: 0 26px 80px rgba(37, 99, 235, 0.1), 0 2px 12px rgba(15, 23, 42, 0.04);
+        backdrop-filter: blur(22px);
+        -webkit-backdrop-filter: blur(22px);
+      }
+
+      .gradient-text {
+        color: transparent;
+        background: linear-gradient(105deg, #1d4ed8 8%, #0284c7 52%, #059669 96%);
+        background-clip: text;
+        -webkit-background-clip: text;
+      }
+
+      .grid-surface {
+        background-image:
+          linear-gradient(rgba(148, 163, 184, 0.09) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(148, 163, 184, 0.09) 1px, transparent 1px);
+        background-size: 32px 32px;
+        mask-image: linear-gradient(to bottom, black 10%, transparent 92%);
+        -webkit-mask-image: linear-gradient(to bottom, black 10%, transparent 92%);
+      }
+
+      .sequence {
+        word-break: break-all;
+        font-variant-ligatures: none;
+      }
+
+      .soft-shadow {
+        box-shadow: 0 18px 45px rgba(37, 99, 235, 0.1), 0 2px 8px rgba(15, 23, 42, 0.04);
+      }
+
+      .focusable:focus-visible,
+      a:focus-visible,
+      button:focus-visible,
+      input:focus-visible,
+      textarea:focus-visible,
+      select:focus-visible {
+        outline: 3px solid rgba(37, 99, 235, 0.34);
+        outline-offset: 3px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        *, *::before, *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="module">
+      import React, { useEffect, useMemo, useState } from "https://cdn.jsdelivr.net/npm/react@18.3.1/+esm";
+      import { createRoot } from "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/client/+esm";
+      import htm from "https://cdn.jsdelivr.net/npm/htm@3.1.1/+esm";
+      import {
+        AnimatePresence,
+        motion,
+        useReducedMotion,
+      } from "https://cdn.jsdelivr.net/npm/framer-motion@11.11.17/+esm";
+      import {
+        Activity,
+        ArrowRight,
+        BarChart3,
+        Check,
+        CheckCircle2,
+        ChevronRight,
+        CircleDot,
+        Clipboard,
+        Code2,
+        Copy,
+        Database,
+        Dna,
+        FileCheck2,
+        Github,
+        Globe2,
+        Layers3,
+        LoaderCircle,
+        Menu,
+        Network,
+        Play,
+        ShieldCheck,
+        Sparkles,
+        Star,
+        Terminal,
+        X,
+        Zap,
+      } from "https://cdn.jsdelivr.net/npm/lucide-react@0.468.0/+esm";
+
+      const html = htm.bind(React.createElement);
+
+      const translations = {
+        en: {
+          metaTitle: "GeneImpact AI — Genetic impact prediction",
+          brand: {
+            name: "GeneImpact AI",
+            descriptor: "Predictive genomics",
+          },
+          language: {
+            label: "Switch language",
+            en: "EN",
+            zh: "中文",
+          },
+          nav: {
+            features: "Features",
+            docs: "Documentation",
+            community: "Community",
+            star: "GitHub Star",
+            getStarted: "Get Started",
+            openMenu: "Open navigation",
+            closeMenu: "Close navigation",
+            skip: "Skip to main content",
+          },
+          hero: {
+            badge: "Research preview · v0.16",
+            titleLead: "Decode Genetic Data with",
+            titleAccent: "Next-Gen AI",
+            subtitle:
+              "Combine versioned prediction models with transparent biostatistics to evaluate genetic interventions before experiments begin.",
+            viewDemo: "View Demo",
+            viewGithub: "View on GitHub",
+            trustedLine: "Built for reproducible, auditable research workflows",
+            analyzer: {
+              status: "Model pipeline ready",
+              title: "Impact signal preview",
+              sequence: "Synthetic target sequence",
+              context: "Species · Mus musculus",
+              length: "42 bp input",
+              confidence: "Calibrated confidence",
+              confidenceValue: "87.4%",
+              interaction: "Interaction signal",
+              interactionValue: "Moderate",
+              evidence: "Evidence coverage",
+              evidenceValue: "12 datasets",
+              note: "Illustrative output — validate predictions experimentally.",
+            },
+          },
+          features: {
+            eyebrow: "Research infrastructure",
+            title: "One workspace from evidence to decision",
+            description:
+              "Standardize inputs, quantify uncertainty, and connect every prediction to a reproducible model version.",
+            items: [
+              {
+                title: "Intelligent omics analysis",
+                description:
+                  "Import genomic evidence, normalize heterogeneous inputs, and preserve provenance for downstream review.",
+                tag: "Evidence-ready",
+              },
+              {
+                title: "Real-time statistical feedback",
+                description:
+                  "Visualize calibrated uncertainty, validation metrics, and decision-relevant signals while you iterate.",
+                tag: "Auditable metrics",
+              },
+              {
+                title: "Seamless workflow integration",
+                description:
+                  "Connect predictions to command-line and Python workflows through stable, versioned interfaces.",
+                tag: "API-first",
+              },
+            ],
+          },
+          demo: {
+            eyebrow: "Interactive preview",
+            title: "Test a synthetic edit in seconds",
+            description:
+              "Run a transparent analysis flow from species validation to a concise, audit-ready report.",
+            workspace: "Analysis workspace",
+            synthetic: "Synthetic data only",
+            sequenceLabel: "Target sequence",
+            sequenceHelp: "DNA bases only (A, T, C, G) · minimum 18 bp",
+            sequencePlaceholder: "Enter a synthetic DNA sequence",
+            speciesLabel: "Reference species",
+            editLabel: "Edit strategy",
+            speciesOptions: [
+              { value: "mouse", label: "Mouse · Mus musculus" },
+              { value: "rat", label: "Rat · Rattus norvegicus" },
+              { value: "zebrafish", label: "Zebrafish · Danio rerio" },
+              { value: "fly", label: "Fruit fly · Drosophila melanogaster" },
+              { value: "macaque", label: "Macaque · Macaca mulatta" },
+            ],
+            editOptions: [
+              { value: "knockout", label: "Loss-of-function knockout" },
+              { value: "base", label: "Base editing" },
+              { value: "prime", label: "Prime editing" },
+            ],
+            validationError: "Use at least 18 characters containing only A, T, C, and G.",
+            run: "Run analysis",
+            running: "Analyzing",
+            ready: "Report ready",
+            idle: "Ready to run",
+            pipelineTitle: "Prediction pipeline",
+            reportTitle: "AI impact report",
+            reportSubtitle: "Versioned model output · synthetic demonstration",
+            researchOnly: "Research-use preview",
+            stages: [
+              "Validate species",
+              "Normalize evidence",
+              "Estimate interactions",
+              "Generate audit report",
+            ],
+            metrics: [
+              { label: "Impact score", value: "0.74", detail: "Elevated signal" },
+              { label: "Model confidence", value: "87.4%", detail: "Calibrated" },
+              { label: "Evidence coverage", value: "82%", detail: "12 datasets" },
+            ],
+            chartTitle: "Predicted effect profile",
+            chartSubtitle: "Relative model score · 0–100",
+            chartSummary:
+              "Bar chart showing phenotype at 74, pathway at 62, off-target at 28, and welfare at 41.",
+            chartLabels: ["Phenotype", "Pathway", "Off-target", "Welfare"],
+            auditTitle: "Audit trail",
+            auditRows: [
+              ["Model", "GI-Animal v0.16.2"],
+              ["Reference", "GRCm39"],
+              ["Calibration", "Temperature-scaled"],
+              ["Report ID", "GI-DEMO-0284"],
+            ],
+            schema: "Open report schema",
+            notice:
+              "Predictions support study design; they do not replace experimental validation, welfare review, or institutional approval.",
+          },
+          cta: {
+            eyebrow: "Open science, composable by design",
+            title: "Ready to accelerate your biostatistics research?",
+            description:
+              "Explore the source, reproduce the demo, and help build safer, more transparent genetic research workflows.",
+            github: "Explore on GitHub",
+            docs: "Read documentation",
+            cloneLabel: "Clone the repository",
+            copy: "Copy clone command",
+            copied: "Copied",
+            stack: ["React", "Python API", "Open source"],
+          },
+          footer: {
+            summary: "Versioned prediction and transparent biostatistics for genetic research.",
+            research: "Research use only",
+            openSource: "Open source on GitHub",
+          },
+        },
+        zh: {
+          metaTitle: "GeneImpact AI — 基因影响预测",
+          brand: {
+            name: "GeneImpact AI",
+            descriptor: "预测基因组学",
+          },
+          language: {
+            label: "切换语言",
+            en: "EN",
+            zh: "中文",
+          },
+          nav: {
+            features: "功能",
+            docs: "文档",
+            community: "社区",
+            star: "GitHub 点赞",
+            getStarted: "开始使用",
+            openMenu: "打开导航菜单",
+            closeMenu: "关闭导航菜单",
+            skip: "跳转到主要内容",
+          },
+          hero: {
+            badge: "科研预览 · v0.16",
+            titleLead: "用下一代 AI",
+            titleAccent: "解码基因数据",
+            subtitle:
+              "将版本化预测模型与透明的生物统计相结合，在实验开始前评估基因干预的潜在影响。",
+            viewDemo: "查看演示",
+            viewGithub: "访问 GitHub",
+            trustedLine: "为可复现、可审计的科研工作流而构建",
+            analyzer: {
+              status: "模型流程已就绪",
+              title: "影响信号预览",
+              sequence: "合成靶序列",
+              context: "物种 · 小鼠",
+              length: "输入 42 bp",
+              confidence: "校准置信度",
+              confidenceValue: "87.4%",
+              interaction: "协作影响信号",
+              interactionValue: "中等",
+              evidence: "证据覆盖",
+              evidenceValue: "12 个数据集",
+              note: "示意性输出——预测结果仍需实验验证。",
+            },
+          },
+          features: {
+            eyebrow: "科研基础设施",
+            title: "从证据到决策，一个工作空间即可完成",
+            description:
+              "标准化输入、量化不确定性，并将每一项预测连接到可复现的模型版本。",
+            items: [
+              {
+                title: "智能多组学分析",
+                description:
+                  "导入基因组证据，标准化异构输入，并保留数据来源，便于后续审查。",
+                tag: "证据就绪",
+              },
+              {
+                title: "实时生物统计反馈",
+                description:
+                  "在迭代过程中可视化校准不确定性、验证指标和与决策相关的信号。",
+                tag: "指标可审计",
+              },
+              {
+                title: "开发者 API 集成",
+                description:
+                  "通过稳定、版本化的接口，将预测能力接入命令行和 Python 工作流。",
+                tag: "API 优先",
+              },
+            ],
+          },
+          demo: {
+            eyebrow: "交互式预览",
+            title: "数秒内测试一次合成编辑",
+            description:
+              "从物种验证到简洁、可审计的报告，完整体验透明的分析流程。",
+            workspace: "分析工作区",
+            synthetic: "仅使用合成数据",
+            sequenceLabel: "靶序列",
+            sequenceHelp: "仅支持 DNA 碱基（A、T、C、G）· 至少 18 bp",
+            sequencePlaceholder: "输入一段合成 DNA 序列",
+            speciesLabel: "参考物种",
+            editLabel: "编辑策略",
+            speciesOptions: [
+              { value: "mouse", label: "小鼠 · Mus musculus" },
+              { value: "rat", label: "大鼠 · Rattus norvegicus" },
+              { value: "zebrafish", label: "斑马鱼 · Danio rerio" },
+              { value: "fly", label: "果蝇 · Drosophila melanogaster" },
+              { value: "macaque", label: "猕猴 · Macaca mulatta" },
+            ],
+            editOptions: [
+              { value: "knockout", label: "功能缺失敲除" },
+              { value: "base", label: "碱基编辑" },
+              { value: "prime", label: "先导编辑" },
+            ],
+            validationError: "请至少输入 18 个字符，并且仅使用 A、T、C、G。",
+            run: "运行分析",
+            running: "分析中",
+            ready: "报告已生成",
+            idle: "等待运行",
+            pipelineTitle: "预测流程",
+            reportTitle: "AI 影响报告",
+            reportSubtitle: "版本化模型输出 · 合成数据演示",
+            researchOnly: "科研用途预览",
+            stages: [
+              "验证物种",
+              "标准化证据",
+              "估算协作影响",
+              "生成审计报告",
+            ],
+            metrics: [
+              { label: "影响评分", value: "0.74", detail: "信号较高" },
+              { label: "模型置信度", value: "87.4%", detail: "已经校准" },
+              { label: "证据覆盖", value: "82%", detail: "12 个数据集" },
+            ],
+            chartTitle: "预测影响概况",
+            chartSubtitle: "相对模型评分 · 0–100",
+            chartSummary:
+              "柱状图显示表型 74、通路 62、脱靶 28、动物福利 41。",
+            chartLabels: ["表型", "通路", "脱靶", "动物福利"],
+            auditTitle: "审计记录",
+            auditRows: [
+              ["模型", "GI-Animal v0.16.2"],
+              ["参考基因组", "GRCm39"],
+              ["校准方式", "温度缩放"],
+              ["报告编号", "GI-DEMO-0284"],
+            ],
+            schema: "打开报告结构",
+            notice:
+              "预测用于辅助研究设计，不能替代实验验证、动物福利审查或机构审批。",
+          },
+          cta: {
+            eyebrow: "开放科学，按需组合",
+            title: "准备好加速您的生物统计研究了吗？",
+            description:
+              "查看源代码、复现演示，并共同构建更安全、更透明的基因研究工作流。",
+            github: "前往 GitHub",
+            docs: "阅读文档",
+            cloneLabel: "克隆项目",
+            copy: "复制克隆命令",
+            copied: "已复制",
+            stack: ["React", "Python API", "开源"],
+          },
+          footer: {
+            summary: "面向基因研究的版本化预测与透明生物统计工具。",
+            research: "仅供科研使用",
+            openSource: "GitHub 开源项目",
+          },
+        },
+      };
+
+      const GITHUB_URL = "https://github.com/kfat77/geneimpact-ai";
+      const DOCS_URL = `${GITHUB_URL}/tree/main/docs`;
+      const COMMUNITY_URL = `${GITHUB_URL}/discussions`;
+      const CLONE_COMMAND = "git clone https://github.com/kfat77/geneimpact-ai.git";
+      const SYNTHETIC_SEQUENCE = "ATGCTGACCTACGAGTTCGACAAGTTCGAGGCCAAGGTGA";
+
+      const featureIcons = [Layers3, BarChart3, Code2];
+      const featureColors = [
+        ["#2563eb", "rgba(37, 99, 235, 0.1)"],
+        ["#0891b2", "rgba(8, 145, 178, 0.1)"],
+        ["#059669", "rgba(5, 150, 105, 0.1)"],
+      ];
+      const chartValues = [74, 62, 28, 41];
+      const chartColors = ["#2563eb", "#0891b2", "#7c3aed", "#059669"];
+
+      function Reveal({ children, className = "", delay = 0 }) {
+        const reduceMotion = useReducedMotion();
+        return html`
+          <${motion.div}
+            className=${className}
+            initial=${reduceMotion ? false : { opacity: 0, y: 20 }}
+            whileInView=${reduceMotion ? undefined : { opacity: 1, y: 0 }}
+            viewport=${{ once: true, amount: 0.16 }}
+            transition=${{ duration: 0.48, delay, ease: [0.22, 1, 0.36, 1] }}
+          >
+            ${children}
+          <//>
+        `;
+      }
+
+      function Logo({ t, compact = false }) {
+        return html`
+          <a href="#top" className="focusable group flex min-h-11 items-center gap-3 rounded-xl" aria-label=${t.brand.name}>
+            <span className="relative grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-gradient-to-br from-blue-600 via-sky-500 to-emerald-500 shadow-[0_8px_24px_rgba(37,99,235,.22)]">
+              <${Dna} size=${21} strokeWidth=${2.2} color="white" aria-hidden="true" />
+              <span className="absolute inset-0 bg-white/10 opacity-0 transition-opacity duration-200 group-hover:opacity-100"></span>
+            </span>
+            <span className=${compact ? "hidden sm:block" : "block"}>
+              <span className="block text-[15px] font-bold tracking-[-0.02em] text-slate-950">${t.brand.name}</span>
+              <span className="block text-[11px] font-medium tracking-[0.1em] text-slate-500 uppercase">${t.brand.descriptor}</span>
+            </span>
+          </a>
+        `;
+      }
+
+      function LanguageToggle({ t, lang, setLang }) {
+        const next = lang === "en" ? "zh" : "en";
+        return html`
+          <button
+            type="button"
+            onClick=${() => setLang(next)}
+            className="focusable inline-flex min-h-11 items-center gap-1 rounded-xl border border-slate-200 bg-white/80 p-1 text-xs font-bold text-slate-600 shadow-sm transition duration-200 hover:border-blue-200 hover:bg-blue-50"
+            aria-label=${t.language.label}
+            title=${t.language.label}
+          >
+            <span className=${`rounded-lg px-2.5 py-2 transition ${lang === "en" ? "bg-blue-600 text-white shadow-sm" : "text-slate-500"}`}>${t.language.en}</span>
+            <span className=${`rounded-lg px-2.5 py-2 transition ${lang === "zh" ? "bg-blue-600 text-white shadow-sm" : "text-slate-500"}`}>${t.language.zh}</span>
+          </button>
+        `;
+      }
+
+      function Navbar({ t, lang, setLang }) {
+        const [open, setOpen] = useState(false);
+        const links = [
+          [t.nav.features, "#features"],
+          [t.nav.docs, DOCS_URL],
+          [t.nav.community, COMMUNITY_URL],
+        ];
+
+        useEffect(() => {
+          const close = () => setOpen(false);
+          window.addEventListener("resize", close);
+          return () => window.removeEventListener("resize", close);
+        }, []);
+
+        return html`
+          <a href="#main" className="fixed left-4 top-3 z-[100] -translate-y-24 rounded-xl bg-blue-700 px-4 py-3 text-sm font-bold text-white focus:translate-y-0">${t.nav.skip}</a>
+          <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/76 backdrop-blur-xl">
+            <nav className="mx-auto flex min-h-18 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8" aria-label=${t.brand.name}>
+              <${Logo} t=${t} compact=${true} />
+              <div className="hidden items-center gap-1 md:flex">
+                ${links.map(([label, href]) => html`
+                  <a
+                    key=${label}
+                    href=${href}
+                    target=${href.startsWith("http") ? "_blank" : undefined}
+                    rel=${href.startsWith("http") ? "noreferrer" : undefined}
+                    className="focusable inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold text-slate-600 transition duration-200 hover:bg-slate-100 hover:text-slate-950"
+                  >${label}</a>
+                `)}
+              </div>
+              <div className="flex items-center gap-2">
+                <${LanguageToggle} t=${t} lang=${lang} setLang=${setLang} />
+                <a
+                  href=${GITHUB_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="focusable hidden min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 shadow-sm transition duration-200 hover:border-amber-200 hover:bg-amber-50 lg:inline-flex"
+                >
+                  <${Star} size=${16} color="#d97706" aria-hidden="true" />
+                  ${t.nav.star}
+                </a>
+                <a
+                  href="#demo"
+                  className="focusable hidden min-h-11 items-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-bold text-white shadow-[0_8px_24px_rgba(37,99,235,.2)] transition duration-200 hover:bg-blue-700 sm:inline-flex"
+                >
+                  ${t.nav.getStarted}
+                  <${ArrowRight} size=${16} aria-hidden="true" />
+                </a>
+                <button
+                  type="button"
+                  onClick=${() => setOpen(!open)}
+                  className="focusable grid h-11 w-11 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 md:hidden"
+                  aria-label=${open ? t.nav.closeMenu : t.nav.openMenu}
+                  aria-expanded=${open}
+                >
+                  ${open
+                    ? html`<${X} size=${20} aria-hidden="true" />`
+                    : html`<${Menu} size=${20} aria-hidden="true" />`}
+                </button>
+              </div>
+            </nav>
+            <${AnimatePresence}>
+              ${open && html`
+                <${motion.div}
+                  className="border-t border-slate-200/70 bg-white/95 px-4 py-4 backdrop-blur-xl md:hidden"
+                  initial=${{ opacity: 0, y: -8 }}
+                  animate=${{ opacity: 1, y: 0 }}
+                  exit=${{ opacity: 0, y: -6 }}
+                  transition=${{ duration: 0.18 }}
+                >
+                  <div className="mx-auto grid max-w-7xl gap-2">
+                    ${links.map(([label, href]) => html`
+                      <a
+                        key=${label}
+                        href=${href}
+                        onClick=${() => setOpen(false)}
+                        target=${href.startsWith("http") ? "_blank" : undefined}
+                        rel=${href.startsWith("http") ? "noreferrer" : undefined}
+                        className="focusable flex min-h-12 items-center justify-between rounded-xl px-4 text-base font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700"
+                      >
+                        ${label}<${ChevronRight} size=${18} aria-hidden="true" />
+                      </a>
+                    `)}
+                    <a href="#demo" onClick=${() => setOpen(false)} className="focusable mt-1 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 font-bold text-white">
+                      ${t.nav.getStarted}<${ArrowRight} size=${18} aria-hidden="true" />
+                    </a>
+                  </div>
+                <//>
+              `}
+            <//>
+          </header>
+        `;
+      }
+
+      function HeroAnalyzer({ t }) {
+        const a = t.hero.analyzer;
+        return html`
+          <${motion.div}
+            className="glass-strong relative mx-auto mt-14 w-full max-w-5xl overflow-hidden rounded-[2rem] p-2 sm:p-3"
+            initial=${{ opacity: 0, y: 24, scale: 0.985 }}
+            animate=${{ opacity: 1, y: 0, scale: 1 }}
+            transition=${{ duration: 0.65, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="overflow-hidden rounded-[1.45rem] border border-slate-200/90 bg-white">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50/80 px-4 py-3 sm:px-5">
+                <div className="flex items-center gap-2.5">
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,.12)]"></span>
+                  <span className="text-xs font-bold text-slate-700">${a.status}</span>
+                </div>
+                <span className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[11px] font-bold text-blue-700">
+                  <${ShieldCheck} size=${14} aria-hidden="true" /> ${a.title}
+                </span>
+              </div>
+              <div className="grid gap-0 lg:grid-cols-[1.2fr_.8fr]">
+                <div className="border-b border-slate-200 p-5 sm:p-7 lg:border-r lg:border-b-0">
+                  <div className="mb-5 flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-bold tracking-[0.13em] text-slate-500 uppercase">${a.sequence}</p>
+                      <p className="mt-1.5 text-sm font-semibold text-slate-800">${a.context}</p>
+                    </div>
+                    <span className="shrink-0 rounded-lg bg-slate-100 px-2.5 py-1.5 font-mono text-[11px] font-semibold text-slate-600">${a.length}</span>
+                  </div>
+                  <div className="sequence rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/80 to-cyan-50/60 p-4 font-mono text-sm font-bold leading-7 tracking-[0.15em] text-slate-700 sm:p-5 sm:text-base">
+                    <span className="text-blue-700">ATGC</span>TGACCTAC<span className="rounded bg-emerald-100 px-1 text-emerald-800">GAGTTCGA</span>CAAGTTCGAGGCCAAGGTGA
+                  </div>
+                  <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-100">
+                    <${motion.div}
+                      className="h-full rounded-full bg-gradient-to-r from-blue-600 via-sky-500 to-emerald-500"
+                      initial=${{ scaleX: 0 }}
+                      animate=${{ scaleX: 0.87 }}
+                      transition=${{ duration: 1.1, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                      style=${{ transformOrigin: "left" }}
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-3 p-5 sm:grid-cols-3 sm:p-7 lg:grid-cols-1">
+                  ${[
+                    [Activity, a.confidence, a.confidenceValue, "text-blue-700 bg-blue-50"],
+                    [Network, a.interaction, a.interactionValue, "text-cyan-700 bg-cyan-50"],
+                    [Database, a.evidence, a.evidenceValue, "text-emerald-700 bg-emerald-50"],
+                  ].map(([Icon, label, value, tone]) => html`
+                    <div key=${label} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-sm">
+                      <span className=${`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${tone}`}>
+                        <${Icon} size=${18} aria-hidden="true" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-[11px] font-bold tracking-wide text-slate-500 uppercase">${label}</span>
+                        <span className="mt-0.5 block text-sm font-extrabold text-slate-950">${value}</span>
+                      </span>
+                    </div>
+                  `)}
+                </div>
+              </div>
+              <div className="flex items-start gap-2 border-t border-slate-200 bg-amber-50/70 px-5 py-3 text-xs font-semibold leading-5 text-amber-900">
+                <${CircleDot} className="mt-0.5 shrink-0" size=${14} aria-hidden="true" /> ${a.note}
+              </div>
+            </div>
+          <//>
+        `;
+      }
+
+      function Hero({ t }) {
+        const reduceMotion = useReducedMotion();
+        return html`
+          <section id="top" className="relative isolate overflow-hidden px-4 pb-22 pt-18 sm:px-6 sm:pb-28 sm:pt-24 lg:px-8">
+            <div className="grid-surface pointer-events-none absolute inset-0 -z-20 opacity-80"></div>
+            <div className="pointer-events-none absolute left-[-12rem] top-[-10rem] -z-10 h-[30rem] w-[30rem] rounded-full bg-sky-200/45 blur-3xl"></div>
+            <div className="pointer-events-none absolute right-[-10rem] top-[-7rem] -z-10 h-[27rem] w-[27rem] rounded-full bg-emerald-100/65 blur-3xl"></div>
+            <div className="mx-auto max-w-7xl">
+              <div className="mx-auto max-w-4xl text-center">
+                <${motion.div}
+                  initial=${reduceMotion ? false : { opacity: 0, y: 12 }}
+                  animate=${{ opacity: 1, y: 0 }}
+                  transition=${{ duration: 0.45 }}
+                  className="inline-flex min-h-9 items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-3.5 text-xs font-bold text-blue-700 shadow-sm backdrop-blur"
+                >
+                  <${Sparkles} size=${14} aria-hidden="true" /> ${t.hero.badge}
+                <//>
+                <${motion.h1}
+                  initial=${reduceMotion ? false : { opacity: 0, y: 18 }}
+                  animate=${{ opacity: 1, y: 0 }}
+                  transition=${{ duration: 0.55, delay: 0.08 }}
+                  className="mt-7 text-balance text-[clamp(2.65rem,8vw,5.5rem)] font-black leading-[0.98] tracking-[-0.055em] text-slate-950"
+                >
+                  ${t.hero.titleLead}<br />
+                  <span className="gradient-text">${t.hero.titleAccent}</span>
+                <//>
+                <${motion.p}
+                  initial=${reduceMotion ? false : { opacity: 0, y: 16 }}
+                  animate=${{ opacity: 1, y: 0 }}
+                  transition=${{ duration: 0.55, delay: 0.14 }}
+                  className="mx-auto mt-7 max-w-2xl text-pretty text-base leading-7 text-slate-600 sm:text-lg sm:leading-8"
+                >${t.hero.subtitle}<//>
+                <${motion.div}
+                  initial=${reduceMotion ? false : { opacity: 0, y: 14 }}
+                  animate=${{ opacity: 1, y: 0 }}
+                  transition=${{ duration: 0.5, delay: 0.2 }}
+                  className="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center"
+                >
+                  <a href="#demo" className="focusable inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-extrabold text-white shadow-[0_12px_30px_rgba(37,99,235,.24)] transition duration-200 hover:bg-blue-700 hover:shadow-[0_16px_38px_rgba(37,99,235,.28)]">
+                    <${Play} size=${17} fill="currentColor" aria-hidden="true" /> ${t.hero.viewDemo}
+                  </a>
+                  <a href=${GITHUB_URL} target="_blank" rel="noreferrer" className="focusable inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white/80 px-6 text-sm font-extrabold text-slate-800 shadow-sm transition duration-200 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700">
+                    <${Github} size=${18} aria-hidden="true" /> ${t.hero.viewGithub}
+                  </a>
+                <//>
+                <p className="mt-5 inline-flex items-center gap-2 text-xs font-semibold text-slate-500">
+                  <${CheckCircle2} size=${15} color="#059669" aria-hidden="true" /> ${t.hero.trustedLine}
+                </p>
+              </div>
+              <${HeroAnalyzer} t=${t} />
+            </div>
+          </section>
+        `;
+      }
+
+      function SectionHeading({ eyebrow, title, description, centered = false }) {
+        return html`
+          <div className=${centered ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
+            <p className="text-xs font-extrabold tracking-[0.16em] text-blue-700 uppercase">${eyebrow}</p>
+            <h2 className="mt-4 text-balance text-3xl font-black tracking-[-0.04em] text-slate-950 sm:text-4xl lg:text-5xl">${title}</h2>
+            <p className="mt-5 text-pretty text-base leading-7 text-slate-600 sm:text-lg">${description}</p>
+          </div>
+        `;
+      }
+
+      function Features({ t }) {
+        return html`
+          <section id="features" className="border-y border-slate-200/80 bg-white/80 px-4 py-22 sm:px-6 sm:py-28 lg:px-8">
+            <div className="mx-auto max-w-7xl">
+              <${Reveal}><${SectionHeading} eyebrow=${t.features.eyebrow} title=${t.features.title} description=${t.features.description} /><//>
+              <div className="mt-12 grid gap-5 md:grid-cols-3">
+                ${t.features.items.map((item, index) => {
+                  const Icon = featureIcons[index];
+                  const [color, background] = featureColors[index];
+                  return html`
+                    <${Reveal} key=${item.title} delay=${index * 0.06}>
+                      <article className="group h-full rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-[0_10px_32px_rgba(15,23,42,.04)] transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_22px_55px_rgba(37,99,235,.11)] sm:p-7">
+                        <span className="grid h-12 w-12 place-items-center rounded-2xl transition duration-300 group-hover:scale-105" style=${{ color, background }}>
+                          <${Icon} size=${23} strokeWidth=${1.9} aria-hidden="true" />
+                        </span>
+                        <h3 className="mt-7 text-xl font-extrabold tracking-[-0.025em] text-slate-950">${item.title}</h3>
+                        <p className="mt-3 text-sm leading-6 text-slate-600">${item.description}</p>
+                        <div className="mt-7 flex items-center gap-2 border-t border-slate-100 pt-5 text-xs font-bold" style=${{ color }}>
+                          <${CheckCircle2} size=${15} aria-hidden="true" /> ${item.tag}
+                        </div>
+                      </article>
+                    <//>
+                  `;
+                })}
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      function ProgressPanel({ t, progress, running }) {
+        const activeIndex = progress >= 100 ? t.demo.stages.length : Math.min(Math.floor(progress / 25), 3);
+        return html`
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/75 p-4 sm:p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm font-extrabold text-slate-900">${t.demo.pipelineTitle}</p>
+              <span className=${`inline-flex min-h-8 items-center gap-2 rounded-full px-3 text-xs font-bold ${running ? "bg-blue-100 text-blue-800" : progress >= 100 ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-700"}`}>
+                ${running
+                  ? html`<${LoaderCircle} className="animate-spin" size=${14} aria-hidden="true" /> ${t.demo.running}`
+                  : progress >= 100
+                    ? html`<${CheckCircle2} size=${14} aria-hidden="true" /> ${t.demo.ready}`
+                    : html`<${CircleDot} size=${14} aria-hidden="true" /> ${t.demo.idle}`}
+              </span>
+            </div>
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-200" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow=${progress}>
+              <${motion.div}
+                className="h-full rounded-full bg-gradient-to-r from-blue-600 via-sky-500 to-emerald-500"
+                animate=${{ scaleX: progress / 100 }}
+                transition=${{ duration: 0.32, ease: "easeOut" }}
+                style=${{ transformOrigin: "left" }}
+              />
+            </div>
+            <ol className="mt-5 grid gap-3 sm:grid-cols-2">
+              ${t.demo.stages.map((stage, index) => {
+                const complete = progress >= (index + 1) * 25;
+                const active = !complete && index === activeIndex && running;
+                return html`
+                  <li key=${stage} className="flex min-w-0 items-center gap-2.5 text-xs font-semibold text-slate-600">
+                    <span className=${`grid h-6 w-6 shrink-0 place-items-center rounded-full border ${complete ? "border-emerald-200 bg-emerald-100 text-emerald-700" : active ? "border-blue-200 bg-blue-100 text-blue-700" : "border-slate-200 bg-white text-slate-400"}`}>
+                      ${complete
+                        ? html`<${Check} size=${13} strokeWidth=${3} aria-hidden="true" />`
+                        : active
+                          ? html`<${LoaderCircle} className="animate-spin" size=${13} aria-hidden="true" />`
+                          : index + 1}
+                    </span>
+                    <span className="truncate">${stage}</span>
+                  </li>
+                `;
+              })}
+            </ol>
+          </div>
+        `;
+      }
+
+      function MetricCard({ metric, index }) {
+        const tones = [
+          "border-blue-100 bg-blue-50/70 text-blue-700",
+          "border-cyan-100 bg-cyan-50/70 text-cyan-700",
+          "border-emerald-100 bg-emerald-50/70 text-emerald-700",
+        ];
+        return html`
+          <div className=${`rounded-2xl border p-4 ${tones[index]}`}>
+            <p className="text-[11px] font-extrabold tracking-[0.08em] uppercase opacity-80">${metric.label}</p>
+            <p className="mt-2 text-2xl font-black tracking-[-0.04em] text-slate-950">${metric.value}</p>
+            <p className="mt-1 text-xs font-semibold text-slate-600">${metric.detail}</p>
+          </div>
+        `;
+      }
+
+      function ReportPanel({ t, progress }) {
+        const ready = progress >= 100;
+        return html`
+          <div className="relative min-h-[34rem] overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+            <div className="pointer-events-none absolute right-[-5rem] top-[-5rem] h-48 w-48 rounded-full bg-sky-100 blur-3xl"></div>
+            <div className="relative flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-black tracking-[-0.02em] text-slate-950">${t.demo.reportTitle}</h3>
+                <p className="mt-1 text-xs font-semibold text-slate-500">${t.demo.reportSubtitle}</p>
+              </div>
+              <span className="inline-flex min-h-8 items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 text-[11px] font-extrabold text-amber-800">
+                <${ShieldCheck} size=${14} aria-hidden="true" /> ${t.demo.researchOnly}
+              </span>
+            </div>
+
+            <div className=${`relative mt-6 transition duration-300 ${ready ? "opacity-100" : "pointer-events-none opacity-35 blur-[1px]"}`} aria-hidden=${!ready}>
+              <div className="grid gap-3 sm:grid-cols-3">
+                ${t.demo.metrics.map((metric, index) => html`<${MetricCard} key=${metric.label} metric=${metric} index=${index} />`)}
+              </div>
+              <div className="mt-5 grid gap-5 xl:grid-cols-[1.12fr_.88fr]">
+                <div className="rounded-2xl border border-slate-200 bg-slate-50/65 p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h4 className="text-sm font-extrabold text-slate-900">${t.demo.chartTitle}</h4>
+                      <p className="mt-1 text-[11px] font-semibold text-slate-500">${t.demo.chartSubtitle}</p>
+                    </div>
+                    <${BarChart3} size=${19} color="#2563eb" aria-hidden="true" />
+                  </div>
+                  <div className="mt-5 space-y-4" role="img" aria-label=${t.demo.chartSummary}>
+                    ${chartValues.map((value, index) => html`
+                      <div key=${t.demo.chartLabels[index]} className="grid grid-cols-[5.3rem_1fr_2rem] items-center gap-2 text-xs sm:grid-cols-[6rem_1fr_2.3rem]">
+                        <span className="truncate font-bold text-slate-600">${t.demo.chartLabels[index]}</span>
+                        <span className="h-2.5 overflow-hidden rounded-full bg-slate-200">
+                          <${motion.span}
+                            className="block h-full rounded-full"
+                            style=${{ background: chartColors[index], transformOrigin: "left" }}
+                            initial=${{ scaleX: 0 }}
+                            animate=${ready ? { scaleX: value / 100 } : { scaleX: 0 }}
+                            transition=${{ duration: 0.55, delay: index * 0.06 }}
+                          />
+                        </span>
+                        <span className="text-right font-mono font-extrabold text-slate-800">${value}</span>
+                      </div>
+                    `)}
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                  <div className="flex items-center gap-2">
+                    <${FileCheck2} size=${18} color="#059669" aria-hidden="true" />
+                    <h4 className="text-sm font-extrabold text-slate-900">${t.demo.auditTitle}</h4>
+                  </div>
+                  <dl className="mt-4 divide-y divide-slate-100">
+                    ${t.demo.auditRows.map(([label, value]) => html`
+                      <div key=${label} className="flex items-center justify-between gap-4 py-2.5 text-xs">
+                        <dt className="font-semibold text-slate-500">${label}</dt>
+                        <dd className="text-right font-mono font-bold text-slate-800">${value}</dd>
+                      </div>
+                    `)}
+                  </dl>
+                  <a href=${`${GITHUB_URL}/blob/main/docs/prediction-report-schema.md`} target="_blank" rel="noreferrer" className="focusable mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl text-xs font-extrabold text-blue-700 hover:text-blue-900">
+                    ${t.demo.schema}<${ArrowRight} size=${14} aria-hidden="true" />
+                  </a>
+                </div>
+              </div>
+              <p className="mt-5 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-xs font-semibold leading-5 text-amber-900">
+                <${ShieldCheck} className="mt-0.5 shrink-0" size=${15} aria-hidden="true" /> ${t.demo.notice}
+              </p>
+            </div>
+
+            ${!ready && html`
+              <div className="absolute inset-0 top-24 grid place-items-center p-6">
+                <div className="glass rounded-2xl px-5 py-4 text-center">
+                  <${LoaderCircle} className="mx-auto animate-spin text-blue-600" size=${24} aria-hidden="true" />
+                  <p className="mt-2 text-sm font-extrabold text-slate-800">${t.demo.running}</p>
+                </div>
+              </div>
+            `}
+          </div>
+        `;
+      }
+
+      function DemoDashboard({ t }) {
+        const [sequence, setSequence] = useState(SYNTHETIC_SEQUENCE);
+        const [species, setSpecies] = useState("mouse");
+        const [editType, setEditType] = useState("knockout");
+        const [progress, setProgress] = useState(100);
+        const [running, setRunning] = useState(false);
+        const [error, setError] = useState("");
+
+        useEffect(() => {
+          if (!running) return;
+          const timer = window.setInterval(() => {
+            setProgress((current) => {
+              const next = Math.min(current + 9, 100);
+              if (next >= 100) {
+                window.clearInterval(timer);
+                setRunning(false);
+              }
+              return next;
+            });
+          }, 250);
+          return () => window.clearInterval(timer);
+        }, [running]);
+
+        const runAnalysis = () => {
+          const cleaned = sequence.trim().toUpperCase();
+          if (cleaned.length < 18 || !/^[ATCG]+$/.test(cleaned)) {
+            setError(t.demo.validationError);
+            return;
+          }
+          setSequence(cleaned);
+          setError("");
+          setProgress(0);
+          setRunning(true);
+        };
+
+        return html`
+          <div className="glass-strong overflow-hidden rounded-[2rem] p-2 sm:p-3">
+            <div className="overflow-hidden rounded-[1.45rem] border border-slate-200 bg-white">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50/80 px-4 py-3 sm:px-6">
+                <div className="flex items-center gap-2.5">
+                  <span className="grid h-8 w-8 place-items-center rounded-lg bg-blue-600 text-white shadow-sm">
+                    <${Terminal} size=${16} aria-hidden="true" />
+                  </span>
+                  <span className="text-sm font-extrabold text-slate-900">${t.demo.workspace}</span>
+                </div>
+                <span className="inline-flex min-h-8 items-center gap-2 rounded-full bg-emerald-50 px-3 text-[11px] font-extrabold text-emerald-800">
+                  <${ShieldCheck} size=${14} aria-hidden="true" /> ${t.demo.synthetic}
+                </span>
+              </div>
+              <div className="grid min-w-0 lg:grid-cols-[.78fr_1.22fr]">
+                <div className="min-w-0 border-b border-slate-200 bg-slate-50/45 p-4 sm:p-6 lg:border-r lg:border-b-0">
+                  <form onSubmit=${(event) => { event.preventDefault(); runAnalysis(); }} noValidate>
+                    <label htmlFor="sequence" className="text-sm font-extrabold text-slate-900">${t.demo.sequenceLabel}</label>
+                    <p id="sequence-help" className="mt-1 text-xs font-medium text-slate-500">${t.demo.sequenceHelp}</p>
+                    <textarea
+                      id="sequence"
+                      value=${sequence}
+                      onChange=${(event) => setSequence(event.target.value)}
+                      placeholder=${t.demo.sequencePlaceholder}
+                      aria-describedby=${error ? "sequence-help sequence-error" : "sequence-help"}
+                      aria-invalid=${Boolean(error)}
+                      rows="5"
+                      spellCheck=${false}
+                      className=${`sequence mt-3 min-h-32 w-full resize-y rounded-2xl border bg-white p-4 font-mono text-sm font-bold leading-6 tracking-[0.08em] text-slate-800 shadow-inner transition placeholder:font-sans placeholder:tracking-normal placeholder:text-slate-400 ${error ? "border-red-400" : "border-slate-300 hover:border-blue-300"}`}
+                    ></textarea>
+                    ${error && html`
+                      <p id="sequence-error" role="alert" className="mt-2 text-xs font-bold leading-5 text-red-700">${error}</p>
+                    `}
+                    <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                      <div>
+                        <label htmlFor="species" className="text-xs font-extrabold text-slate-700">${t.demo.speciesLabel}</label>
+                        <select id="species" value=${species} onChange=${(event) => setSpecies(event.target.value)} className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-blue-300">
+                          ${t.demo.speciesOptions.map((option) => html`<option key=${option.value} value=${option.value}>${option.label}</option>`)}
+                        </select>
+                      </div>
+                      <div>
+                        <label htmlFor="edit-type" className="text-xs font-extrabold text-slate-700">${t.demo.editLabel}</label>
+                        <select id="edit-type" value=${editType} onChange=${(event) => setEditType(event.target.value)} className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-blue-300">
+                          ${t.demo.editOptions.map((option) => html`<option key=${option.value} value=${option.value}>${option.label}</option>`)}
+                        </select>
+                      </div>
+                    </div>
+                    <button type="submit" disabled=${running} className="focusable mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-extrabold text-white shadow-[0_10px_26px_rgba(37,99,235,.2)] transition duration-200 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
+                      ${running
+                        ? html`<${LoaderCircle} className="animate-spin" size=${17} aria-hidden="true" /> ${t.demo.running}`
+                        : html`<${Zap} size=${17} aria-hidden="true" /> ${t.demo.run}`}
+                    </button>
+                  </form>
+                  <div className="mt-5">
+                    <${ProgressPanel} t=${t} progress=${progress} running=${running} />
+                  </div>
+                </div>
+                <div className="min-w-0 bg-gradient-to-br from-white via-blue-50/25 to-emerald-50/25 p-4 sm:p-6">
+                  <${ReportPanel} t=${t} progress=${progress} />
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function DemoSection({ t }) {
+        return html`
+          <section id="demo" className="overflow-hidden px-4 py-22 sm:px-6 sm:py-28 lg:px-8">
+            <div className="mx-auto max-w-7xl">
+              <${Reveal}>
+                <${SectionHeading} eyebrow=${t.demo.eyebrow} title=${t.demo.title} description=${t.demo.description} centered=${true} />
+              <//>
+              <${Reveal} className="mt-12" delay=${0.08}>
+                <${DemoDashboard} t=${t} />
+              <//>
+            </div>
+          </section>
+        `;
+      }
+
+      function Cta({ t }) {
+        const [copied, setCopied] = useState(false);
+        const copyCommand = async () => {
+          try {
+            await navigator.clipboard.writeText(CLONE_COMMAND);
+          } catch {
+            const input = document.createElement("textarea");
+            input.value = CLONE_COMMAND;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand("copy");
+            input.remove();
+          }
+          setCopied(true);
+          window.setTimeout(() => setCopied(false), 2200);
+        };
+
+        return html`
+          <section className="px-4 pb-22 sm:px-6 sm:pb-28 lg:px-8">
+            <${Reveal} className="mx-auto max-w-7xl">
+              <div className="relative isolate overflow-hidden rounded-[2rem] border border-blue-200 bg-gradient-to-br from-blue-50 via-white to-emerald-50 p-6 shadow-[0_30px_80px_rgba(37,99,235,.12)] sm:p-10 lg:p-14">
+                <div className="grid-surface pointer-events-none absolute inset-0 -z-20 opacity-70"></div>
+                <div className="pointer-events-none absolute right-[-7rem] top-[-8rem] -z-10 h-72 w-72 rounded-full bg-cyan-200/45 blur-3xl"></div>
+                <div className="grid items-end gap-10 lg:grid-cols-[1fr_.85fr]">
+                  <div>
+                    <p className="text-xs font-extrabold tracking-[0.16em] text-blue-700 uppercase">${t.cta.eyebrow}</p>
+                    <h2 className="mt-4 max-w-3xl text-balance text-3xl font-black tracking-[-0.045em] text-slate-950 sm:text-4xl lg:text-5xl">${t.cta.title}</h2>
+                    <p className="mt-5 max-w-2xl text-base leading-7 text-slate-600">${t.cta.description}</p>
+                    <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                      <a href=${GITHUB_URL} target="_blank" rel="noreferrer" className="focusable inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-extrabold text-white shadow-[0_12px_28px_rgba(37,99,235,.22)] transition duration-200 hover:bg-blue-700">
+                        <${Github} size=${18} aria-hidden="true" /> ${t.cta.github}
+                      </a>
+                      <a href=${DOCS_URL} target="_blank" rel="noreferrer" className="focusable inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white/85 px-5 text-sm font-extrabold text-slate-800 shadow-sm transition duration-200 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700">
+                        <${Clipboard} size=${17} aria-hidden="true" /> ${t.cta.docs}
+                      </a>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="mb-2 text-xs font-extrabold tracking-[0.1em] text-slate-600 uppercase">${t.cta.cloneLabel}</p>
+                    <div className="rounded-2xl border border-slate-200 bg-white/90 p-2 shadow-sm backdrop-blur">
+                      <div className="flex min-w-0 items-center gap-2 rounded-xl bg-slate-50 px-3 py-2">
+                        <${Terminal} className="shrink-0 text-blue-700" size=${17} aria-hidden="true" />
+                        <code className="min-w-0 flex-1 overflow-x-auto whitespace-nowrap py-2 font-mono text-xs font-bold text-slate-700 sm:text-sm">${CLONE_COMMAND}</code>
+                        <button type="button" onClick=${copyCommand} className="focusable inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-extrabold text-slate-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700" aria-label=${copied ? t.cta.copied : t.cta.copy}>
+                          ${copied
+                            ? html`<${Check} size=${16} color="#059669" aria-hidden="true" /> <span className="hidden sm:inline">${t.cta.copied}</span>`
+                            : html`<${Copy} size=${16} aria-hidden="true" /> <span className="hidden sm:inline">${t.cta.copy}</span>`}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[11px] font-bold text-blue-700">${t.cta.stack[0]}</span>
+                      <span className="rounded-full border border-cyan-100 bg-cyan-50 px-3 py-1.5 text-[11px] font-bold text-cyan-700">${t.cta.stack[1]}</span>
+                      <span className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-[11px] font-bold text-emerald-700">${t.cta.stack[2]}</span>
+                    </div>
+                  </div>
+                </div>
+                <span className="sr-only" aria-live="polite">${copied ? t.cta.copied : ""}</span>
+              </div>
+            <//>
+          </section>
+        `;
+      }
+
+      function Footer({ t }) {
+        return html`
+          <footer className="border-t border-slate-200 bg-white px-4 py-10 sm:px-6 lg:px-8">
+            <div className="mx-auto flex max-w-7xl flex-col gap-7 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <${Logo} t=${t} />
+                <p className="mt-3 max-w-md text-sm leading-6 text-slate-500">${t.footer.summary}</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-xs font-bold text-slate-500">
+                <span className="inline-flex items-center gap-2"><${ShieldCheck} size=${15} color="#d97706" aria-hidden="true" />${t.footer.research}</span>
+                <a href=${GITHUB_URL} target="_blank" rel="noreferrer" className="focusable inline-flex min-h-11 items-center gap-2 rounded-lg text-slate-600 transition hover:text-blue-700"><${Github} size=${15} aria-hidden="true" />${t.footer.openSource}</a>
+              </div>
+            </div>
+          </footer>
+        `;
+      }
+
+      function App() {
+        const [lang, setLang] = useState("en");
+        const t = useMemo(() => translations[lang], [lang]);
+
+        useEffect(() => {
+          document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+          document.title = t.metaTitle;
+        }, [lang, t.metaTitle]);
+
+        return html`
+          <${Navbar} t=${t} lang=${lang} setLang=${setLang} />
+          <main id="main">
+            <${Hero} t=${t} />
+            <${Features} t=${t} />
+            <${DemoSection} t=${t} />
+            <${Cta} t=${t} />
+          </main>
+          <${Footer} t=${t} />
+        `;
+      }
+
+      createRoot(document.getElementById("root")).render(html`<${App} />`);
+    </script>
+  </body>
+</html>
