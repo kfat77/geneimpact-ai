@@ -65,6 +65,21 @@ def test_crisprscan_is_available_only_in_zebrafish_domain():
     )
 
 
+def test_rat_transfer_benchmark_is_candidate_not_available_predictor():
+    rat = capabilities_for_species("rat")
+    benchmark = next(
+        item
+        for item in rat
+        if item.task == "guide_activity_transfer_validation"
+    )
+
+    assert benchmark.status is CapabilityStatus.VALIDATION_CANDIDATE
+    assert not any(
+        item.status is CapabilityStatus.AVAILABLE_DECLARED_DOMAIN
+        for item in rat
+    )
+
+
 def test_unknown_profile_is_rejected():
     with pytest.raises(ValueError, match="unknown species"):
         capabilities_for_species("monkey")

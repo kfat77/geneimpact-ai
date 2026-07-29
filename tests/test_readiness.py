@@ -39,14 +39,16 @@ def test_fruit_fly_readiness_is_limited_to_the_declared_cell_domain():
     assert "in vivo" in housden.limitations
 
 
-def test_rat_readiness_reports_the_public_label_gap():
+def test_rat_readiness_reports_transfer_evidence_without_predictor_promotion():
     readiness = readiness_for_species("rat")
 
     assert readiness.predictive_adapter_available is False
     assert readiness.evidence_records[0].status is (
-        EvidenceUseStatus.INSUFFICIENT_PUBLIC_DATA
+        EvidenceUseStatus.TRANSFER_EVIDENCE_ONLY
     )
-    assert readiness.evidence_records[0].labels_public is False
+    assert readiness.evidence_records[0].labels_public is True
+    assert readiness.evidence_records[0].target_count == 14
+    assert readiness.evidence_records[0].sample_count == 186
 
 
 def test_readiness_cli_emits_machine_readable_species_report(

@@ -74,6 +74,8 @@ python -m geneimpact readiness --all
 python -m geneimpact import-crispritz --metadata examples/crispritz-rat-metadata.json --targets examples/crispritz-synthetic.targets.txt --output crispritz-audit.json
 python -m geneimpact score-crisprscan --input examples/crisprscan-zebrafish-request.json --output crisprscan-report.json
 python -m geneimpact validate-crisprscan-transfer --input data/benchmarks/crisprscan-nhgri1-2022.json --output crisprscan-transfer-report.json
+python -m geneimpact prepare-rat-guide-transfer --table1 publisher-table1.xlsx --table5 publisher-table5.xlsx --output rat-predictions.json
+python -m geneimpact validate-rat-guide-transfer --table1 publisher-table1.xlsx --table5 publisher-table5.xlsx --predictions rat-predictions.json --output rat-transfer-report.json
 ```
 
 Read the [researcher guide](docs/researcher-guide.md) before using the tool with
@@ -90,6 +92,9 @@ external-result workflow and mouse-embryo transfer evidence.
 The [Housden adapter guide](docs/housden-adapter.md) documents the
 external-result workflow for fruit-fly S2R+ cell guide ranking and its strict
 no-in-vivo-extrapolation rule.
+The [rat transfer benchmark guide](docs/rat-transfer-benchmark.md) documents
+the pinned 14-guide in-vivo external-validation workflow and why it is not a
+general rat predictor.
 
 ## Initial API concept
 
@@ -126,6 +131,7 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [x] Version-locked inDelphi mESC repair-outcome import with external mouse-embryo transfer evidence
 - [x] Machine-readable evidence qualification for every registered species
 - [x] Official-service Housden result import for fruit-fly S2R+ cell culture
+- [x] Pinned, sequence-redacted rat in-vivo guide-activity transfer evaluator
 - [x] Checksum-bearing MGI phenotype snapshot adapter
 - [x] Streaming MGI genome-edit evidence normalization
 - [x] Bounded IMPC significant gene-phenotype query adapter

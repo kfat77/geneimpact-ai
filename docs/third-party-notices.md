@@ -88,3 +88,20 @@ Official service: <https://www.flyrnai.org/evaluateCrispr/>.
 
 The GeneImpact adapter contains independently written validation and
 normalization logic. It does not include the upstream position coefficients.
+
+## Anderson et al. rat transfer evidence
+
+GeneImpact AI does not redistribute the source workbooks or guide sequences.
+Researchers download Supplementary Tables 1 and 5 from the publisher. The
+adapter verifies their SHA-256 checksums, reads the qualified rat rows, and
+emits only guide-sequence hashes and aggregate benchmark metrics.
+
+The source is attributed to:
+
+Anderson KR, Haeussler M, Watanabe C, et al. "CRISPR off-target analysis in
+genetically engineered rats and mice." Nature Methods 15, 512–514 (2018).
+<https://doi.org/10.1038/s41592-018-0011-5>
+
+The supplementary files are publicly downloadable, but no explicit dataset
+reuse licence was located. GeneImpact AI therefore stores source URLs and
+checksums and does not bundle or publish a transformed benchmark dataset.

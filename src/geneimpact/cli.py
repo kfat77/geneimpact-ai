@@ -26,6 +26,10 @@ from .impc_calibration import evaluate_impc_calibration
 from .indelphi import normalize_indelphi
 from .mgi import normalize_phenotypic_alleles
 from .readiness import readiness_for_species, readiness_matrix
+from .rat_validation import (
+    evaluate_rat_guide_transfer,
+    prepare_rat_guide_transfer_template,
+)
 from .snapshots import MGI_REPORTS, create_mgi_snapshot
 from .species import PROFILES
 from .workflow import DEFAULT_MODEL_VERSION, assess_request
@@ -160,6 +164,21 @@ def main() -> None:
         default="reported_crisprscan_score",
     )
     crisprscan_validation.add_argument("--output", required=True, type=Path)
+    rat_template = subparsers.add_parser(
+        "prepare-rat-guide-transfer",
+        help="Prepare a sequence-redacted prediction template from pinned rat sources.",
+    )
+    rat_template.add_argument("--table1", required=True, type=Path)
+    rat_template.add_argument("--table5", required=True, type=Path)
+    rat_template.add_argument("--output", required=True, type=Path)
+    rat_validation = subparsers.add_parser(
+        "validate-rat-guide-transfer",
+        help="Evaluate external guide-activity scores on the bounded rat benchmark.",
+    )
+    rat_validation.add_argument("--table1", required=True, type=Path)
+    rat_validation.add_argument("--table5", required=True, type=Path)
+    rat_validation.add_argument("--predictions", required=True, type=Path)
+    rat_validation.add_argument("--output", required=True, type=Path)
     dossier = subparsers.add_parser(
         "dossier",
         help="Build one unified, integrity-checkable research dossier.",
@@ -429,6 +448,43 @@ def main() -> None:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(rendered, encoding="utf-8")
         print(f"CRISPRscan transfer report written to {args.output}")
+        return
+    if args.command == "prepare-rat-guide-transfer":
+        try:
+            template = prepare_rat_guide_transfer_template(
+                args.table1,
+                args.table5,
+            )
+        except (OSError, TypeError, ValueError) as error:
+            parser.error(str(error))
+        rendered = json.dumps(template, indent=2, ensure_ascii=False) + "\n"
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(rendered, encoding="utf-8")
+        print(f"Rat guide-transfer prediction template written to {args.output}")
+        return
+    if args.command == "validate-rat-guide-transfer":
+        try:
+            predictions = json.loads(
+                args.predictions.read_text(encoding="utf-8")
+            )
+            if not isinstance(predictions, dict):
+                raise ValueError("rat guide-transfer predictions must be a JSON object.")
+            report = evaluate_rat_guide_transfer(
+                args.table1,
+                args.table5,
+                predictions,
+            )
+        except (
+            OSError,
+            json.JSONDecodeError,
+            TypeError,
+            ValueError,
+        ) as error:
+            parser.error(str(error))
+        rendered = json.dumps(asdict(report), indent=2, ensure_ascii=False) + "\n"
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(rendered, encoding="utf-8")
+        print(f"Rat guide-transfer report written to {args.output}")
         return
     if args.command == "dossier":
         try:

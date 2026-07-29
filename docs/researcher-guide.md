@@ -18,6 +18,12 @@ inDelphi mESC results. Read the [inDelphi adapter guide](indelphi-adapter.md)
 before interpreting repair-product frequencies; the model does not predict
 editing efficiency or animal phenotype.
 
+For rat SpCas9 work, the separate
+[rat guide-activity transfer benchmark](rat-transfer-benchmark.md) can test
+externally generated scores on 14 uniquely mapped historical guides. It is not
+integrated into the dossier as an applicable rat predictor and cannot support
+an edit-safety claim.
+
 The older `assess` command remains available for minimal evidence-triage
 records.
 

@@ -124,24 +124,37 @@ _RECORDS = (
         limitations="in vivo and embryo/germline predictive validity are not established",
     ),
     EvidenceQualification(
-        record_id="rat-embryo-protocol-gap-v1",
+        record_id="rat-anderson-2018-in-vivo-transfer-v1",
         species_profile="rat",
-        predictor_or_method="rat embryo CRISPR protocol",
-        task="guide_activity",
-        status=EvidenceUseStatus.INSUFFICIENT_PUBLIC_DATA,
-        biological_domain="rat embryo editing protocol",
-        strain_stock_or_population="not qualified as a multi-guide prediction dataset",
-        genome_build_or_target_sequence="not qualified",
-        edit_system="CRISPR-Cas9 knockout",
-        delivery_or_developmental_context="embryo protocol",
-        labels_public=False,
-        target_count=None,
-        sample_count=None,
-        independent_evidence="method evidence only",
-        license_status="publication access does not create a reusable labeled benchmark",
+        predictor_or_method="Anderson 2018 rat guide-activity benchmark",
+        task="guide_activity_transfer_validation",
+        status=EvidenceUseStatus.TRANSFER_EVIDENCE_ONLY,
+        biological_domain="rat G0 animals and embryos across mixed projects",
+        strain_stock_or_population="project-level rat strains are not publicly resolved",
+        genome_build_or_target_sequence=(
+            "rn5 source records; current dossiers remain bound to GRCr8"
+        ),
+        edit_system="SpCas9 knockout",
+        delivery_or_developmental_context=(
+            "one-cell embryo injection with IVT sgRNA and Cas9 mRNA"
+        ),
+        labels_public=True,
+        target_count=14,
+        sample_count=186,
+        independent_evidence=(
+            "external ranking benchmark only after submitted-model overlap audit"
+        ),
+        license_status=(
+            "Springer Nature supplements are downloadable but are not redistributed; "
+            "no explicit dataset reuse licence was located"
+        ),
         training_overlap_audited=False,
-        source_reference="https://www.nature.com/articles/nprot.2014.171",
-        limitations="no qualified public multi-target labels for calibration",
+        source_reference="https://doi.org/10.1038/s41592-018-0011-5",
+        limitations=(
+            "14 uniquely mapped, selected and high-activity guides; two ambiguous "
+            "guide mappings excluded; legacy rn5 assembly; no calibration, phenotype, "
+            "safety, welfare, off-target recall, or repair-outcome claim"
+        ),
     ),
     EvidenceQualification(
         record_id="rhesus-cas9-trio-wgs-v1",
