@@ -30,6 +30,7 @@ class MgiAlleleEvidence:
     high_level_mp_ids: tuple[str, ...]
     synonyms: tuple[str, ...]
     marker_name: str | None
+    origin_program: str | None
 
     @property
     def is_endonuclease_mediated(self) -> bool:
@@ -71,6 +72,7 @@ def parse_phenotypic_alleles(lines: Iterable[str]) -> Iterator[MgiAlleleEvidence
             high_level_mp_ids=_split(row[10], ","),
             synonyms=_split(row[11], "|"),
             marker_name=row[12] or None,
+            origin_program=_origin_program(row[1], row[2]),
         )
 
 
@@ -115,6 +117,13 @@ def normalize_phenotypic_alleles(
 
 def _split(value: str, separator: str) -> tuple[str, ...]:
     return tuple(item for item in value.split(separator) if item)
+
+
+def _origin_program(allele_symbol: str, allele_name: str) -> str | None:
+    evidence = f"{allele_symbol} {allele_name}".casefold()
+    if "(impc)" in evidence or "international mouse phenotyping consortium" in evidence:
+        return "IMPC"
+    return None
 
 
 def _sha256(path: Path) -> str:

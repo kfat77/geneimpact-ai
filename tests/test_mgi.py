@@ -13,6 +13,7 @@ TARGETED = (
     "MGI:3\tGene<tm1>\ttargeted 1\tTargeted\tReporter\t123\tMGI:2\t"
     "Gene\tNM_1\tENSMUSG1\tMP:3\t\tgene name\n"
 )
+IMPC_EDITED = EDITED.replace("Gene<em1>", "Gene<em1(IMPC)Mbp>")
 
 
 def test_parser_normalizes_multivalue_fields():
@@ -21,6 +22,11 @@ def test_parser_normalizes_multivalue_fields():
     assert record.is_endonuclease_mediated
     assert record.allele_attributes == ("Null/knockout",)
     assert record.high_level_mp_ids == ("MP:1", "MP:2")
+    assert record.origin_program is None
+
+
+def test_parser_marks_impc_origin():
+    assert next(parse_phenotypic_alleles([IMPC_EDITED])).origin_program == "IMPC"
 
 
 def test_normalizer_filters_to_endonuclease_mediated_records(tmp_path):

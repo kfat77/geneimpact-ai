@@ -10,10 +10,13 @@ from .species import MOUSE_PROFILE, SpeciesProfile, SpeciesValidation, validate_
 from .snapshots import MGI_REPORTS, SnapshotManifest, create_mgi_snapshot
 from .mgi import MgiAlleleEvidence, NormalizationSummary, normalize_phenotypic_alleles
 from .impc import ImpcClient, ImpcGeneEvidence, ImpcGenePhenotype
+from .benchmark import BenchmarkManifest, BenchmarkRecord, assign_gene_split, build_mgi_benchmark
 
 __all__ = [
     "AssessmentRecord",
     "Applicability",
+    "BenchmarkManifest",
+    "BenchmarkRecord",
     "EditAssessment",
     "EditEvidence",
     "EvidenceLevel",
@@ -33,7 +36,9 @@ __all__ = [
     "SnapshotManifest",
     "StudyContext",
     "assess_edit",
+    "assign_gene_split",
     "brier_score",
+    "build_mgi_benchmark",
     "create_record",
     "create_mgi_snapshot",
     "expected_calibration_error",

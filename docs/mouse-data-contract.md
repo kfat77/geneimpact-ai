@@ -61,3 +61,15 @@ python -m geneimpact impc-gene \
 The command uses the official [IMPC statistical-result Solr API](https://www.ebi.ac.uk/training/online/courses/impc-solr-api/introduction-to-the-solr-api-accessing-impc-data-programmatically/using-simple-solr-syntax-in-your-browser/) and requests only significant results for one marker. The result retains MP terms, effect sizes, P values, sex, zygosity, procedure, parameter, source query, and retrieval timestamp.
 
 IMPC evidence is generated from standardized knockout mouse phenotyping. It can inform plausible phenotypic consequences, but it is not a prediction of every edit type, molecular context, strain, or off-target event.
+
+## Build leakage-aware benchmark splits
+
+```bash
+python -m geneimpact benchmark-mgi \
+  --input data/mgi/endonuclease-alleles.jsonl \
+  --output-dir data/benchmarks/mgi-v1
+```
+
+All records for the same gene are assigned to one deterministic split, preventing the same gene from appearing in training and evaluation. The default builder also excludes MGI alleles marked as IMPC-derived, because using those records for training and IMPC results for validation would create source leakage.
+
+The current benchmark contains positive high-level MP associations only. Missing annotations are not negative labels, so this dataset supports coverage and ranking evaluation but is not yet a valid binary safety classifier dataset.

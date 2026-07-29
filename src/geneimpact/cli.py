@@ -8,6 +8,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from .datasources import check_ensembl_profile
+from .benchmark import build_mgi_benchmark
 from .impc import ImpcClient
 from .mgi import normalize_phenotypic_alleles
 from .snapshots import MGI_REPORTS, create_mgi_snapshot
@@ -46,6 +47,16 @@ def main() -> None:
     )
     impc_gene.add_argument("--gene", required=True)
     impc_gene.add_argument("--output", type=Path)
+    benchmark = subparsers.add_parser(
+        "benchmark-mgi", help="Build leakage-aware grouped benchmark splits from normalized MGI JSONL."
+    )
+    benchmark.add_argument("--input", required=True, type=Path)
+    benchmark.add_argument("--output-dir", required=True, type=Path)
+    benchmark.add_argument(
+        "--include-impc-origin",
+        action="store_true",
+        help="Include MGI rows marked as IMPC-derived; unsafe for independent IMPC validation.",
+    )
     args = parser.parse_args()
 
     if args.command == "source-check":
@@ -106,6 +117,17 @@ def main() -> None:
             print(f"IMPC evidence written to {args.output}")
         else:
             print(rendered, end="")
+        return
+    if args.command == "benchmark-mgi":
+        try:
+            manifest = build_mgi_benchmark(
+                args.input,
+                args.output_dir,
+                include_impc_origin=args.include_impc_origin,
+            )
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
+        print(json.dumps(asdict(manifest), indent=2))
         return
 
     try:
