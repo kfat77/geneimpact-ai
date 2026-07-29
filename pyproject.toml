@@ -15,6 +15,12 @@ classifiers = ["Programming Language :: Python :: 3"]
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
 
+[project.scripts]
+geneimpact = "geneimpact.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/geneimpact"]
+
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]

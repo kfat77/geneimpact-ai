@@ -35,6 +35,7 @@ Every assessment is also bound to a species, strain/breed, genome build, edit cl
 docs/                  Research protocol, data governance, and model card
 src/geneimpact/        Feature and interaction-scoring library
 tests/                 Unit tests
+examples/              Runnable assessment request example
 ```
 
 ## Quick start
@@ -43,6 +44,14 @@ tests/                 Unit tests
 python -m pip install -e ".[dev]"
 pytest
 ```
+
+## Run an assessment
+
+```bash
+python -m geneimpact assess examples/assessment-request.json --output assessment-report.json
+```
+
+Read the [researcher guide](docs/researcher-guide.md) before using the tool with study evidence.
 
 ## Initial API concept
 
@@ -67,6 +76,7 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [x] Transparent evidence-to-review-tier baseline
 - [x] Animal-edit pre-registration and evidence-grading templates
 - [x] Audit-ready study context and held-out calibration metrics
+- [x] Runnable JSON-to-report researcher workflow
 - [ ] Versioned reference-genome and annotation adapters
 - [ ] Reproducible species/edit-class split and calibration workflow
 - [ ] Independent laboratory replication benchmarks

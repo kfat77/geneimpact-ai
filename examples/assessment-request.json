@@ -1,0 +1,15 @@
+{
+  "study_context": {
+    "species": "mouse",
+    "strain_or_breed": "C57BL/6",
+    "genome_build": "GRCm39",
+    "edit_class": "knockout",
+    "evidence_snapshot": "curated-evidence-2026-07"
+  },
+  "evidence": {
+    "on_target_uncertainty": 0.2,
+    "off_target_evidence": 0.4,
+    "network_impact_evidence": 0.5,
+    "welfare_relevance": 0.8
+  }
+}
