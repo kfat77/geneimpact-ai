@@ -1,4 +1,4 @@
-"""Evidence labels that prevent prioritization scores from being misreported."""
+"""Evidence labels that prevent animal-edit concerns from being misreported."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from enum import Enum
 
 
 class EvidenceLevel(str, Enum):
-    """Claim level permitted by a study's validation record."""
+    """Concern level permitted by a study's validation record."""
 
     EXPLORATORY = "exploratory"
     REPLICATED = "replicated"
@@ -16,7 +16,7 @@ class EvidenceLevel(str, Enum):
 def permitted_wording(level: EvidenceLevel) -> str:
     """Return the strongest wording allowed for an evidence level."""
     return {
-        EvidenceLevel.EXPLORATORY: "candidate association",
-        EvidenceLevel.REPLICATED: "replicated association",
-        EvidenceLevel.CAUSAL_SUPPORT: "causal evidence consistent with the stated assumptions",
+        EvidenceLevel.EXPLORATORY: "candidate concern",
+        EvidenceLevel.REPLICATED: "replicated concern",
+        EvidenceLevel.CAUSAL_SUPPORT: "strongly supported concern",
     }[level]

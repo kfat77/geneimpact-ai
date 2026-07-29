@@ -1,35 +1,35 @@
-# Research aims and success criteria
+# Research aims and success criteria for animal genome-edit impact prediction
 
 ## Overall objective
 
-Build a reproducible framework to assess whether observed associations between genetic variation—at one gene or across a pre-specified gene pair—and a human phenotype are robust, calibrated, and independently replicable.
+Build a reproducible framework that ranks the plausible unintended consequences of a proposed animal genome edit, records the evidence behind each concern, and identifies edits that require deeper review before experimental progression.
 
-This project does **not** attempt to claim that a gene “determines” a human outcome. The expected result is a bounded estimate of association in a defined cohort and phenotype context.
+This project does **not** promise a consequence-free edit. The expected result is a calibrated, species- and edit-class-specific prioritization of validation questions in a defined experimental context.
 
-## Aim 1 — Single-gene association baseline
+## Aim 1 — On-target consequence and uncertainty baseline
 
-For each pre-registered phenotype, fit an interpretable gene-level baseline adjusted for pre-declared confounders (at minimum: age or time scale where applicable, sex where applicable, cohort/study site, and population-structure variables). Report the effect estimate, 95% confidence interval, calibration, and a multiplicity-adjusted result.
+For each registered proposal, consolidate reference-genome version, target-locus annotation, expected functional change, and evidence gaps. Report the evidence provenance, uncertainty level, and applicability limits by species, strain/breed, and edit class.
 
-**Success criterion:** the estimate is estimable, calibrated on a held-out split, and reported with all quality-control and cohort details. Statistical significance alone is not success.
+**Success criterion:** the system's uncertainty is calibrated on held-out historical outcomes and does not label poorly evidenced edits as low concern.
 
-## Aim 2 — Evidence-gated gene-pair interaction test
+## Aim 2 — Evidence-gated unintended-consequence prioritization
 
-Test only gene pairs supported before outcome analysis by a curated evidence source or pre-declared biological network. Compare the interaction model with the single-gene baseline using an appropriate held-out metric and report the entire tested interaction set.
+For a proposed edit, combine independently versioned evidence for candidate off-target effects, functional-network context, and welfare-relevant endpoints. The system must retain the source and strength of each signal rather than returning a black-box score.
 
-**Success criterion:** an improvement over the baseline is observed in a held-out cohort, survives the declared multiplicity control, and has a directionally consistent estimate in an independent cohort.
+**Success criterion:** high-priority concerns have better recall than the baseline in a held-out dataset and remain directionally consistent in an independent laboratory or dataset.
 
-## Aim 3 — Generalizability and failure analysis
+## Aim 3 — Generalizability, welfare, and failure analysis
 
-Evaluate calibration and uncertainty in every adequately represented cohort/ancestry stratum. Document missingness, selection bias, transfer failures, and negative results.
+Evaluate calibration and uncertainty in every adequately represented species, strain/breed, genome build, and edit class. Document missing evidence, selection bias, transfer failures, animal-welfare outcomes, and negative results.
 
-**Success criterion:** subgroup results and limitations are released alongside the aggregate result; unresolved material performance gaps block promotion beyond exploratory use.
+**Success criterion:** subgroup results and limitations are released alongside aggregate results; unresolved material performance gaps or welfare risks block promotion beyond exploratory use.
 
 ## Decision rule
 
 | Evidence level | Required evidence | Permitted wording |
 | --- | --- | --- |
-| Exploratory | One discovery analysis | “Candidate association” |
-| Replicated | Held-out result plus independent cohort consistency | “Replicated association” |
-| Causal support | Replication plus a separately documented causal design and assumptions | “Causal evidence consistent with…” |
+| Exploratory | Mechanistic or computational rationale | “Candidate concern” |
+| Replicated | Held-out result plus independent dataset consistency | “Replicated concern” |
+| Strong support | Replication plus corroborating outcome evidence | “Strongly supported concern” |
 
-No output may use “causes”, “determines”, or an individual-risk interpretation without a study-specific governance and validation review.
+No output may use “safe”, “consequence-free”, or an authorization interpretation. High uncertainty is itself a reason for further review.

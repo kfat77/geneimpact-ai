@@ -2,11 +2,11 @@
 
 ## Allowed inputs
 
-Only data with a documented legal basis, participant consent (where applicable), and an approved data-use agreement may enter the pipeline.
+Only data with documented provenance, approved animal-ethics and biosafety oversight where applicable, and an approved data-use agreement may enter the pipeline.
 
 ## Prohibited repository content
 
-Raw VCF/BAM/CRAM files, participant identifiers, dates of birth, addresses, free-text clinical notes, and re-identifiable phenotype records must never be committed.
+Raw VCF/BAM/CRAM files, facility identifiers, animal identifiers, restricted husbandry or veterinary records, and re-identifiable study records must never be committed.
 
 ## Operational controls
 
