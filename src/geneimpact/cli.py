@@ -10,6 +10,7 @@ from pathlib import Path
 from .behive import normalize_behive_efficiency
 from .behive_bystander import normalize_behive_bystander
 from .behive_validation import evaluate_behive_validation
+from .capabilities import capabilities_for_species
 from .datasources import check_ncbi_profile
 from .benchmark import build_mgi_benchmark
 from .baseline import evaluate_benchmark
@@ -97,6 +98,11 @@ def main() -> None:
     )
     behive_bystander.add_argument("--input", required=True, type=Path)
     behive_bystander.add_argument("--output", type=Path)
+    capabilities = subparsers.add_parser(
+        "capabilities",
+        help="Show available and candidate predictors for a registered species.",
+    )
+    capabilities.add_argument("--species", required=True, choices=sorted(PROFILES))
     args = parser.parse_args()
 
     if args.command == "source-check":
@@ -231,6 +237,16 @@ def main() -> None:
             print(f"BE-Hive bystander audit record written to {args.output}")
         else:
             print(rendered, end="")
+        return
+    if args.command == "capabilities":
+        rows = [
+            {
+                **asdict(item),
+                "status": item.status.value,
+            }
+            for item in capabilities_for_species(args.species)
+        ]
+        print(json.dumps(rows, indent=2, ensure_ascii=False))
         return
 
     try:

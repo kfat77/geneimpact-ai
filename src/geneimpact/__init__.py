@@ -56,6 +56,12 @@ from .behive_bystander import (
     BehiveBystanderPrediction,
     normalize_behive_bystander,
 )
+from .capabilities import (
+    CapabilityStatus,
+    PredictorCapability,
+    capabilities_for_species,
+    capability_matrix,
+)
 
 __all__ = [
     "AssessmentRecord",
@@ -79,6 +85,7 @@ __all__ = [
     "BinaryCalibrationMetrics",
     "ConstantSignificanceModel",
     "CYNOMOLGUS_MACAQUE_PROFILE",
+    "CapabilityStatus",
     "EditAssessment",
     "EditEvidence",
     "EvidenceLevel",
@@ -96,6 +103,7 @@ __all__ = [
     "NormalizationSummary",
     "PredictionTask",
     "PredictorOutput",
+    "PredictorCapability",
     "PhenotypePriorModel",
     "RankingMetrics",
     "RAT_PROFILE",
@@ -111,6 +119,8 @@ __all__ = [
     "brier_score",
     "build_mgi_benchmark",
     "build_impc_validation",
+    "capabilities_for_species",
+    "capability_matrix",
     "create_record",
     "create_mgi_snapshot",
     "expected_calibration_error",

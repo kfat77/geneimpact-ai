@@ -58,6 +58,26 @@ An output from a human-cell or mouse-cell model is not promoted to another
 species. It may remain in an audit report as `out_of_scope`, but it must not
 contribute applicable evidence or a species-level performance claim.
 
+The same matrix is available as machine-readable JSON:
+
+```bash
+python -m geneimpact capabilities --species mouse
+python -m geneimpact capabilities --species zebrafish
+python -m geneimpact capabilities --species rhesus_macaque
+```
+
+Status meanings:
+
+- `available_declared_domain`: a version-locked adapter exists, but only for
+  the stated biological domain;
+- `validation_candidate`: the published model is relevant enough to evaluate,
+  but the adapter or independent validation is not complete;
+- `reference_search_candidate`: the method can operate against a supplied
+  species reference, but the GeneImpact adapter and empirical calibration are
+  pending;
+- `out_of_domain_only`: a service may technically produce a score, but the
+  training evidence does not support treating it as validated for that species.
+
 ## Strain and population rule
 
 The registered strain or isolate identifies the origin of the reference

@@ -64,6 +64,7 @@ python -m geneimpact benchmark-impc --gene Prkdc --gene Kit --output data/benchm
 python -m geneimpact calibrate-impc --calibration data/benchmarks/impc-calibration-v1.jsonl --test data/benchmarks/impc-test-v1.jsonl --output data/benchmarks/impc-calibration-report-v1.json
 python -m geneimpact import-behive-efficiency --input examples/behive-efficiency-import.json --output behive-audit.json
 python -m geneimpact import-behive-bystander --input examples/behive-bystander-import.json --output behive-bystander-audit.json
+python -m geneimpact capabilities --species zebrafish
 ```
 
 Read the [researcher guide](docs/researcher-guide.md) before using the tool with
@@ -97,6 +98,7 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [x] Registered mouse/GRCm39 profile and live authoritative metadata adapter
 - [x] Current NCBI reference profiles for rat, zebrafish, fruit fly, rhesus macaque, and cynomolgus macaque
 - [x] Ambiguity rejection and strain/isolate warnings across registered species
+- [x] Code-level species × predictor evidence-status matrix
 - [x] Checksum-bearing MGI phenotype snapshot adapter
 - [x] Streaming MGI genome-edit evidence normalization
 - [x] Bounded IMPC significant gene-phenotype query adapter
