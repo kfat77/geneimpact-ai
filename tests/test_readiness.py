@@ -9,19 +9,35 @@ from geneimpact.readiness import (
 
 
 def test_hazard_evidence_cannot_be_promoted_to_predictive_adapter():
-    for species_profile in ("rhesus_macaque", "cynomolgus_macaque"):
-        readiness = readiness_for_species(species_profile)
+    readiness = readiness_for_species("rhesus_macaque")
 
-        assert readiness.predictive_adapter_available is False
-        assert readiness.evidence_records
-        assert all(
-            record.status is EvidenceUseStatus.HAZARD_EVIDENCE_ONLY
-            for record in readiness.evidence_records
-        )
-        assert not any(
-            record.eligible_for_predictive_capability
-            for record in readiness.evidence_records
-        )
+    assert readiness.predictive_adapter_available is False
+    assert readiness.evidence_records
+    assert all(
+        record.status is EvidenceUseStatus.HAZARD_EVIDENCE_ONLY
+        for record in readiness.evidence_records
+    )
+    assert not any(
+        record.eligible_for_predictive_capability
+        for record in readiness.evidence_records
+    )
+
+
+def test_cynomolgus_base_editing_is_bounded_benchmark_not_predictor():
+    readiness = readiness_for_species("cynomolgus_macaque")
+    benchmark = next(
+        record
+        for record in readiness.evidence_records
+        if record.task == "base_editing_embryo_transfer_validation"
+    )
+
+    assert readiness.predictive_adapter_available is False
+    assert benchmark.status is EvidenceUseStatus.USABLE_BOUNDED_BENCHMARK
+    assert benchmark.eligible_for_predictive_capability is False
+    assert benchmark.labels_public is True
+    assert benchmark.target_count == 11
+    assert benchmark.sample_count == 273
+    assert "not independent" in benchmark.limitations
 
 
 def test_fruit_fly_readiness_is_limited_to_the_declared_cell_domain():

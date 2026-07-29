@@ -12,6 +12,7 @@ from .housden import (
     HOUSDEN_TRAINING_DOMAIN,
 )
 from .fruit_fly_cas12a import FRUIT_FLY_CAS12A_REFERENCE
+from .cynomolgus_base_editing import CYNOMOLGUS_BASE_EDITING_REFERENCE
 from .species import PROFILES
 
 
@@ -231,6 +232,46 @@ _RECORDS = (
         training_overlap_audited=False,
         source_reference="https://pmc.ncbi.nlm.nih.gov/articles/PMC9877282/",
         limitations="cannot calibrate a general predictor from two embryos and one target",
+    ),
+    EvidenceQualification(
+        record_id="cynomolgus-zhang-2020-base-editing-transfer-v1",
+        species_profile="cynomolgus_macaque",
+        predictor_or_method=(
+            "Zhang 2020 cynomolgus embryo base-editing transfer benchmark"
+        ),
+        task="base_editing_embryo_transfer_validation",
+        status=EvidenceUseStatus.USABLE_BOUNDED_BENCHMARK,
+        biological_domain=(
+            "cynomolgus zygote base editing with BE3, ABE7.10, and "
+            "SaKKH-BE3"
+        ),
+        strain_stock_or_population=(
+            "source colony; geographic population was not publicly resolved"
+        ),
+        genome_build_or_target_sequence=(
+            "publisher target sequences; legacy GCF_000364345.1 coordinates"
+        ),
+        edit_system="single, double, and triple multiplex base editing",
+        delivery_or_developmental_context=(
+            "editor mRNA and T7 sgRNA cytoplasmic microinjection 10–12 hours "
+            "after ICSI; embryo culture and pooled Sanger-clone genotyping"
+        ),
+        labels_public=True,
+        target_count=11,
+        sample_count=273,
+        independent_evidence=(
+            "external transfer evaluation only when the submitted model "
+            "declares no training overlap"
+        ),
+        license_status="CC BY 4.0; publisher workbooks are not bundled",
+        training_overlap_audited=False,
+        source_reference=CYNOMOLGUS_BASE_EDITING_REFERENCE,
+        limitations=(
+            "273 embryo-by-target-base observations are not independent and "
+            "cover only 11 target sites; this is not species-level "
+            "calibration, a predictive adapter, or phenotype, off-target, "
+            "welfare, or safety evidence"
+        ),
     ),
 )
 

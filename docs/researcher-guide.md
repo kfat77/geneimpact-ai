@@ -30,6 +30,13 @@ publisher files and can retrieve observations for one indivisible HD12aCFD
 array. Do not assign an array observation to one component guide or interpret
 it as a calibrated edit, phenotype, welfare, or safety probability.
 
+For cynomolgus macaque base-editing work, the separate
+[embryo transfer benchmark](cynomolgus-base-editing-benchmark.md) can evaluate
+externally generated per-base scores against 11 published target sites. The
+source coordinates use legacy `GCF_000364345.1`; the benchmark neither lifts
+coordinates to T2T-MFA8v1.1 nor promotes the submitted model to a validated
+macaque predictor.
+
 The older `assess` command remains available for minimal evidence-triage
 records.
 

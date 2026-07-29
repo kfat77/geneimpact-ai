@@ -77,6 +77,8 @@ python -m geneimpact validate-crisprscan-transfer --input data/benchmarks/crispr
 python -m geneimpact prepare-rat-guide-transfer --table1 publisher-table1.xlsx --table5 publisher-table5.xlsx --output rat-predictions.json
 python -m geneimpact validate-rat-guide-transfer --table1 publisher-table1.xlsx --table5 publisher-table5.xlsx --predictions rat-predictions.json --output rat-transfer-report.json
 python -m geneimpact audit-fruit-fly-cas12a-evidence --library publisher-library.csv --genotypes publisher-genotypes.xlsx --source-data publisher-source-data.xlsx --line-id HD12aCFD0001 --output fruit-fly-cas12a-audit.json
+python -m geneimpact prepare-cynomolgus-base-editing-transfer --target-sites publisher-target-sites.xlsx --source-data publisher-source-data.xlsx --output cynomolgus-predictions.json
+python -m geneimpact validate-cynomolgus-base-editing-transfer --target-sites publisher-target-sites.xlsx --source-data publisher-source-data.xlsx --predictions cynomolgus-predictions-filled.json --output cynomolgus-transfer-report.json
 ```
 
 Read the [researcher guide](docs/researcher-guide.md) before using the tool with
@@ -99,6 +101,9 @@ general rat predictor.
 The [fruit-fly Cas12a evidence guide](docs/fruit-fly-cas12a-evidence.md)
 documents the checksum-pinned 845-array in-vivo LOH audit and why its
 multiplex labels cannot become per-guide predictions.
+The [cynomolgus base-editing benchmark guide](docs/cynomolgus-base-editing-benchmark.md)
+documents the checksum-pinned 11-locus embryo transfer evaluator, legacy
+assembly boundary, and within-context comparison rule.
 
 ## Initial API concept
 
@@ -137,6 +142,7 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [x] Official-service Housden result import for fruit-fly S2R+ cell culture
 - [x] Pinned, sequence-redacted rat in-vivo guide-activity transfer evaluator
 - [x] Pinned fruit-fly Cas12a in-vivo array-level LOH evidence auditor
+- [x] Pinned cynomolgus embryo base-editing external-transfer evaluator
 - [x] Checksum-bearing MGI phenotype snapshot adapter
 - [x] Streaming MGI genome-edit evidence normalization
 - [x] Bounded IMPC significant gene-phenotype query adapter
