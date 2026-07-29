@@ -1,160 +1,162 @@
-# GeneImpact AI
+<div align="center">
 
-> An evidence-first research framework for predicting and documenting the plausible consequences of proposed animal genome edits.
+# 🧬 GeneImpact AI
 
-## Purpose
+[![Tests](https://github.com/kfat77/geneimpact-ai/actions/workflows/test.yml/badge.svg)](https://github.com/kfat77/geneimpact-ai/actions/workflows/test.yml)
+[![License: MIT](https://img.shields.io/github/license/kfat77/geneimpact-ai?color=10b981)](LICENSE)
+[![Version](https://img.shields.io/badge/version-0.15.0-2563eb)](https://github.com/kfat77/geneimpact-ai)
+[![Python](https://img.shields.io/badge/python-3.11%2B-0ea5e9?logo=python&logoColor=white)](pyproject.toml)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-10b981.svg)](https://github.com/kfat77/geneimpact-ai/pulls)
 
-GeneImpact AI is a research-use-only decision-support framework for assessing **on-target disruption**, **candidate off-target effects**, **biological-network context**, and **animal-welfare relevance** before an animal genome-editing experiment. It prioritizes questions for validation; it does not approve an edit, design an experiment, or guarantee an outcome.
+**Evidence-aware genome-editing analysis that turns declared study context, predictor outputs, and biological evidence into reproducible, uncertainty-bounded audit reports.**
 
-The research target is deliberately narrow and falsifiable: for each declared species, edit class, target locus, and intended trait, determine whether the system ranks observed unintended consequences and welfare-relevant outcomes better than a documented baseline. See [research aims](docs/research-aims.md) and the [pre-registration template](docs/preregistration-template.md).
+</div>
 
-The first release focuses on a transparent pipeline:
+## 🌟 Live Interactive Demo
 
-1. Register the animal species, genome build, intended edit outcome, and welfare endpoints.
-2. Ingest versioned reference-genome, functional-annotation, and prior-outcome evidence.
-3. Generate an evidence trace for plausible on-target, off-target, and network-level consequences.
-4. Produce a calibrated risk *tier* and uncertainty record, not a pass/fail answer.
-5. Evaluate against held-out historical outcomes and an independent laboratory or dataset.
-6. Require human and animal-welfare review for every high-uncertainty or high-consequence result.
+> ### Explore GeneImpact AI before installing anything
+>
+> The light-theme, bilingual demo runs a synthetic analysis entirely in your browser, with real-time biostatistical feedback, species validation, multi-omics context checks, and an audit-style result view.
 
-Every assessment is also bound to a species, strain/breed, genome build, edit class, evidence snapshot, and model version. This prevents a result from being reused outside its demonstrated setting.
+[![GeneImpact AI interactive demo preview](docs/assets/demo-preview.gif)](https://kfat77.github.io/geneimpact-ai/)
 
-Registered contexts now cover mouse, rat, zebrafish, fruit fly, rhesus
-macaque, and cynomolgus macaque. Registration provides strict context and
-assembly auditing; predictor validation remains separately reported for each
-species. See the [multi-species registry](docs/multispecies-registry.md).
+🚀 **[Try the Live Demo Here](https://kfat77.github.io/geneimpact-ai/)**
 
-## Scientific guardrails
+> [!IMPORTANT]
+> The Web Demo uses synthetic data and illustrative outputs. It is a product preview—not experimental evidence, an edit-design service, or a safety determination.
 
-- **Predictions are not guarantees.** Outputs distinguish biological plausibility, replicated empirical evidence, and uncertainty.
-- **No deterministic language.** Results must report effect sizes, confidence intervals, cohort context, and limitations.
-- **Pre-registration before evaluation.** Species, edit class, endpoints, data split, and success criteria are locked before model assessment.
-- **Species-aware validity.** Results are reported separately by species, strain/breed, genome build, and edit class; no cross-species generalization is assumed.
-- **Animal welfare is a first-class endpoint.** A high predicted welfare consequence or high uncertainty cannot be collapsed into a low-risk recommendation.
-- **No autonomous use.** Any future operational use needs institution-specific ethics, biosafety, veterinary, and regulatory review.
-- **Data stewardship.** Never commit raw sequencing files, facility records, animal identifiers, or restricted study data.
+## Key Features
 
-## Repository layout
+- 🧬 **Evidence-aware multi-omics integration** — Combine versioned reference assemblies, functional annotations, phenotype evidence, target-gene context, and independently produced predictor outputs without erasing source provenance.
+- 📊 **Real-time statistical feedback** — Surface bounded evidence scores, applicability status, calibration metrics, uncertainty, and animal-welfare relevance instead of presenting an opaque pass/fail result.
+- 🔌 **Developer-friendly API and CLI** — Use typed Python interfaces or composable command-line workflows to generate JSON reports, verify dossier integrity, inspect species readiness, and integrate external predictors.
+- 🧪 **Strict biological-domain gating** — Bind every result to a species, strain or isolate, genome build, edit class, delivery context, evidence snapshot, and model version.
+- 🔍 **Audit-ready provenance** — Preserve request hashes, model and source versions, reference accessions, evidence references, limitations, and machine-readable report notices.
+- 🐁 **Multi-species research contexts** — Validate registered contexts for mouse, rat, zebrafish, fruit fly, rhesus macaque, and cynomolgus macaque while reporting predictor maturity separately for each domain.
 
-```
-docs/                  Research protocol, data governance, and model card
-src/geneimpact/        Feature and interaction-scoring library
-tests/                 Unit tests
-examples/              Runnable assessment request example
-```
+## Quick Start
 
-## Quick start
+GeneImpact AI requires **Python 3.11 or later**.
 
 ```bash
+git clone https://github.com/kfat77/geneimpact-ai.git
+cd geneimpact-ai
+
+python -m venv .venv
+source .venv/bin/activate
+
+python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 pytest
 ```
 
-## Run an assessment
+Run the included synthetic assessment and write a machine-readable report:
 
 ```bash
-python -m geneimpact dossier examples/dossier-zebrafish-request.json --output research-dossier.json
-python -m geneimpact verify-dossier research-dossier.json
-python -m geneimpact assess examples/assessment-request.json --output assessment-report.json
-python -m geneimpact source-check --species mouse
-python -m geneimpact snapshot-mgi --report all-phenotypes --output-dir data/mgi
-python -m geneimpact normalize-mgi --input data/mgi/MGI_PhenotypicAllele.rpt --output data/mgi/endonuclease-alleles.jsonl
-python -m geneimpact impc-gene --gene Prkdc --output data/impc/Prkdc-significant.json
-python -m geneimpact benchmark-mgi --input data/mgi/endonuclease-alleles.jsonl --output-dir data/benchmarks/mgi-v1
-python -m geneimpact evaluate-baseline --benchmark-dir data/benchmarks/mgi-v1 --k 5
-python -m geneimpact benchmark-impc --gene Prkdc --gene Kit --output data/benchmarks/impc-validation.jsonl
-python -m geneimpact calibrate-impc --calibration data/benchmarks/impc-calibration-v1.jsonl --test data/benchmarks/impc-test-v1.jsonl --output data/benchmarks/impc-calibration-report-v1.json
-python -m geneimpact import-behive-efficiency --input examples/behive-efficiency-import.json --output behive-audit.json
-python -m geneimpact import-behive-bystander --input examples/behive-bystander-import.json --output behive-bystander-audit.json
-python -m geneimpact import-indelphi --input examples/indelphi-mouse-result.json --output indelphi-audit.json
-python -m geneimpact dossier examples/dossier-mouse-indelphi-request.json --output mouse-research-dossier.json
-python -m geneimpact import-housden --input examples/housden-fruit-fly-result.json --source-response downloaded-flyrnai-response.xls --output housden-audit.json
-python -m geneimpact capabilities --species zebrafish
-python -m geneimpact readiness --all
-python -m geneimpact import-crispritz --metadata examples/crispritz-rat-metadata.json --targets examples/crispritz-synthetic.targets.txt --output crispritz-audit.json
-python -m geneimpact score-crisprscan --input examples/crisprscan-zebrafish-request.json --output crisprscan-report.json
-python -m geneimpact validate-crisprscan-transfer --input data/benchmarks/crisprscan-nhgri1-2022.json --output crisprscan-transfer-report.json
-python -m geneimpact prepare-rat-guide-transfer --table1 publisher-table1.xlsx --table5 publisher-table5.xlsx --output rat-predictions.json
-python -m geneimpact validate-rat-guide-transfer --table1 publisher-table1.xlsx --table5 publisher-table5.xlsx --predictions rat-predictions.json --output rat-transfer-report.json
-python -m geneimpact audit-fruit-fly-cas12a-evidence --library publisher-library.csv --genotypes publisher-genotypes.xlsx --source-data publisher-source-data.xlsx --line-id HD12aCFD0001 --output fruit-fly-cas12a-audit.json
+geneimpact assess examples/assessment-request.json \
+  --output assessment-report.json
 ```
 
-Read the [researcher guide](docs/researcher-guide.md) before using the tool with
-study evidence. The [unified dossier guide](docs/research-dossier.md) documents
-the preferred one-request workflow. The
-[BE-Hive adapter guide](docs/behive-adapter.md) documents
-the first real model integration and its deliberately narrow mES scope. The
-[CRISPRitz adapter guide](docs/crispritz-adapter.md) documents cross-species
-reference-search auditing and its interpretation limits. The
-[CRISPRscan adapter guide](docs/crisprscan-adapter.md) defines the narrower
-zebrafish embryo activity-scoring domain. The
-[inDelphi adapter guide](docs/indelphi-adapter.md) documents the licensed
-external-result workflow and mouse-embryo transfer evidence.
-The [Housden adapter guide](docs/housden-adapter.md) documents the
-external-result workflow for fruit-fly S2R+ cell guide ranking and its strict
-no-in-vivo-extrapolation rule.
-The [rat transfer benchmark guide](docs/rat-transfer-benchmark.md) documents
-the pinned 14-guide in-vivo external-validation workflow and why it is not a
-general rat predictor.
-The [fruit-fly Cas12a evidence guide](docs/fruit-fly-cas12a-evidence.md)
-documents the checksum-pinned 845-array in-vivo LOH audit and why its
-multiplex labels cannot become per-guide predictions.
+Build and verify the preferred unified research dossier:
 
-## Initial API concept
+```bash
+geneimpact dossier examples/dossier-zebrafish-request.json \
+  --output research-dossier.json
+
+geneimpact verify-dossier research-dossier.json
+```
+
+Preview the bilingual Web Demo locally:
+
+```bash
+python -m http.server 8000 --directory demo
+```
+
+Then open `http://localhost:8000`.
+
+## Code Example / Usage
+
+The example below evaluates a **synthetic 35-nt SpCas9 context** with the version-locked CRISPRscan implementation and returns a provenance-bearing report. This predictor is deliberately limited to its declared zebrafish embryo domain.
 
 ```python
-from geneimpact.edit_assessment import EditEvidence, assess_edit
+import json
+from dataclasses import asdict
 
-assess_edit(
-    EditEvidence(
-        on_target_uncertainty=0.2,
-        off_target_evidence=0.7,
-        network_impact_evidence=0.5,
-        welfare_relevance=0.8,
-    )
-)
+from geneimpact.crisprscan import score_crisprscan
+
+request = {
+    "species_profile": "zebrafish",
+    "genome_build": "GRCz12tu",
+    "assembly_accession": "GCF_049306965.2",
+    "reference_strain_or_isolate": "Tuebingen",
+    "nuclease": "SpCas9",
+    "guide_expression": "t7_in_vitro_transcription",
+    "developmental_context": "zebrafish_embryo",
+    "guides": [
+        {
+            "guide_id": "zf-guide-001",
+            "context_35nt": "ACCTGGATCGATGCTGATGCTAGATAAGGTTGAGC",
+        }
+    ],
+}
+
+report = score_crisprscan(request)
+print(json.dumps(asdict(report), indent=2))
 ```
 
-The result is an evidence trace and review tier for downstream research. It is not an authorization to edit an animal.
+Equivalent CLI workflow:
 
-## Roadmap
+```bash
+geneimpact score-crisprscan \
+  --input examples/crisprscan-zebrafish-request.json \
+  --output crisprscan-report.json
+```
 
-- [x] Research scope, governance, and model-card templates
-- [x] Transparent evidence-to-review-tier baseline
-- [x] Animal-edit pre-registration and evidence-grading templates
-- [x] Audit-ready study context and held-out calibration metrics
-- [x] Runnable JSON-to-report researcher workflow
-- [x] Registered mouse/GRCm39 profile and live authoritative metadata adapter
-- [x] Current NCBI reference profiles for rat, zebrafish, fruit fly, rhesus macaque, and cynomolgus macaque
-- [x] Ambiguity rejection and strain/isolate warnings across registered species
-- [x] Code-level species × predictor evidence-status matrix
-- [x] Version-locked CRISPRitz cross-species reference-search audit adapter
-- [x] Version-locked CRISPRscan zebrafish embryo activity scorer
-- [x] Independent 50-guide zebrafish RNP transfer benchmark with honest domain labeling
-- [x] Unified multi-species research dossier with target-gene interactions and integrity verification
-- [x] Version-locked inDelphi mESC repair-outcome import with external mouse-embryo transfer evidence
-- [x] Machine-readable evidence qualification for every registered species
-- [x] Official-service Housden result import for fruit-fly S2R+ cell culture
-- [x] Pinned, sequence-redacted rat in-vivo guide-activity transfer evaluator
-- [x] Pinned fruit-fly Cas12a in-vivo array-level LOH evidence auditor
-- [x] Checksum-bearing MGI phenotype snapshot adapter
-- [x] Streaming MGI genome-edit evidence normalization
-- [x] Bounded IMPC significant gene-phenotype query adapter
-- [x] Leakage-aware, gene-grouped MGI positive-association benchmark
-- [x] Manifest-bound Recall@K baseline for unseen genes
-- [x] Bounded independent IMPC validation builder with tested outcomes
-- [x] Gene-disjoint IMPC Brier/ECE calibration baseline
-- [x] Version-locked BE-Hive mES efficiency import and audit adapter
-- [x] Version-locked BE-Hive mES bystander-outcome import and audit adapter
-- [x] Leakage- and domain-gated BE-Hive independent validation evaluator
-- [ ] IMPC phenotype snapshot adapter
-- [ ] Isolated, license-reviewed BE-Hive execution environment
-- [ ] Held-out mES efficiency comparison against an independent experimental dataset
-- [ ] Reproducible species/edit-class split and calibration workflow
-- [ ] Independent laboratory replication benchmarks
-- [ ] Prospective locus- and laboratory-specific mESC-to-embryo validation
-- [ ] Restricted animal-study data access layer
+The report retains the request checksum, implementation version and commit, coefficient checksum, declared biological context, score labels, and interpretation warnings. A guide-activity score is **not** a phenotype prediction, editing probability, off-target assessment, or safety claim.
+
+## Architecture / Research Philosophy
+
+GeneImpact AI is designed around a simple principle: **a prediction is useful only when its evidence, applicability, uncertainty, and provenance remain visible**.
+
+```mermaid
+flowchart LR
+    A["Declared study context"] --> B["Species & assembly validation"]
+    B --> C["Versioned evidence adapters"]
+    C --> D["Predictor applicability gates"]
+    D --> E["Biostatistical evaluation"]
+    E --> F["Audit-ready report"]
+    F --> G["Human, welfare & institutional review"]
+```
+
+### Evidence-aware by construction
+
+The system keeps empirical observations, model outputs, and biological hypotheses distinct. External predictors are accepted only through explicit adapter contracts, then checked against their supported species, edit class, experimental context, implementation version, and evidence reference. Out-of-domain outputs may remain visible for audit purposes, but they are not promoted to applicable evidence.
+
+### Biostatistical rigor
+
+GeneImpact AI favors bounded scores, held-out evaluation, gene-disjoint splits, Brier score, expected calibration error, Recall@K, and explicit transfer-evidence labels over unqualified accuracy claims. High-consequence or high-uncertainty signals cannot be averaged away by reassuring values elsewhere.
+
+### Reproducibility and bounded uncertainty
+
+Assessments are tied to exact reference assemblies, strains or isolates, evidence snapshots, model versions, and content hashes. The project treats uncertainty as a reportable result—not a defect to conceal—and requires prospective experimental validation before any operational interpretation.
+
+> [!CAUTION]
+> GeneImpact AI is research decision-support software. It does not authorize an animal genome edit, establish safety, replace experimental validation, or substitute for ethics, biosafety, veterinary, animal-welfare, or regulatory review.
+
+For methodology and governance details, see the [research protocol](docs/research-protocol.md), [model card](docs/model-card.md), [multi-species registry](docs/multispecies-registry.md), [validation plan](docs/validation-plan.md), and [data-governance policy](docs/data-governance.md).
+
+## Contributing
+
+Contributions that improve scientific validity, reproducibility, documentation, test coverage, accessibility, or bounded species-specific validation are welcome.
+
+1. Fork the repository and create a focused branch.
+2. Add or update tests for behavioral changes.
+3. Run `pytest` locally.
+4. Document the biological domain, evidence source, assumptions, and limitations of any new predictor or adapter.
+5. Open a pull request with a concise scientific and technical rationale.
+
+Please do not commit raw sequencing files, restricted study data, facility records, animal identifiers, or third-party model assets without confirmed redistribution rights.
 
 ## License
 
-MIT. See [LICENSE](LICENSE) and [third-party notices](docs/third-party-notices.md).
+GeneImpact AI is released under the [MIT License](LICENSE). Third-party datasets, publications, services, and model integrations may have separate terms; review the [third-party notices](docs/third-party-notices.md) before redistribution or operational use.
