@@ -65,11 +65,14 @@ python -m geneimpact calibrate-impc --calibration data/benchmarks/impc-calibrati
 python -m geneimpact import-behive-efficiency --input examples/behive-efficiency-import.json --output behive-audit.json
 python -m geneimpact import-behive-bystander --input examples/behive-bystander-import.json --output behive-bystander-audit.json
 python -m geneimpact capabilities --species zebrafish
+python -m geneimpact import-crispritz --metadata examples/crispritz-rat-metadata.json --targets examples/crispritz-synthetic.targets.txt --output crispritz-audit.json
 ```
 
 Read the [researcher guide](docs/researcher-guide.md) before using the tool with
 study evidence. The [BE-Hive adapter guide](docs/behive-adapter.md) documents
-the first real model integration and its deliberately narrow mES scope.
+the first real model integration and its deliberately narrow mES scope. The
+[CRISPRitz adapter guide](docs/crispritz-adapter.md) documents cross-species
+reference-search auditing and its interpretation limits.
 
 ## Initial API concept
 
@@ -99,6 +102,7 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [x] Current NCBI reference profiles for rat, zebrafish, fruit fly, rhesus macaque, and cynomolgus macaque
 - [x] Ambiguity rejection and strain/isolate warnings across registered species
 - [x] Code-level species × predictor evidence-status matrix
+- [x] Version-locked CRISPRitz cross-species reference-search audit adapter
 - [x] Checksum-bearing MGI phenotype snapshot adapter
 - [x] Streaming MGI genome-edit evidence normalization
 - [x] Bounded IMPC significant gene-phenotype query adapter

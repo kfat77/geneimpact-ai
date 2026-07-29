@@ -10,6 +10,7 @@ from .species import PROFILES
 
 class CapabilityStatus(str, Enum):
     AVAILABLE_DECLARED_DOMAIN = "available_declared_domain"
+    AVAILABLE_REFERENCE_SEARCH = "available_reference_search"
     VALIDATION_CANDIDATE = "validation_candidate"
     REFERENCE_SEARCH_CANDIDATE = "reference_search_candidate"
     OUT_OF_DOMAIN_ONLY = "out_of_domain_only"
@@ -43,12 +44,12 @@ def capabilities_for_species(species_profile: str) -> tuple[PredictorCapability,
             predictor="CRISPRitz",
             task="reference_genome_off_target_enumeration",
             edit_classes=("knockout", "base_editing", "prime_editing"),
-            status=CapabilityStatus.REFERENCE_SEARCH_CANDIDATE,
+            status=CapabilityStatus.AVAILABLE_REFERENCE_SEARCH,
             biological_domain=f"{species_profile} reference assembly",
             evidence_reference=_CRISPRITZ_REFERENCE,
             note=(
-                "Genome-indexed mismatch/bulge search is species-configurable, "
-                "but a version-locked GeneImpact adapter and species-specific empirical calibration are pending."
+                "Version-locked audit import is available for genome-indexed mismatch/bulge "
+                "search; species-specific empirical calibration remains pending."
             ),
         )
     ]

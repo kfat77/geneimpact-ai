@@ -62,6 +62,15 @@ from .capabilities import (
     capabilities_for_species,
     capability_matrix,
 )
+from .crispritz import (
+    CRISPRITZ_COMMIT,
+    CRISPRITZ_REFERENCE,
+    CRISPRITZ_VERSION,
+    CrispritzAuditReport,
+    CrispritzDifferenceCount,
+    CrispritzHit,
+    import_crispritz_targets,
+)
 
 __all__ = [
     "AssessmentRecord",
@@ -86,6 +95,12 @@ __all__ = [
     "ConstantSignificanceModel",
     "CYNOMOLGUS_MACAQUE_PROFILE",
     "CapabilityStatus",
+    "CRISPRITZ_COMMIT",
+    "CRISPRITZ_REFERENCE",
+    "CRISPRITZ_VERSION",
+    "CrispritzAuditReport",
+    "CrispritzDifferenceCount",
+    "CrispritzHit",
     "EditAssessment",
     "EditEvidence",
     "EvidenceLevel",
@@ -129,6 +144,7 @@ __all__ = [
     "evaluate_impc_calibration",
     "integrate_outputs",
     "integrate_behive_efficiency",
+    "import_crispritz_targets",
     "normalize_phenotypic_alleles",
     "normalize_behive_efficiency",
     "normalize_behive_bystander",

@@ -11,6 +11,7 @@ from .behive import normalize_behive_efficiency
 from .behive_bystander import normalize_behive_bystander
 from .behive_validation import evaluate_behive_validation
 from .capabilities import capabilities_for_species
+from .crispritz import import_crispritz_targets
 from .datasources import check_ncbi_profile
 from .benchmark import build_mgi_benchmark
 from .baseline import evaluate_benchmark
@@ -103,6 +104,13 @@ def main() -> None:
         help="Show available and candidate predictors for a registered species.",
     )
     capabilities.add_argument("--species", required=True, choices=sorted(PROFILES))
+    crispritz_import = subparsers.add_parser(
+        "import-crispritz",
+        help="Validate a version-locked external CRISPRitz targets file.",
+    )
+    crispritz_import.add_argument("--metadata", required=True, type=Path)
+    crispritz_import.add_argument("--targets", required=True, type=Path)
+    crispritz_import.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
 
     if args.command == "source-check":
@@ -247,6 +255,19 @@ def main() -> None:
             for item in capabilities_for_species(args.species)
         ]
         print(json.dumps(rows, indent=2, ensure_ascii=False))
+        return
+    if args.command == "import-crispritz":
+        try:
+            metadata = json.loads(args.metadata.read_text(encoding="utf-8"))
+            if not isinstance(metadata, dict):
+                raise ValueError("CRISPRitz metadata must be a JSON object.")
+            report = import_crispritz_targets(metadata, args.targets)
+        except (OSError, json.JSONDecodeError, TypeError, ValueError) as error:
+            parser.error(str(error))
+        rendered = json.dumps(asdict(report), indent=2, ensure_ascii=False) + "\n"
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(rendered, encoding="utf-8")
+        print(f"CRISPRitz audit report written to {args.output}")
         return
 
     try:

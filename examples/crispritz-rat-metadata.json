@@ -1,0 +1,15 @@
+{
+  "species_profile": "rat",
+  "genome_build": "GRCr8",
+  "assembly_accession": "GCF_036323735.1",
+  "reference_strain_or_isolate": "BN/NHsdMcwi",
+  "edit_class": "knockout",
+  "pam_definition": "NNNNNNNNNNNNNNNNNNNNNGG 3",
+  "max_mismatches": 4,
+  "max_dna_bulge": 1,
+  "max_rna_bulge": 1,
+  "crispritz_commit": "24b893ecb0c2354d5c76697e116d2febe1ee6265",
+  "reference_fasta_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "variant_aware": false,
+  "variant_snapshot_sha256": null
+}

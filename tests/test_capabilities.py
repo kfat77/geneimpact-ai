@@ -8,14 +8,14 @@ from geneimpact.capabilities import (
 from geneimpact.species import PROFILES
 
 
-def test_every_registered_species_has_reference_search_candidate():
+def test_every_registered_species_has_available_reference_search():
     matrix = capability_matrix()
 
     assert set(matrix) == set(PROFILES)
     for capabilities in matrix.values():
         assert any(
             item.predictor == "CRISPRitz"
-            and item.status is CapabilityStatus.REFERENCE_SEARCH_CANDIDATE
+            and item.status is CapabilityStatus.AVAILABLE_REFERENCE_SEARCH
             for item in capabilities
         )
 
