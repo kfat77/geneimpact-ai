@@ -43,7 +43,9 @@ python -m geneimpact audit-fruit-fly-cas12a-evidence \
 Add `--line-id HD12aCFD0001` to include one array lookup. The lookup reports
 the FlyBase target, number of component spacers, SHA-256 hashes of those
 spacers, screen membership, and array-level LOH summaries. It does not emit
-raw spacer sequences.
+raw spacer sequences. Until a source-qualified interval manifest is available,
+every lookup reports
+`interval_relationship=unresolved_without_interval_manifest`.
 
 ## Interpretation boundary
 
@@ -56,6 +58,8 @@ guides cannot be disentangled.
 Consequently:
 
 - never label one component guide from an array-level observation;
+- never interpret a zero LOH score as an inactive array while
+  `interval_relationship` is unresolved;
 - never interpret LOH as a repair-spectrum, phenotype, welfare, or safety
   probability;
 - never treat outside-interval observations as genome-wide off-target recall;

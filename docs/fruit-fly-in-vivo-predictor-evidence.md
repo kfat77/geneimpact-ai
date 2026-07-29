@@ -1,14 +1,16 @@
 # Fruit-fly in-vivo predictor evidence
 
-**Review date:** 2026-07-29  
-**Species:** *Drosophila melanogaster*  
+**Review date:** 2026-07-29
+
+**Species:** *Drosophila melanogaster*
+
 **Scope:** embryo, germline, somatic-tissue, and whole-animal CRISPR nuclease activity, repair outcomes, off-targets, multiplex interactions, and phenotype hazards.
 
 ## Decision
 
 No public dataset located in this review supports a generally calibrated fruit-fly guide-activity, repair-outcome, off-target, or phenotypic-safety predictor.
 
-One newly published resource does justify a narrow new capability. [Port et al. 2026](https://doi.org/10.1038/s41467-026-68434-z) provides exact quadruple-Cas12a guide arrays, exact transgenic contexts, raw loss-of-heterozygosity (LOH) observations, quantitative wing and toxicity measurements, and a CC BY 4.0 licence. It supports a reproducible **array-level in-vivo Cas12a benchmark**. It does not support per-guide activity prediction because each tested reagent contains four guides, only one of 169 on-target arrays was inactive, and activity can arise from redundancy or synergy between guides.
+One newly published resource does justify a narrow new capability. [Port et al. 2026](https://doi.org/10.1038/s41467-026-68434-z) provides exact multiplex Cas12a guide arrays, exact transgenic contexts, raw loss-of-heterozygosity (LOH) observations, quantitative wing and toxicity measurements, and a CC BY 4.0 licence. It supports a reproducible **array-level in-vivo Cas12a benchmark**. It does not support per-guide activity prediction because each tested reagent contains multiple guides, only one of 169 on-target arrays was inactive, and activity can arise from redundancy or synergy between guides.
 
 For SpCas9, the best public in-vivo evidence is split across:
 
@@ -42,7 +44,7 @@ Phenotype is not a direct editing label. Viability, tissue size, pigmentation, o
 
 | Primary candidate | Exact context and scale | Public label | Licence/access | Qualified use | Decision |
 |---|---|---|---|---|---|
-| [Port et al. 2026](https://doi.org/10.1038/s41467-026-68434-z) | LbCas12a-D156R (`Cas12a+`); four-guide HD12aCFD arrays; transgenic larval tissues/whole flies; >800 genes | 525 arrays/2,197 guides screened on 2L and 490 arrays/1,957 guides on 2R; 168/169 in-window arrays reproducibly active; raw LOH, wing, apoptosis, and other source data | CC BY 4.0; source files public | Array-level activity, specificity-observation, toxicity and phenotype benchmark | **Strongest bounded in-vivo candidate; not per-guide calibration** |
+| [Port et al. 2026](https://doi.org/10.1038/s41467-026-68434-z) | LbCas12a-D156R (`Cas12a+`); predominantly four-guide HD12aCFD arrays; transgenic larval tissues/whole flies; >800 genes | 525 arrays/2,197 guides screened on 2L and 490 arrays/1,957 guides on 2R; 168/169 in-window arrays reproducibly active; raw LOH, wing, apoptosis, and other source data | CC BY 4.0; source files public | Array-level activity, specificity-observation, toxicity and phenotype benchmark | **Strongest bounded in-vivo candidate; not per-guide calibration** |
 | [Port et al. 2020](https://doi.org/10.7554/eLife.53865) | SpCas9; conditional paired-guide HD_CFD lines at `attP40`; BDGP6 design; somatic tissues and germline | 1,738 line/guide-pair mapping; whole-animal viability for 639 lines; direct ICE/Sanger editing for a small subset | CC BY; five XLSX supplements | Paired-guide resource and phenotype benchmark | **Not a direct activity predictor dataset** |
 | [Port et al. 2015](https://doi.org/10.1534/g3.115.019083) | SpCas9; 66 transgenic single guides at `attP40`; act-Cas9/nos-Cas9; seven genes | Somatic phenotype for 66 guides; quantitative germline transmission mainly for 5 `yellow` and 18 `ebony` guides | CC BY 4.0; supplement public | Narrow single-guide in-vivo benchmark | **Useful but only seven genes; phenotype confounding** |
 | [Ren et al. 2014](https://doi.org/10.1016/j.celrep.2014.09.044) | SpCas9 transgenic embryos; injected U6b guide plasmids; visible-marker loci | 104 tested guide/mismatch configurations; quantitative on-target panel includes 27 `white`, 4 `vermilion`, 4 `ebony`, and 4 `yellow` guides; germline mutation rates | Public article/supplements; NCBI does not list it as open access; no explicit dataset licence located | Narrow embryo/germline sequence benchmark and mismatch study | **Best early Cas9 design evidence; target diversity inadequate** |
@@ -54,11 +56,11 @@ Phenotype is not a direct editing label. Viability, tissue size, pigmentation, o
 
 ## 1. Port et al. 2026: valid array-level Cas12a benchmark
 
-The study uses a D156R variant of *Lachnospiraceae bacterium* Cas12a and HD12aCFD transgenes encoding four guides against independent sites in a common exon. The guide array is inserted at a defined landing site and Cas12a is supplied from controlled transgenes. Exact genotypes are published in Supplementary Data 3; the library table gives line ID, four spacer sequences, FlyBase gene ID, and gene symbol.
+The study uses a D156R variant of *Lachnospiraceae bacterium* Cas12a and HD12aCFD transgenes designed to encode four guides against independent sites in a common exon. The published library contains 838 rows with four nonblank spacers and seven rows with three. The guide array is inserted at a defined landing site and Cas12a is supplied from controlled transgenes. Exact genotypes are published in Supplementary Data 3; the library table gives line ID, up to four spacer sequences, FlyBase gene ID, and gene symbol.
 
 Exact artifacts:
 
-- [Supplementary Data 1: 845 HD12aCFD array records and four component spacers](https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-026-68434-z/MediaObjects/41467_2026_68434_MOESM3_ESM.csv)
+- [Supplementary Data 1: 845 HD12aCFD array records and up to four component spacers](https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-026-68434-z/MediaObjects/41467_2026_68434_MOESM3_ESM.csv)
 - [Supplementary Data 2: plasmid and primer sequences](https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-026-68434-z/MediaObjects/41467_2026_68434_MOESM4_ESM.xlsx)
 - [Supplementary Data 3: exact Drosophila genotypes](https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-026-68434-z/MediaObjects/41467_2026_68434_MOESM5_ESM.xlsx)
 - [Source Data workbook](https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-026-68434-z/MediaObjects/41467_2026_68434_MOESM9_ESM.xlsx)
@@ -76,8 +78,8 @@ The LOH assay screened 525 lines encoding 2,197 guides on 2L and 490 lines encod
 
 What this supports:
 
-- reproducible import and audit of exact quadruple-guide arrays;
-- continuous or ordinal **array-level LOH activity** benchmarking in the reported larval reporter context;
+- reproducible import and audit of exact three- or four-guide arrays;
+- continuous or ordinal **array-level LOH observation** benchmarking in the reported larval reporter context, with per-array interval relationships unresolved until an interval manifest is obtained;
 - comparison of Cas12a quadruple arrays with the named Cas9 single/dual-guide lines;
 - empirical hazard modules for apoptosis after simultaneous breaks, nearby-element effects, LOH, and multiplex-associated deletions.
 
@@ -89,7 +91,7 @@ What it does not support:
 - generalization to SpCas9, embryo injection, germline editing, another Cas12a variant, another expression cassette, or a wild stock;
 - repair-spectrum prediction: sequence-resolved repair was limited to selected reporter/endogenous loci rather than hundreds of independent targets.
 
-**Qualification:** implement as `usable_bounded_benchmark` with task name such as `dmel_cas12a_quad_array_loh_activity_v1`. Every result must say “quadruple-array activity,” not “guide efficiency.”
+**Qualification:** implement as `usable_bounded_benchmark` with task name such as `dmel_cas12a_array_loh_evidence_v1`. Every result must say “multiplex-array LOH observation,” not “guide efficiency,” and a zero score must not be called inactive while the target-to-interval relationship is unresolved.
 
 ## 2. Port et al. 2020: large paired-guide resource, phenotype labels
 
@@ -186,10 +188,12 @@ The reported between-pool variants cannot distinguish Cas9-induced mutations fro
 
 Implement two narrowly named evidence imports:
 
-1. **`dmel_cas12a_quad_array_loh_activity_v1`**
+1. **`dmel_cas12a_array_loh_evidence_v1`**
    - ingest Supplementary Data 1, Supplementary Data 3, and the Source Data workbook;
-   - retain the four guides as one indivisible reagent;
-   - expose raw and mean LOH score, chromosome interval, reporter, disc count, genotype, and source row;
+   - retain all three or four component guides as one indivisible reagent;
+   - expose raw and mean LOH score, reporter, disc count, genotype, source row,
+     and `interval_relationship=unresolved` until a qualified interval manifest
+     can supply the chromosome relationship;
    - classify 168/169 in-window arrays as observed reproducible activity;
    - use outside-interval arrays only for monitored-region specificity observations, not genome-wide negatives;
    - report discrimination metrics as not applicable unless future inactive arrays supply a meaningful negative class.
@@ -213,5 +217,4 @@ Continue to reject Housden results for embryo, germline, or whole-animal context
 
 Until these gaps are closed, the defensible product statement is:
 
-> GeneImpact AI can audit fruit-fly reference and experimental context, import the Housden S2R+ ranking within its cell-line domain, and benchmark a declared quadruple-Cas12a array against public in-vivo LOH evidence. General in-vivo guide efficiency, repair outcome, off-target probability, multiplex phenotype, and safety remain uncalibrated research outputs.
-
+> GeneImpact AI can audit fruit-fly reference and experimental context, import the Housden S2R+ ranking within its cell-line domain, and benchmark a declared multiplex Cas12a array against public in-vivo LOH evidence. General in-vivo guide efficiency, repair outcome, off-target probability, multiplex phenotype, and safety remain uncalibrated research outputs.

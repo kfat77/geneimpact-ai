@@ -69,7 +69,7 @@ def test_crisprscan_is_available_only_in_zebrafish_domain():
         for item in fruit_fly
         if item.task == "in_vivo_cas12a_array_loh_evidence"
     )
-    assert cas12a.status is CapabilityStatus.VALIDATION_CANDIDATE
+    assert cas12a.status is CapabilityStatus.USABLE_BOUNDED_BENCHMARK
     assert cas12a.predictor == "Port 2026 Cas12a array LOH evidence"
     assert "not a predictor" in cas12a.note
 

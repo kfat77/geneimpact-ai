@@ -6,6 +6,7 @@ import sys
 from openpyxl import Workbook
 import pytest
 
+import geneimpact.fruit_fly_cas12a as fruit_fly_cas12a
 from geneimpact.fruit_fly_cas12a import (
     FruitFlyCas12aSource,
     audit_fruit_fly_cas12a_evidence,
@@ -141,6 +142,10 @@ def test_audits_pinned_array_level_evidence_without_predictor_promotion(
     assert report.fig5j_disc_count == 4
     assert report.source_verification == "all_pinned_sources_verified"
     assert report.predictive_adapter_available is False
+    assert report.benchmark_status == "usable_bounded_benchmark"
+    assert report.interval_manifest_status == (
+        "unavailable_array_interval_relationship_not_reconstructed"
+    )
     assert report.discrimination_metrics_status == (
         "not_applicable_extreme_class_imbalance"
     )
@@ -166,7 +171,13 @@ def test_looks_up_indivisible_array_evidence_with_sequence_hashes(tmp_path):
     assert evidence.fig5i_numeric_observation_count == 0
     assert evidence.fig5i_missing_observation_count == 1
     assert evidence.fig5j_disc_count == 0
-    assert evidence.interpretation == "array_level_loh_observation_only"
+    assert evidence.interval_relationship == (
+        "unresolved_without_interval_manifest"
+    )
+    assert evidence.interpretation == (
+        "array_level_loh_observation_with_unresolved_interval_relationship"
+    )
+    assert any("zero LOH score" in warning for warning in evidence.warnings)
     assert not any(guide in repr(evidence) for guide in GUIDES)
 
 
@@ -175,6 +186,19 @@ def test_rejects_unpinned_source_content(tmp_path):
     library.write_bytes(library.read_bytes() + b"\n")
 
     with pytest.raises(ValueError, match="library SHA-256"):
+        audit_fruit_fly_cas12a_evidence(
+            library,
+            genotypes,
+            source_data,
+            source=source,
+        )
+
+
+def test_rejects_library_over_explicit_row_limit(tmp_path, monkeypatch):
+    library, genotypes, source_data, source = _write_sources(tmp_path)
+    monkeypatch.setattr(fruit_fly_cas12a, "_MAX_SOURCE_ROWS", 1)
+
+    with pytest.raises(ValueError, match="row safety limit"):
         audit_fruit_fly_cas12a_evidence(
             library,
             genotypes,

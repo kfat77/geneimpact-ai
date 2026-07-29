@@ -132,7 +132,7 @@ _RECORDS = (
         task="in_vivo_cas12a_array_loh_evidence",
         status=EvidenceUseStatus.USABLE_BOUNDED_BENCHMARK,
         biological_domain=(
-            "adult Drosophila wing-disc LOH screens over monitored "
+            "larval Drosophila wing imaginal-disc LOH screens over monitored "
             "chromosome-2 intervals"
         ),
         strain_stock_or_population="HD12aCFD attP40 array lines",

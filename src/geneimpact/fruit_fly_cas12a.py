@@ -141,6 +141,7 @@ class FruitFlyCas12aEvidenceAudit:
     article_reported_on_target_active_arrays: int | None
     article_reported_on_target_tested_arrays: int | None
     article_aggregate_reconstruction_status: str
+    interval_manifest_status: str
     predictive_adapter_available: bool
     discrimination_metrics_status: str
     warnings: tuple[str, ...]
@@ -164,6 +165,7 @@ class FruitFlyCas12aArrayEvidence:
     fig5j_score_counts_0_to_3: tuple[int, int, int, int] | None
     fig5j_mean_score: float | None
     screen_membership: str
+    interval_relationship: str
     interpretation: str
     calibration_status: str
     warnings: tuple[str, ...]
@@ -194,7 +196,7 @@ class _ParsedEvidence:
 
 
 PORT_2026_CAS12A_SOURCE = FruitFlyCas12aSource(
-    source_id="port-2026-dmel-cas12a-quad-array-loh",
+    source_id="port-2026-dmel-cas12a-array-loh",
     article_reference=FRUIT_FLY_CAS12A_REFERENCE,
     library_url=FRUIT_FLY_CAS12A_LIBRARY_URL,
     genotypes_url=FRUIT_FLY_CAS12A_GENOTYPES_URL,
@@ -241,7 +243,7 @@ def audit_fruit_fly_cas12a_evidence(
         nuclease="LbCas12a-D156R",
         reagent_level="three_or_four_guide_array",
         evidence_task="in_vivo_array_level_loh_activity_observation",
-        benchmark_status="usable_bounded_array_level_evidence",
+        benchmark_status="usable_bounded_benchmark",
         source_id=source.source_id,
         source_reference=source.article_reference,
         source_license_note=source.license_note,
@@ -282,6 +284,9 @@ def audit_fruit_fly_cas12a_evidence(
         ),
         article_aggregate_reconstruction_status=(
             "publisher_claim_retained_not_reconstructed_without_interval_manifest"
+        ),
+        interval_manifest_status=(
+            "unavailable_array_interval_relationship_not_reconstructed"
         ),
         predictive_adapter_available=False,
         discrimination_metrics_status=(
@@ -350,7 +355,10 @@ def lookup_fruit_fly_cas12a_array(
             else None
         ),
         screen_membership="+".join(memberships) if memberships else "not_screened",
-        interpretation="array_level_loh_observation_only",
+        interval_relationship="unresolved_without_interval_manifest",
+        interpretation=(
+            "array_level_loh_observation_with_unresolved_interval_relationship"
+        ),
         calibration_status="not_a_per_guide_or_probability_calibration",
         warnings=_warnings(),
     )
@@ -418,7 +426,15 @@ def _read_library(
     if tuple(reader.fieldnames or ()) != _LIBRARY_HEADERS:
         raise ValueError("library columns do not match the qualified source.")
     arrays: dict[str, _LibraryArray] = {}
-    for row_number, row in enumerate(reader, start=3):
+    for source_index, row in enumerate(
+        islice(reader, _MAX_SOURCE_ROWS + 1),
+        start=1,
+    ):
+        if source_index > _MAX_SOURCE_ROWS:
+            raise ValueError(
+                f"library exceeds the {_MAX_SOURCE_ROWS}-row safety limit."
+            )
+        row_number = source_index + 2
         source_line_id = str(row["Line_ID"]).strip()
         normalized = _normalize_line_id(source_line_id)
         if normalized in arrays:
@@ -653,6 +669,9 @@ def _warnings() -> tuple[str, ...]:
         "this class imbalance cannot support discrimination or calibration.",
         "The monitored LOH intervals cover part of chromosome 2, not "
         "genome-wide off-target recall.",
+        "The source files audited here do not reconstruct each target's "
+        "relationship to the monitored interval; a zero LOH score must not be "
+        "interpreted as an inactive array.",
         "LOH activity does not predict repair spectrum, phenotype, animal "
         "welfare, or safety in another stock, tissue, stage, or nuclease.",
     )

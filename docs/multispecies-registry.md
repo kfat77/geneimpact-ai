@@ -91,6 +91,9 @@ Status meanings:
 
 - `available_declared_domain`: a version-locked adapter exists, but only for
   the stated biological domain;
+- `usable_bounded_benchmark`: a source-pinned evidence evaluator exists, but
+  it is not an executable predictor and must retain its stated experimental
+  unit and domain;
 - `validation_candidate`: the published model is relevant enough to evaluate,
   but the adapter or independent validation is not complete;
 - `reference_search_candidate`: the method can operate against a supplied

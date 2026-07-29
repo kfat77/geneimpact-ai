@@ -19,6 +19,7 @@ from .species import PROFILES
 class CapabilityStatus(str, Enum):
     AVAILABLE_DECLARED_DOMAIN = "available_declared_domain"
     AVAILABLE_REFERENCE_SEARCH = "available_reference_search"
+    USABLE_BOUNDED_BENCHMARK = "usable_bounded_benchmark"
     VALIDATION_CANDIDATE = "validation_candidate"
     REFERENCE_SEARCH_CANDIDATE = "reference_search_candidate"
     OUT_OF_DOMAIN_ONLY = "out_of_domain_only"
@@ -163,9 +164,9 @@ def capabilities_for_species(species_profile: str) -> tuple[PredictorCapability,
                     predictor="Port 2026 Cas12a array LOH evidence",
                     task="in_vivo_cas12a_array_loh_evidence",
                     edit_classes=("knockout",),
-                    status=CapabilityStatus.VALIDATION_CANDIDATE,
+                    status=CapabilityStatus.USABLE_BOUNDED_BENCHMARK,
                     biological_domain=(
-                        "adult wing-disc LOH screens using HD12aCFD "
+                        "larval wing imaginal-disc LOH screens using HD12aCFD "
                         "three- or four-guide arrays"
                     ),
                     evidence_reference=FRUIT_FLY_CAS12A_REFERENCE,
