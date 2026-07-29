@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from hashlib import sha256
 from io import BytesIO
 import json
@@ -145,7 +146,8 @@ def _predictions():
             "name": "synthetic-oracle",
             "version": "1.0",
             "score_direction": "higher_is_more_active",
-            "score_semantics": "probability",
+            "score_semantics": "expected_edit_fraction",
+            "prediction_target": "mean_on_target_edit_fraction",
             "sequence_basis": "design_sequence",
             "training_overlap_status": "declared_no_overlap",
             "evidence_reference": "synthetic-independent-record",
@@ -196,7 +198,9 @@ def test_evaluates_verified_rat_in_vivo_transfer_without_retaining_sequences(
     assert report.training_overlap_status == "declared_no_overlap"
     assert report.independence_verified is False
     assert "submitter-declared" in report.independence_interpretation
-    assert report.use == "external_transfer_ranking_benchmark_only"
+    assert report.use == "external_transfer_benchmark_only"
+    assert "records" not in asdict(report)
+    assert "observed_mean_on_target_efficiency" not in repr(report)
     assert not any(sequence in repr(report) for sequence in SEQUENCES.values())
 
 
@@ -214,6 +218,10 @@ def test_prepares_sequence_redacted_prediction_template(tmp_path):
     )
 
     assert template["prediction"]["training_overlap_status"] == "unknown"
+    assert (
+        template["prediction"]["prediction_target"]
+        == "mean_on_target_edit_fraction"
+    )
     assert len(template["records"]) == 14
     assert template["records"][0]["predicted_score"] is None
     assert template["records"][0]["design_sequence_sha256"] == sha256(
@@ -226,6 +234,43 @@ def test_prepares_sequence_redacted_prediction_template(tmp_path):
         for design in SEQUENCES.values()
         for sequence in (design, f"G{design}")
     )
+
+
+def test_rejects_known_training_overlap(tmp_path):
+    table1_bytes, table5_bytes = _source_workbooks()
+    table1_path = tmp_path / "table1.xlsx"
+    table5_path = tmp_path / "table5.xlsx"
+    table1_path.write_bytes(table1_bytes)
+    table5_path.write_bytes(table5_bytes)
+    predictions = _predictions()
+    predictions["prediction"]["training_overlap_status"] = "overlap_detected"
+
+    with pytest.raises(ValueError, match="known training overlap"):
+        evaluate_rat_guide_transfer(
+            table1_path,
+            table5_path,
+            predictions,
+            source=_source_profile(table1_bytes, table5_bytes),
+        )
+
+
+def test_rejects_probability_with_ambiguous_prediction_target(tmp_path):
+    table1_bytes, table5_bytes = _source_workbooks()
+    table1_path = tmp_path / "table1.xlsx"
+    table5_path = tmp_path / "table5.xlsx"
+    table1_path.write_bytes(table1_bytes)
+    table5_path.write_bytes(table5_bytes)
+    predictions = _predictions()
+    predictions["prediction"]["score_semantics"] = "probability"
+    predictions["prediction"]["prediction_target"] = "high_activity_event"
+
+    with pytest.raises(ValueError, match="score_semantics"):
+        evaluate_rat_guide_transfer(
+            table1_path,
+            table5_path,
+            predictions,
+            source=_source_profile(table1_bytes, table5_bytes),
+        )
 
 
 def test_rat_transfer_cli_writes_auditable_json(

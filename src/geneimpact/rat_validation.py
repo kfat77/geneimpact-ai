@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from hashlib import sha256
+from io import BytesIO
+from itertools import islice
+import json
 import math
 from pathlib import Path
 import re
@@ -31,12 +34,12 @@ _DESIGN_SEQUENCE_PATTERN = re.compile(r"^[ACGT]{19,20}$")
 _ACTUAL_GUIDE_SEQUENCE_PATTERN = re.compile(r"^[ACGT]{20,21}$")
 _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 _MAX_WORKBOOK_BYTES = 20_000_000
-_ALLOWED_SCORE_SEMANTICS = {"ranking_score", "probability"}
+_MAX_WORKSHEET_ROWS = 10_000
+_ALLOWED_SCORE_SEMANTICS = {"ranking_score", "expected_edit_fraction"}
 _ALLOWED_SEQUENCE_BASES = {"design_sequence", "actual_guide_sequence"}
 _ALLOWED_OVERLAP_STATUS = {
     "declared_no_overlap",
     "unknown",
-    "overlap_detected",
 }
 
 
@@ -61,10 +64,8 @@ class RatGuideActivitySource:
 
 
 @dataclass(frozen=True)
-class RatGuideTransferRecord:
+class _RatGuideEvaluationRecord:
     target: str
-    prediction_input_sequence_sha256: str
-    prediction_input_sequence_length: int
     predicted_score: float
     observed_mean_on_target_efficiency: float
     animal_or_embryo_count: int
@@ -102,15 +103,15 @@ class RatGuideTransferReport:
     guide_count: int
     animal_or_embryo_observation_count: int
     excluded_ambiguous_guide_count: int
-    excluded_targets: tuple[str, ...]
     score_semantics: str
+    prediction_target: str
     sequence_basis: str
     training_overlap_status: str
     training_overlap_evidence_reference: str
+    prediction_submission_sha256: str
     independence_verified: bool
     independence_interpretation: str
     metrics: RatGuideTransferMetrics
-    records: tuple[RatGuideTransferRecord, ...]
     warnings: tuple[str, ...]
 
 
@@ -161,18 +162,18 @@ def prepare_rat_guide_transfer_template(
     source: RatGuideActivitySource = RAT_ANDERSON_2018_SOURCE,
 ) -> dict[str, Any]:
     """Build a sequence-redacted prediction template from pinned workbooks."""
-    table1_digest = _verified_digest(
+    table1_digest, table1_bytes = _verified_workbook_bytes(
         table1_path,
         source.table1_sha256,
         "Supplementary Table 1",
     )
-    table5_digest = _verified_digest(
+    table5_digest, table5_bytes = _verified_workbook_bytes(
         table5_path,
         source.table5_sha256,
         "Supplementary Table 5",
     )
-    guide_sequences, _ = _read_guides(table1_path, source)
-    _read_labels(table5_path, source)
+    guide_sequences, _ = _read_guides(table1_bytes, source)
+    _read_labels(table5_bytes, source)
     return {
         "schema_version": "geneimpact.rat_guide_transfer_predictions.v1",
         "source": {
@@ -188,6 +189,7 @@ def prepare_rat_guide_transfer_template(
             "version": "REPLACE_WITH_VERSION_OR_COMMIT",
             "score_direction": "higher_is_more_active",
             "score_semantics": "ranking_score",
+            "prediction_target": "mean_on_target_edit_fraction",
             "sequence_basis": (
                 "REPLACE_WITH_design_sequence_OR_actual_guide_sequence"
             ),
@@ -214,9 +216,11 @@ def prepare_rat_guide_transfer_template(
             for target, guide in source.target_to_guide
         ],
         "instructions": (
-            "Replace prediction metadata, declare whether the model consumed "
+            "Replace prediction metadata, declare whether the model predicts "
+            "a ranking score or the expected mean edit fraction, declare "
+            "whether it consumed "
             "the design spacer or the 5'-G actual guide, choose ranking_score "
-            "or probability, audit training overlap, and fill every "
+            "or expected edit fraction, audit training overlap, and fill every "
             "predicted_score. Do not alter target names, lengths, or hashes."
         ),
     }
@@ -230,18 +234,18 @@ def evaluate_rat_guide_transfer(
     source: RatGuideActivitySource = RAT_ANDERSON_2018_SOURCE,
 ) -> RatGuideTransferReport:
     """Evaluate one external predictor on a pinned rat in-vivo guide set."""
-    table1_digest = _verified_digest(
+    table1_digest, table1_bytes = _verified_workbook_bytes(
         table1_path,
         source.table1_sha256,
         "Supplementary Table 1",
     )
-    table5_digest = _verified_digest(
+    table5_digest, table5_bytes = _verified_workbook_bytes(
         table5_path,
         source.table5_sha256,
         "Supplementary Table 5",
     )
-    guide_sequences, source_rat_guide_count = _read_guides(table1_path, source)
-    labels, source_label_count = _read_labels(table5_path, source)
+    guide_sequences, source_rat_guide_count = _read_guides(table1_bytes, source)
+    labels, source_label_count = _read_labels(table5_bytes, source)
     prediction_metadata, prediction_scores = _validate_predictions(
         predictions,
         source,
@@ -249,20 +253,8 @@ def evaluate_rat_guide_transfer(
     )
 
     records = tuple(
-        RatGuideTransferRecord(
+        _RatGuideEvaluationRecord(
             target=target,
-            prediction_input_sequence_sha256=sha256(
-                getattr(
-                    guide_sequences[guide],
-                    prediction_metadata["sequence_basis"],
-                ).encode("ascii")
-            ).hexdigest(),
-            prediction_input_sequence_length=len(
-                getattr(
-                    guide_sequences[guide],
-                    prediction_metadata["sequence_basis"],
-                )
-            ),
             predicted_score=prediction_scores[target],
             observed_mean_on_target_efficiency=labels[target][0],
             animal_or_embryo_count=labels[target][1],
@@ -276,11 +268,13 @@ def evaluate_rat_guide_transfer(
     pearson = _pearson(predicted, observed)
     ci_lower, ci_upper = _pearson_ci95(pearson, len(records))
     spearman = _pearson(_average_ranks(predicted), _average_ranks(observed))
-    probability_scores = prediction_metadata["score_semantics"] == "probability"
+    fraction_scores = (
+        prediction_metadata["score_semantics"] == "expected_edit_fraction"
+    )
     mae = (
         sum(abs(a - b) for a, b in zip(predicted, observed, strict=True))
         / len(records)
-        if probability_scores
+        if fraction_scores
         else None
     )
     rmse = (
@@ -291,7 +285,7 @@ def evaluate_rat_guide_transfer(
             )
             / len(records)
         )
-        if probability_scores
+        if fraction_scores
         else None
     )
     overlap_status = prediction_metadata["training_overlap_status"]
@@ -300,7 +294,7 @@ def evaluate_rat_guide_transfer(
         predictor_version=prediction_metadata["version"],
         species_profile="rat",
         evaluation_status="retrospective_external_transfer_benchmark",
-        use="external_transfer_ranking_benchmark_only",
+        use="external_transfer_benchmark_only",
         source_id=source.source_id,
         source_reference=source.article_reference,
         source_table1_url=source.table1_url,
@@ -318,13 +312,21 @@ def evaluate_rat_guide_transfer(
             record.animal_or_embryo_count for record in records
         ),
         excluded_ambiguous_guide_count=len(source.excluded_targets),
-        excluded_targets=source.excluded_targets,
         score_semantics=prediction_metadata["score_semantics"],
+        prediction_target=prediction_metadata["prediction_target"],
         sequence_basis=prediction_metadata["sequence_basis"],
         training_overlap_status=overlap_status,
         training_overlap_evidence_reference=prediction_metadata[
             "evidence_reference"
         ],
+        prediction_submission_sha256=sha256(
+            json.dumps(
+                predictions,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+            ).encode("utf-8")
+        ).hexdigest(),
         independence_verified=False,
         independence_interpretation=(
             "Training-overlap status is submitter-declared and has not been "
@@ -338,12 +340,11 @@ def evaluate_rat_guide_transfer(
             mean_absolute_error=mae,
             root_mean_squared_error=rmse,
         ),
-        records=records,
         warnings=(
             "Only 14 uniquely mapped guides are evaluated; two Usp30 labels "
             "are excluded because the source-table guide mapping is ambiguous.",
             "The source labels are highly selected and guide-level sample size "
-            "is too small for model training or probability calibration.",
+            "is too small for model training or edit-fraction calibration.",
             "The source coordinates use rn5, not the registered GRCr8 assembly; "
             "sequence hashes bind comparisons without implying coordinate lift-over.",
             "Animal or embryo counts are not independent guide-level replicates.",
@@ -356,23 +357,32 @@ def evaluate_rat_guide_transfer(
     )
 
 
-def _verified_digest(path: Path, expected: str, label: str) -> str:
+def _verified_workbook_bytes(
+    path: Path,
+    expected: str,
+    label: str,
+) -> tuple[str, bytes]:
     if not _SHA256_PATTERN.fullmatch(expected):
         raise ValueError(f"{label} expected SHA-256 is invalid.")
-    size = path.stat().st_size
-    if not 1 <= size <= _MAX_WORKBOOK_BYTES:
+    with path.open("rb") as handle:
+        content = handle.read(_MAX_WORKBOOK_BYTES + 1)
+    if not 1 <= len(content) <= _MAX_WORKBOOK_BYTES:
         raise ValueError(f"{label} must be between 1 byte and 20 MB.")
-    digest = sha256(path.read_bytes()).hexdigest()
+    digest = sha256(content).hexdigest()
     if digest != expected:
         raise ValueError(f"{label} SHA-256 does not match the pinned source.")
-    return digest
+    return digest, content
 
 
 def _read_guides(
-    path: Path,
+    workbook_bytes: bytes,
     source: RatGuideActivitySource,
 ) -> tuple[dict[str, _RatGuideSequences], int]:
-    workbook = load_workbook(path, read_only=True, data_only=True)
+    workbook = load_workbook(
+        BytesIO(workbook_bytes),
+        read_only=True,
+        data_only=True,
+    )
     try:
         if "gRNA ON_OFF Target List" not in workbook.sheetnames:
             raise ValueError(
@@ -392,7 +402,7 @@ def _read_guides(
             "Supplementary Table 1",
         )
         rat_guides: dict[str, _RatGuideSequences] = {}
-        for row in rows:
+        for row in islice(rows, _MAX_WORKSHEET_ROWS):
             name = row[index["Name"]]
             genome = row[index["Genome"]]
             if (
@@ -446,10 +456,14 @@ def _read_guides(
 
 
 def _read_labels(
-    path: Path,
+    workbook_bytes: bytes,
     source: RatGuideActivitySource,
 ) -> tuple[dict[str, tuple[float, int]], int]:
-    workbook = load_workbook(path, read_only=True, data_only=True)
+    workbook = load_workbook(
+        BytesIO(workbook_bytes),
+        read_only=True,
+        data_only=True,
+    )
     expected_targets = {
         target for target, _ in source.target_to_guide
     } | set(source.excluded_targets)
@@ -481,7 +495,7 @@ def _read_labels(
                 ),
                 "Supplementary Table 5",
             )
-            for row in rows:
+            for row in islice(rows, _MAX_WORKSHEET_ROWS):
                 target = row[index["Target"]]
                 if target not in expected_targets:
                     continue
@@ -536,6 +550,7 @@ def _validate_predictions(
             "version",
             "score_direction",
             "score_semantics",
+            "prediction_target",
             "sequence_basis",
             "training_overlap_status",
             "evidence_reference",
@@ -549,7 +564,11 @@ def _validate_predictions(
         raise ValueError("score_direction must be higher_is_more_active.")
     if values["score_semantics"] not in _ALLOWED_SCORE_SEMANTICS:
         raise ValueError(
-            "score_semantics must be ranking_score or probability."
+            "score_semantics must be ranking_score or expected_edit_fraction."
+        )
+    if values["prediction_target"] != "mean_on_target_edit_fraction":
+        raise ValueError(
+            "prediction_target must be mean_on_target_edit_fraction."
         )
     if values["sequence_basis"] not in _ALLOWED_SEQUENCE_BASES:
         raise ValueError(
@@ -557,8 +576,8 @@ def _validate_predictions(
         )
     if values["training_overlap_status"] not in _ALLOWED_OVERLAP_STATUS:
         raise ValueError(
-            "training_overlap_status must be declared_no_overlap, unknown, "
-            "or overlap_detected."
+            "training_overlap_status must be declared_no_overlap or unknown; "
+            "known training overlap is not an external transfer benchmark."
         )
 
     expected = dict(source.target_to_guide)
@@ -588,9 +607,12 @@ def _validate_predictions(
                     f"record {index} {field_name}_length does not match the source."
                 )
         score = _number(raw.get("predicted_score"), f"record {index} predicted_score")
-        if values["score_semantics"] == "probability" and not 0 <= score <= 1:
+        if (
+            values["score_semantics"] == "expected_edit_fraction"
+            and not 0 <= score <= 1
+        ):
             raise ValueError(
-                f"record {index} probability score must be between 0 and 1."
+                f"record {index} expected edit fraction must be between 0 and 1."
             )
         scores[target] = score
     return values, scores

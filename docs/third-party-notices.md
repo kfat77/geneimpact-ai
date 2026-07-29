@@ -93,8 +93,11 @@ normalization logic. It does not include the upstream position coefficients.
 
 GeneImpact AI does not redistribute the source workbooks or guide sequences.
 Researchers download Supplementary Tables 1 and 5 from the publisher. The
-adapter verifies their SHA-256 checksums, reads the qualified rat rows, and
-emits only guide-sequence hashes and aggregate benchmark metrics.
+adapter verifies their SHA-256 checksums and reads the qualified rat rows.
+The local template command emits target labels plus sequence hashes and
+lengths, but no raw sequences or outcome labels. The final evaluation report
+emits aggregate metrics and a prediction-submission checksum, not per-guide
+source outcomes or counts.
 
 The source is attributed to:
 

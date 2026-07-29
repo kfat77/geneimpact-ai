@@ -48,16 +48,20 @@ guides, so those two sequence meanings must not be conflated. The template
 does not copy raw guide sequences. Edit only:
 
 - predictor `name` and immutable `version` or commit;
-- `score_semantics`: `ranking_score` or `probability`;
+- `score_semantics`: `ranking_score` or `expected_edit_fraction`;
+- `prediction_target`: keep the fixed value
+  `mean_on_target_edit_fraction`;
 - `sequence_basis`: `design_sequence` or `actual_guide_sequence`, matching the
   sequence actually passed to the model;
-- `training_overlap_status`: `declared_no_overlap`, `unknown`, or
-  `overlap_detected`;
+- `training_overlap_status`: `declared_no_overlap` or `unknown`; a known
+  overlap is rejected because it is not an external transfer test;
 - the model or run `evidence_reference`;
 - every `predicted_score`.
 
 Do not alter target names, sequence lengths, or hashes. Scores must increase
-with predicted activity. A `probability` must be between 0 and 1.
+with predicted activity. An `expected_edit_fraction` must be between 0 and 1
+and must mean the expected mean on-target edit fraction—not a probability of
+crossing a threshold or another event.
 
 Then run the evaluation:
 
@@ -71,10 +75,13 @@ python -m geneimpact validate-rat-guide-transfer \
 
 The report includes source checksums, source and current assembly identities,
 training-overlap status, Pearson correlation with a Fisher 95% interval,
-Spearman rank correlation, and—for probability inputs only—descriptive MAE and
-RMSE. The training-overlap field is retained as a submitter declaration, but
-the report does not mark independence as verified. That requires a separate,
-reproducible audit of the model's actual training sequences and projects.
+Spearman rank correlation, and—for explicit expected-edit-fraction inputs
+only—descriptive MAE and RMSE. The report stores aggregate metrics and a
+checksum of the prediction submission; it does not serialize per-guide source
+outcomes or counts. The training-overlap field is retained as a submitter
+declaration, but the report does not mark independence as verified. That
+requires a separate, reproducible audit of the model's actual training
+sequences and projects.
 
 ## Interpretation limits
 

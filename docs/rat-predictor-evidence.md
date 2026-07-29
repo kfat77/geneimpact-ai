@@ -1,7 +1,9 @@
 # Rat predictor evidence: public-data qualification
 
-**Review date:** 2026-07-29  
-**Species:** *Rattus norvegicus*  
+**Review date:** 2026-07-29
+
+**Species:** *Rattus norvegicus*
+
 **Intended platform use:** calibrated prediction or bounded benchmarking of CRISPR guide activity, off-target activity, and repair outcomes in rat research.
 
 ## Decision
@@ -105,7 +107,10 @@ Required implementation safeguards:
 - Run a training-overlap audit before calling the benchmark independent.
 - Surface `strain_unknown`, `legacy_assembly_rn5`, `small_sample`, and `candidate_selection_bias` on every report.
 
-**Qualification:** `transfer_evidence_only` today; promotable to a bounded benchmark adapter after licence resolution and a reproducible importer. It does not justify `usable_adapter` for general rat prediction.
+**Qualification:** `transfer_evidence_only`. GeneImpact implements a
+non-redistributing, checksum-pinned external-transfer evaluator; explicit
+licence resolution is still required before publishing a transformed dataset.
+This does not justify `usable_adapter` for general rat prediction.
 
 ### 2. Kendirli et al. 2023: large public screen, wrong label for activity
 
@@ -214,4 +219,3 @@ For off-target prediction, candidate sites must come from an assay that can disc
 Until those gaps are closed, the scientifically defensible product claim is:
 
 > Rat sequence, assembly, strain declarations, and external results can be validated and audited. Public rat embryo evidence can be benchmarked in a narrow SpCas9 context. General rat editing efficiency, off-target risk, repair outcome, and phenotypic safety are not yet calibrated predictions.
-
