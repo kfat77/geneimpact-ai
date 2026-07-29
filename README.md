@@ -53,6 +53,8 @@ pytest
 ## Run an assessment
 
 ```bash
+python -m geneimpact dossier examples/dossier-zebrafish-request.json --output research-dossier.json
+python -m geneimpact verify-dossier research-dossier.json
 python -m geneimpact assess examples/assessment-request.json --output assessment-report.json
 python -m geneimpact source-check --species mouse
 python -m geneimpact snapshot-mgi --report all-phenotypes --output-dir data/mgi
@@ -71,7 +73,9 @@ python -m geneimpact validate-crisprscan-transfer --input data/benchmarks/crispr
 ```
 
 Read the [researcher guide](docs/researcher-guide.md) before using the tool with
-study evidence. The [BE-Hive adapter guide](docs/behive-adapter.md) documents
+study evidence. The [unified dossier guide](docs/research-dossier.md) documents
+the preferred one-request workflow. The
+[BE-Hive adapter guide](docs/behive-adapter.md) documents
 the first real model integration and its deliberately narrow mES scope. The
 [CRISPRitz adapter guide](docs/crispritz-adapter.md) documents cross-species
 reference-search auditing and its interpretation limits. The
@@ -109,6 +113,7 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [x] Version-locked CRISPRitz cross-species reference-search audit adapter
 - [x] Version-locked CRISPRscan zebrafish embryo activity scorer
 - [x] Independent 50-guide zebrafish RNP transfer benchmark with honest domain labeling
+- [x] Unified multi-species research dossier with target-gene interactions and integrity verification
 - [x] Checksum-bearing MGI phenotype snapshot adapter
 - [x] Streaming MGI genome-edit evidence normalization
 - [x] Bounded IMPC significant gene-phenotype query adapter

@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from dataclasses import asdict
+from hashlib import sha256
 from pathlib import Path
 
 from .behive import normalize_behive_efficiency
@@ -15,6 +16,7 @@ from .crispritz import import_crispritz_targets
 from .crisprscan import score_crisprscan
 from .crisprscan_validation import PREDICTION_FIELDS, evaluate_crisprscan_transfer
 from .datasources import check_ncbi_profile
+from .dossier import build_research_dossier, verify_dossier_integrity
 from .benchmark import build_mgi_benchmark
 from .baseline import evaluate_benchmark
 from .impc import ImpcClient
@@ -130,6 +132,18 @@ def main() -> None:
         default="reported_crisprscan_score",
     )
     crisprscan_validation.add_argument("--output", required=True, type=Path)
+    dossier = subparsers.add_parser(
+        "dossier",
+        help="Build one unified, integrity-checkable research dossier.",
+    )
+    dossier.add_argument("request", type=Path)
+    dossier.add_argument("--output", "-o", required=True, type=Path)
+    dossier.add_argument("--model-version", default=DEFAULT_MODEL_VERSION)
+    verify_dossier = subparsers.add_parser(
+        "verify-dossier",
+        help="Verify a dossier content hash (not an authenticity signature).",
+    )
+    verify_dossier.add_argument("report", type=Path)
     args = parser.parse_args()
 
     if args.command == "source-check":
@@ -316,6 +330,43 @@ def main() -> None:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(rendered, encoding="utf-8")
         print(f"CRISPRscan transfer report written to {args.output}")
+        return
+    if args.command == "dossier":
+        try:
+            request_bytes = args.request.read_bytes()
+            request = json.loads(request_bytes.decode("utf-8"))
+            if not isinstance(request, dict):
+                raise ValueError("dossier request must be a JSON object.")
+            report = build_research_dossier(
+                request,
+                attachment_base_dir=args.request.parent,
+                source_request_sha256=sha256(request_bytes).hexdigest(),
+                model_version=args.model_version,
+            )
+        except (
+            OSError,
+            UnicodeDecodeError,
+            json.JSONDecodeError,
+            TypeError,
+            ValueError,
+        ) as error:
+            parser.error(str(error))
+        rendered = json.dumps(report, indent=2, ensure_ascii=False) + "\n"
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(rendered, encoding="utf-8")
+        print(f"Research dossier written to {args.output}")
+        return
+    if args.command == "verify-dossier":
+        try:
+            report = json.loads(args.report.read_text(encoding="utf-8"))
+            if not isinstance(report, dict):
+                raise ValueError("dossier report must be a JSON object.")
+            verification = verify_dossier_integrity(report)
+        except (OSError, json.JSONDecodeError, TypeError, ValueError) as error:
+            parser.error(str(error))
+        print(json.dumps(asdict(verification), indent=2, ensure_ascii=False))
+        if not verification.matches:
+            raise SystemExit(1)
         return
 
     try:

@@ -1,0 +1,66 @@
+{
+  "dossier_schema_version": "1.0",
+  "study_context": {
+    "study_id": "zf-pathway-study-001",
+    "species_profile": "zebrafish",
+    "strain_or_breed": "Tuebingen",
+    "genome_build": "GRCz12tu",
+    "assembly_accession": "GCF_049306965.2",
+    "edit_class": "knockout",
+    "delivery_context": "t7_in_vitro_transcription",
+    "developmental_context": "zebrafish_embryo",
+    "evidence_snapshot_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "target_genes": [
+    {
+      "gene_id": "ENSDARG00000000001",
+      "gene_symbol": "geneA",
+      "intended_change": "loss_of_function",
+      "evidence_signal": 0.8,
+      "evidence_reference": "replace-with-versioned-curated-record"
+    },
+    {
+      "gene_id": "ENSDARG00000000002",
+      "gene_symbol": "geneB",
+      "intended_change": "loss_of_function",
+      "evidence_signal": 0.6,
+      "evidence_reference": "replace-with-versioned-curated-record"
+    }
+  ],
+  "intended_outcomes": [
+    "Reduced activity of the declared target pathway"
+  ],
+  "welfare_endpoints": [
+    "Survival",
+    "Developmental morphology"
+  ],
+  "interaction_evidence": [
+    {
+      "genes": [
+        "ENSDARG00000000001",
+        "ENSDARG00000000002"
+      ],
+      "evidence_weight": 0.5,
+      "evidence_reference": "replace-with-versioned-pair-evidence"
+    }
+  ],
+  "evidence": {
+    "on_target_uncertainty": 0.3,
+    "off_target_evidence": 0.4,
+    "network_impact_evidence": 0.5,
+    "welfare_relevance": 0.6
+  },
+  "predictors": {
+    "crisprscan": {
+      "nuclease": "SpCas9",
+      "guide_expression": "t7_in_vitro_transcription",
+      "developmental_context": "zebrafish_embryo",
+      "guides": [
+        {
+          "guide_id": "zf-guide-001",
+          "context_35nt": "ACCTGGATCGATGCTGATGCTAGATAAGGTTGAGC"
+        }
+      ]
+    }
+  }
+}

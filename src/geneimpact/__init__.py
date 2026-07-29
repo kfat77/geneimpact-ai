@@ -86,6 +86,12 @@ from .crisprscan_validation import (
     CrisprscanTransferReport,
     evaluate_crisprscan_transfer,
 )
+from .dossier import (
+    DOSSIER_SCHEMA_VERSION,
+    DossierIntegrityResult,
+    build_research_dossier,
+    verify_dossier_integrity,
+)
 
 __all__ = [
     "AssessmentRecord",
@@ -124,6 +130,8 @@ __all__ = [
     "CrisprscanGuideScore",
     "CrisprscanReport",
     "CrisprscanTransferReport",
+    "DOSSIER_SCHEMA_VERSION",
+    "DossierIntegrityResult",
     "EditAssessment",
     "EditEvidence",
     "EvidenceLevel",
@@ -158,6 +166,7 @@ __all__ = [
     "brier_score",
     "build_mgi_benchmark",
     "build_impc_validation",
+    "build_research_dossier",
     "capabilities_for_species",
     "capability_matrix",
     "create_record",
@@ -177,4 +186,5 @@ __all__ = [
     "rank_interactions",
     "score_crisprscan",
     "validate_study_context",
+    "verify_dossier_integrity",
 ]

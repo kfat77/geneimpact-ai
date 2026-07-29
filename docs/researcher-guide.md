@@ -1,8 +1,27 @@
 # Researcher guide: running an assessment
 
-## What this MVP does
+## Preferred unified workflow
 
-The tool turns an approved, structured evidence summary into a consistent review tier and a JSON report that preserves the study context and model version. It is designed for research triage and recordkeeping—not for designing edits or approving experiments.
+For new work, create a unified research dossier:
+
+```bash
+python -m geneimpact dossier examples/dossier-zebrafish-request.json --output research-dossier.json
+python -m geneimpact verify-dossier research-dossier.json
+```
+
+This preserves the study context, target-gene and pair evidence, predictor
+coverage, task-specific model outputs, evidence gaps, and report integrity in
+one artifact. See the [research dossier guide](research-dossier.md).
+
+The older `assess` command remains available for minimal evidence-triage
+records.
+
+## What the evidence triage does
+
+The evidence triage turns an approved, structured evidence summary into a
+consistent review tier and a JSON report that preserves the study context and
+model version. It is designed for research triage and recordkeeping—not for
+designing edits or approving experiments.
 
 ## Install and run
 
