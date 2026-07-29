@@ -74,8 +74,8 @@ the unmodified source.
 
 GeneImpact AI does not redistribute the Housden coefficient table, CRISPOR
 implementation, or FlyRNAi service code. The adapter accepts a researcher-
-declared result from the official DRSC/FlyRNAi service and retains a checksum
-of the original response.
+declared result from the official DRSC/FlyRNAi service, verifies the matching
+row in the retained response, and retains its checksum.
 
 The method is attributed to:
 

@@ -117,6 +117,12 @@ def main() -> None:
         help="Validate an official FlyRNAi Housden result envelope.",
     )
     housden_import.add_argument("--input", required=True, type=Path)
+    housden_import.add_argument(
+        "--source-response",
+        required=True,
+        type=Path,
+        help="Retained XLS response downloaded from the official FlyRNAi service.",
+    )
     housden_import.add_argument("--output", type=Path)
     capabilities = subparsers.add_parser(
         "capabilities",
@@ -339,6 +345,7 @@ def main() -> None:
                 raise ValueError("Housden input must be a JSON object.")
             prediction = normalize_housden(
                 document,
+                source_response=args.source_response.read_bytes(),
                 source_document_sha256=sha256(input_bytes).hexdigest(),
             )
         except (

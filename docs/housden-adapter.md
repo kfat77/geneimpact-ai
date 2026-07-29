@@ -17,23 +17,32 @@ ambiguities that are not compatible with silently redistributing them under
 this repository's MIT license. GeneImpact AI therefore does not include the
 Housden coefficient table or upstream scoring code.
 
-Researchers run the official service, retain its original response, calculate
-the response file's SHA-256, and enter the reported score and checksum in the
-input envelope. The normalized audit record keeps only the protospacer
+Researchers run the official service and retain its original XLS response.
+The importer calculates and verifies the response SHA-256, reads the matching
+guide row, and confirms that the reported score and 20-nt sequence agree with
+the input envelope. The normalized audit record keeps only the protospacer
 SHA-256, not the sequence.
 
 ```bash
 python -m geneimpact import-housden \
   --input examples/housden-fruit-fly-result.json \
+  --source-response downloaded-flyrnai-response.xls \
   --output housden-audit.json
 
+# First place the retained response at:
+# examples/downloaded-flyrnai-response.xls
 python -m geneimpact dossier \
   examples/dossier-fruit-fly-housden-request.json \
   --output fruit-fly-cell-dossier.json
 ```
 
 The example checksum is a placeholder and must be replaced with the SHA-256 of
-the retained official response.
+the retained official response. The command rejects a mismatch, a missing
+guide row, a sequence mismatch, or a score mismatch.
+
+For a unified dossier, place the retained XLS file beneath the request
+directory and list it in `predictors.housden.source_response_files` at the same
+position as its JSON envelope in `result_files`.
 
 ## Interpretation
 

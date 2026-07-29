@@ -13,7 +13,12 @@ from typing import Any, Mapping, Sequence
 from .capabilities import CapabilityStatus, capabilities_for_species
 from .crispritz import import_crispritz_targets
 from .crisprscan import score_crisprscan
-from .housden import normalize_housden
+from .housden import (
+    HOUSDEN_EDIT_CLASS,
+    HOUSDEN_PREDICTOR,
+    HOUSDEN_SPECIES_PROFILE,
+    normalize_housden,
+)
 from .indelphi import normalize_indelphi
 from .interactions import rank_interactions
 from .species import PROFILES
@@ -113,8 +118,6 @@ def build_research_dossier(
     model_predictions = list(assessment.pop("model_predictions"))
     executed_predictors = {
         item["predictor"] for item in model_predictions
-    } | {
-        item["predictor"] for item in assessment["predictor_outputs"]
     }
 
     if "crisprscan" in predictors:
@@ -186,23 +189,15 @@ def build_research_dossier(
         indelphi_predictions = []
         target_ids: set[str] = set()
         for raw_result_path in result_files:
-            result_path = _resolve_attachment(
+            result_document, result_digest = _load_json_attachment(
                 raw_result_path,
                 attachment_base_dir,
                 "predictors.indelphi.result_files",
+                "inDelphi",
             )
-            result_bytes = result_path.read_bytes()
-            try:
-                result_document = json.loads(result_bytes.decode("utf-8"))
-            except (UnicodeDecodeError, json.JSONDecodeError) as error:
-                raise ValueError(
-                    f"inDelphi result is not valid UTF-8 JSON: {raw_result_path}"
-                ) from error
-            if not isinstance(result_document, Mapping):
-                raise ValueError("each inDelphi result must be a JSON object.")
             prediction = normalize_indelphi(
                 result_document,
-                source_document_sha256=sha256(result_bytes).hexdigest(),
+                source_document_sha256=result_digest,
             )
             if prediction.genome_build.casefold() != str(
                 context["genome_build"]
@@ -232,12 +227,16 @@ def build_research_dossier(
         executed_predictors.add("inDelphi")
 
     if "housden" in predictors:
-        if profile_key != "fruit_fly" or context["edit_class"] != "knockout":
+        if (
+            profile_key != HOUSDEN_SPECIES_PROFILE
+            or context["edit_class"] != HOUSDEN_EDIT_CLASS
+        ):
             raise ValueError(
                 "predictors.housden is available only for fruit_fly knockout studies."
             )
         config = _mapping(predictors, "housden")
         result_files = config.get("result_files")
+        source_response_files = config.get("source_response_files")
         if (
             not isinstance(result_files, Sequence)
             or isinstance(result_files, (str, bytes))
@@ -246,26 +245,36 @@ def build_research_dossier(
             raise ValueError(
                 "predictors.housden.result_files must contain 1-100 relative paths."
             )
+        if (
+            not isinstance(source_response_files, Sequence)
+            or isinstance(source_response_files, (str, bytes))
+            or len(source_response_files) != len(result_files)
+        ):
+            raise ValueError(
+                "predictors.housden.source_response_files must contain one "
+                "relative XLS path per result file."
+            )
         housden_predictions = []
         guide_ids: set[str] = set()
-        for raw_result_path in result_files:
-            result_path = _resolve_attachment(
+        for raw_result_path, raw_response_path in zip(
+            result_files,
+            source_response_files,
+            strict=True,
+        ):
+            result_document, result_digest = _load_json_attachment(
                 raw_result_path,
                 attachment_base_dir,
                 "predictors.housden.result_files",
+                HOUSDEN_PREDICTOR,
             )
-            result_bytes = result_path.read_bytes()
-            try:
-                result_document = json.loads(result_bytes.decode("utf-8"))
-            except (UnicodeDecodeError, json.JSONDecodeError) as error:
-                raise ValueError(
-                    f"Housden result is not valid UTF-8 JSON: {raw_result_path}"
-                ) from error
-            if not isinstance(result_document, Mapping):
-                raise ValueError("each Housden result must be a JSON object.")
             prediction = normalize_housden(
                 result_document,
-                source_document_sha256=sha256(result_bytes).hexdigest(),
+                source_response=_resolve_attachment(
+                    raw_response_path,
+                    attachment_base_dir,
+                    "predictors.housden.source_response_files",
+                ).read_bytes(),
+                source_document_sha256=result_digest,
             )
             if prediction.genome_build.casefold() != str(
                 context["genome_build"]
@@ -293,7 +302,7 @@ def build_research_dossier(
             guide_ids.add(prediction.guide_id)
             housden_predictions.append(asdict(prediction))
         model_predictions.extend(housden_predictions)
-        executed_predictors.add("Housden")
+        executed_predictors.add(HOUSDEN_PREDICTOR)
 
     capability_coverage = _capability_coverage(
         profile_key,
@@ -656,6 +665,25 @@ def _resolve_attachment(
     if not resolved.is_file():
         raise ValueError(f"attachment file does not exist: {raw_path}")
     return resolved
+
+
+def _load_json_attachment(
+    raw_path: Any,
+    base_dir: Path,
+    label: str,
+    predictor: str,
+) -> tuple[Mapping[str, Any], str]:
+    path = _resolve_attachment(raw_path, base_dir, label)
+    content = path.read_bytes()
+    try:
+        document = json.loads(content.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise ValueError(
+            f"{predictor} result is not valid UTF-8 JSON: {raw_path}"
+        ) from error
+    if not isinstance(document, Mapping):
+        raise ValueError(f"each {predictor} result must be a JSON object.")
+    return document, sha256(content).hexdigest()
 
 
 def _mapping(parent: Mapping[str, Any], key: str) -> Mapping[str, Any]:

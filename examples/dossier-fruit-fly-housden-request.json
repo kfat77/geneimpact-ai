@@ -37,6 +37,9 @@
     "housden": {
       "result_files": [
         "housden-fruit-fly-result.json"
+      ],
+      "source_response_files": [
+        "downloaded-flyrnai-response.xls"
       ]
     }
   }

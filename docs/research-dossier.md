@@ -89,10 +89,12 @@ delivery context, and developmental context. The adapter recalculates the
 reported distribution statistics and includes pinned external mouse-embryo
 transfer evidence. See the [inDelphi adapter](indelphi-adapter.md).
 
-For Housden, `result_files` contains 1–100 relative JSON envelopes. Every
-result is checked against the fruit-fly assembly, U6 guide-expression context,
-and exact S2R+ cell-culture developmental context. An embryo or in-vivo dossier
-cannot include the score. See the [Housden adapter](housden-adapter.md).
+For Housden, `result_files` contains 1–100 relative JSON envelopes and
+`source_response_files` contains the corresponding retained official XLS
+responses. Every response checksum, guide row, score, sequence, fruit-fly
+assembly, U6 guide-expression context, and exact S2R+ cell-culture context is
+checked. An embryo or in-vivo dossier cannot include the score. See the
+[Housden adapter](housden-adapter.md).
 
 Every capability relevant to the selected species and edit class is listed as
 `included`, `available_not_run`, `not_integrated`, `out_of_domain`, or

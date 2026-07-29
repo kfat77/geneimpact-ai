@@ -68,8 +68,7 @@ python -m geneimpact import-behive-efficiency --input examples/behive-efficiency
 python -m geneimpact import-behive-bystander --input examples/behive-bystander-import.json --output behive-bystander-audit.json
 python -m geneimpact import-indelphi --input examples/indelphi-mouse-result.json --output indelphi-audit.json
 python -m geneimpact dossier examples/dossier-mouse-indelphi-request.json --output mouse-research-dossier.json
-python -m geneimpact import-housden --input examples/housden-fruit-fly-result.json --output housden-audit.json
-python -m geneimpact dossier examples/dossier-fruit-fly-housden-request.json --output fruit-fly-cell-dossier.json
+python -m geneimpact import-housden --input examples/housden-fruit-fly-result.json --source-response downloaded-flyrnai-response.xls --output housden-audit.json
 python -m geneimpact capabilities --species zebrafish
 python -m geneimpact readiness --all
 python -m geneimpact import-crispritz --metadata examples/crispritz-rat-metadata.json --targets examples/crispritz-synthetic.targets.txt --output crispritz-audit.json

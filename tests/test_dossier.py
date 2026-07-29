@@ -1,7 +1,10 @@
 import json
+from hashlib import sha256
+from io import BytesIO
 from pathlib import Path
 
 import pytest
+import xlwt
 
 from geneimpact.crispritz import CRISPRITZ_COMMIT
 from geneimpact.dossier import build_research_dossier, verify_dossier_integrity
@@ -74,6 +77,7 @@ def _request(**context_overrides):
 
 
 def _housden_result():
+    response = _housden_service_response()
     return {
         "request": {
             "guide_id": "drsc-guide-01",
@@ -90,10 +94,48 @@ def _housden_result():
             "source": "flyrnai_evaluate_crispr",
             "source_url": HOUSDEN_SERVICE_URL,
             "retrieved_at": "2026-07-29T09:30:00+00:00",
-            "source_response_sha256": "a" * 64,
+            "source_response_sha256": sha256(response).hexdigest(),
         },
-        "raw_output": {"housden_score": 6.9},
+        "raw_output": {"housden_score": 6.93243},
     }
+
+
+def _housden_service_response():
+    workbook = xlwt.Workbook()
+    sheet = workbook.add_sheet("EfficiencyScoreList")
+    headers = (
+        "Identifier",
+        "Input Sequence",
+        "Input Sequence Length",
+        "Analyzed Sequence",
+        "Analyzed Sequence Length",
+        "Number of Bases Analyzed",
+        "Start Index",
+        "End Index",
+        "Score",
+        "Comments",
+        "U6 Terminator",
+    )
+    values = (
+        "1",
+        "ATCTGACCTCCCGGCTAATT",
+        20,
+        "ATCTGACCTCCCGGCTAATT",
+        20,
+        20,
+        1,
+        20,
+        "6.93243",
+        "None",
+        "None",
+    )
+    for column, value in enumerate(headers):
+        sheet.write(0, column, value)
+    for column, value in enumerate(values):
+        sheet.write(1, column, value)
+    buffer = BytesIO()
+    workbook.save(buffer)
+    return buffer.getvalue()
 
 
 def test_builds_integrity_checkable_multigene_dossier(tmp_path):
@@ -255,7 +297,9 @@ def test_rejects_indelphi_context_mismatch(tmp_path):
 
 def test_integrates_housden_only_for_matching_fruit_fly_cell_context(tmp_path):
     result_path = tmp_path / "housden.json"
+    response_path = tmp_path / "housden.xls"
     result_path.write_text(json.dumps(_housden_result()), encoding="utf-8")
+    response_path.write_bytes(_housden_service_response())
     request = _request(
         study_id="fruit-fly-cell-study",
         species_profile="fruit_fly",
@@ -265,7 +309,10 @@ def test_integrates_housden_only_for_matching_fruit_fly_cell_context(tmp_path):
         delivery_context="u6_sgrna",
         developmental_context="drosophila_s2r_plus_cell_culture",
     )
-    request["predictors"]["housden"] = {"result_files": ["housden.json"]}
+    request["predictors"]["housden"] = {
+        "result_files": ["housden.json"],
+        "source_response_files": ["housden.xls"],
+    }
 
     dossier = build_research_dossier(request, attachment_base_dir=tmp_path)
 
@@ -274,7 +321,7 @@ def test_integrates_housden_only_for_matching_fruit_fly_cell_context(tmp_path):
         for row in dossier["model_predictions"]
         if row["predictor"] == "Housden"
     )
-    assert prediction["housden_score"] == 6.9
+    assert prediction["housden_score"] == 6.93243
     assert "ATCTGACCTCCCGGCTAATT" not in json.dumps(dossier)
     assert any(
         row["predictor"] == "Housden"
@@ -285,7 +332,9 @@ def test_integrates_housden_only_for_matching_fruit_fly_cell_context(tmp_path):
 
 def test_rejects_housden_result_for_fruit_fly_embryo_study(tmp_path):
     result_path = tmp_path / "housden.json"
+    response_path = tmp_path / "housden.xls"
     result_path.write_text(json.dumps(_housden_result()), encoding="utf-8")
+    response_path.write_bytes(_housden_service_response())
     request = _request(
         study_id="fruit-fly-embryo-study",
         species_profile="fruit_fly",
@@ -295,10 +344,48 @@ def test_rejects_housden_result_for_fruit_fly_embryo_study(tmp_path):
         delivery_context="u6_sgrna",
         developmental_context="fruit_fly_embryo",
     )
-    request["predictors"]["housden"] = {"result_files": ["housden.json"]}
+    request["predictors"]["housden"] = {
+        "result_files": ["housden.json"],
+        "source_response_files": ["housden.xls"],
+    }
 
     with pytest.raises(ValueError, match="developmental_context"):
         build_research_dossier(request, attachment_base_dir=tmp_path)
+
+
+def test_generic_external_output_cannot_impersonate_dedicated_housden_adapter(
+    tmp_path,
+):
+    request = _request(
+        study_id="fruit-fly-cell-study",
+        species_profile="fruit_fly",
+        strain_or_breed="ISO-1",
+        genome_build="Release 6 plus ISO1 MT",
+        assembly_accession="GCF_000001215.4",
+        delivery_context="u6_sgrna",
+        developmental_context="drosophila_s2r_plus_cell_culture",
+    )
+    request["predictors"]["external_concern_outputs"] = [
+        {
+            "predictor": "Housden",
+            "predictor_version": "self-declared",
+            "task": "guide_activity",
+            "concern_score": 0.1,
+            "confidence": 1.0,
+            "supported_species": ["fruit_fly"],
+            "supported_edit_classes": ["knockout"],
+            "evidence_reference": "self-declared",
+        }
+    ]
+
+    dossier = build_research_dossier(request, attachment_base_dir=tmp_path)
+
+    housden = next(
+        row
+        for row in dossier["capability_coverage"]
+        if row["predictor"] == "Housden"
+    )
+    assert housden["execution_state"] == "available_not_run"
 
 
 def test_rejects_predictor_context_inconsistent_with_study(tmp_path):

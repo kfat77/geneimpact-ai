@@ -5,6 +5,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 
+from .housden import (
+    HOUSDEN_METHOD_REFERENCE,
+    HOUSDEN_PREDICTOR,
+    HOUSDEN_SPECIES_PROFILE,
+    HOUSDEN_TRAINING_DOMAIN,
+)
 from .species import PROFILES
 
 
@@ -96,11 +102,11 @@ _RECORDS = (
     ),
     EvidenceQualification(
         record_id="fruit-fly-housden-s2r-v1",
-        species_profile="fruit_fly",
-        predictor_or_method="Housden",
+        species_profile=HOUSDEN_SPECIES_PROFILE,
+        predictor_or_method=HOUSDEN_PREDICTOR,
         task="guide_activity_ranking",
         status=EvidenceUseStatus.USABLE_ADAPTER,
-        biological_domain="Drosophila S2R+ cell culture",
+        biological_domain=HOUSDEN_TRAINING_DOMAIN,
         strain_stock_or_population="S2R+ cell line; reference context ISO-1",
         genome_build_or_target_sequence="20-nt protospacer sequence model",
         edit_system="SpCas9 knockout",
@@ -114,7 +120,7 @@ _RECORDS = (
             "are not redistributed"
         ),
         training_overlap_audited=False,
-        source_reference="https://pmc.ncbi.nlm.nih.gov/articles/PMC4642709/",
+        source_reference=HOUSDEN_METHOD_REFERENCE,
         limitations="in vivo and embryo/germline predictive validity are not established",
     ),
     EvidenceQualification(

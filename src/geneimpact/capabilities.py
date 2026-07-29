@@ -5,6 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 
+from .housden import (
+    HOUSDEN_EDIT_CLASS,
+    HOUSDEN_METHOD_REFERENCE,
+    HOUSDEN_PREDICTOR,
+    HOUSDEN_SPECIES_PROFILE,
+    HOUSDEN_TRAINING_DOMAIN,
+)
 from .species import PROFILES
 
 
@@ -31,7 +38,6 @@ class PredictorCapability:
 _CRISPRITZ_REFERENCE = "https://pubmed.ncbi.nlm.nih.gov/31764961/"
 _CRISPRSCAN_REFERENCE = "https://pmc.ncbi.nlm.nih.gov/articles/PMC4589495/"
 _INDELPHI_REFERENCE = "https://www.nature.com/articles/s41586-018-0686-x"
-_HOUSDEN_REFERENCE = "https://pmc.ncbi.nlm.nih.gov/articles/PMC4642709/"
 
 
 def capabilities_for_species(species_profile: str) -> tuple[PredictorCapability, ...]:
@@ -120,17 +126,17 @@ def capabilities_for_species(species_profile: str) -> tuple[PredictorCapability,
                 ),
             )
         )
-    elif species_profile == "fruit_fly":
+    elif species_profile == HOUSDEN_SPECIES_PROFILE:
         capabilities.extend(
             (
                 PredictorCapability(
-                    species_profile="fruit_fly",
-                    predictor="Housden",
+                    species_profile=HOUSDEN_SPECIES_PROFILE,
+                    predictor=HOUSDEN_PREDICTOR,
                     task="guide_activity_ranking",
-                    edit_classes=("knockout",),
+                    edit_classes=(HOUSDEN_EDIT_CLASS,),
                     status=CapabilityStatus.AVAILABLE_DECLARED_DOMAIN,
-                    biological_domain="Drosophila S2R+ cell culture",
-                    evidence_reference=_HOUSDEN_REFERENCE,
+                    biological_domain=HOUSDEN_TRAINING_DOMAIN,
+                    evidence_reference=HOUSDEN_METHOD_REFERENCE,
                     note=(
                         "Official FlyRNAi external-result import is available. "
                         "The live service is unversioned, the score is not a "
