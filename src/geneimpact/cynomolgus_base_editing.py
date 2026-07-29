@@ -18,6 +18,7 @@ from openpyxl import load_workbook
 from .species import PROFILES
 
 
+GENEIMPACT_VERSION = "0.16.1"
 CYNOMOLGUS_BASE_EDITING_REFERENCE = (
     "https://doi.org/10.1038/s41467-020-16173-0"
 )
@@ -166,6 +167,10 @@ class CynomolgusBaseEditingTransferReport:
     evidence_snapshot_identifier: str
     submitted_code_revision: str
     code_revision_verified: bool
+    geneimpact_version: str
+    evaluator_code_revision: str
+    evaluator_code_revision_verified: bool
+    evaluator_code_revision_status: str
     data_split_identifier: str
     study_context: str
     population_or_strain: str
@@ -530,6 +535,12 @@ def evaluate_cynomolgus_base_editing_transfer(
         evidence_snapshot_identifier=source.source_id,
         submitted_code_revision=metadata["submitted_code_revision"],
         code_revision_verified=False,
+        geneimpact_version=GENEIMPACT_VERSION,
+        evaluator_code_revision=(
+            "sha256:" + sha256(Path(__file__).read_bytes()).hexdigest()
+        ),
+        evaluator_code_revision_verified=True,
+        evaluator_code_revision_status="module_source_sha256",
         data_split_identifier=CYNOMOLGUS_BASE_EDITING_DATA_SPLIT_IDENTIFIER,
         study_context=(
             "cynomolgus zygote editor mRNA/T7 sgRNA cytoplasmic microinjection "

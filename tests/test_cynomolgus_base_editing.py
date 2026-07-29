@@ -232,6 +232,10 @@ def test_evaluates_only_within_context_and_hides_source_labels(tmp_path):
     assert report.publisher_target_sequence_record_verified is True
     assert report.target_sequence_verified_on_source_assembly is False
     assert report.target_sequence_verified_on_target is False
+    assert report.geneimpact_version == "0.16.1"
+    assert report.evaluator_code_revision.startswith("sha256:")
+    assert report.evaluator_code_revision_verified is True
+    assert report.evaluator_code_revision_status == "module_source_sha256"
     assert report.record_count == 3
     assert report.context_count == 2
     assert report.comparison_stratum_count == 2
