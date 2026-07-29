@@ -67,6 +67,7 @@ python -m geneimpact import-behive-bystander --input examples/behive-bystander-i
 python -m geneimpact capabilities --species zebrafish
 python -m geneimpact import-crispritz --metadata examples/crispritz-rat-metadata.json --targets examples/crispritz-synthetic.targets.txt --output crispritz-audit.json
 python -m geneimpact score-crisprscan --input examples/crisprscan-zebrafish-request.json --output crisprscan-report.json
+python -m geneimpact validate-crisprscan-transfer --input data/benchmarks/crisprscan-nhgri1-2022.json --output crisprscan-transfer-report.json
 ```
 
 Read the [researcher guide](docs/researcher-guide.md) before using the tool with
@@ -107,6 +108,7 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [x] Code-level species × predictor evidence-status matrix
 - [x] Version-locked CRISPRitz cross-species reference-search audit adapter
 - [x] Version-locked CRISPRscan zebrafish embryo activity scorer
+- [x] Independent 50-guide zebrafish RNP transfer benchmark with honest domain labeling
 - [x] Checksum-bearing MGI phenotype snapshot adapter
 - [x] Streaming MGI genome-edit evidence normalization
 - [x] Bounded IMPC significant gene-phenotype query adapter

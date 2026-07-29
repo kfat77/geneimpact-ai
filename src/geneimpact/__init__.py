@@ -81,6 +81,11 @@ from .crisprscan import (
     CrisprscanReport,
     score_crisprscan,
 )
+from .crisprscan_validation import (
+    PREDICTION_FIELDS,
+    CrisprscanTransferReport,
+    evaluate_crisprscan_transfer,
+)
 
 __all__ = [
     "AssessmentRecord",
@@ -118,6 +123,7 @@ __all__ = [
     "CRISPRSCORE_VERSION",
     "CrisprscanGuideScore",
     "CrisprscanReport",
+    "CrisprscanTransferReport",
     "EditAssessment",
     "EditEvidence",
     "EvidenceLevel",
@@ -134,6 +140,7 @@ __all__ = [
     "MgiAlleleEvidence",
     "NormalizationSummary",
     "PredictionTask",
+    "PREDICTION_FIELDS",
     "PredictorOutput",
     "PredictorCapability",
     "PhenotypePriorModel",
@@ -159,6 +166,7 @@ __all__ = [
     "evaluate_benchmark",
     "evaluate_behive_validation",
     "evaluate_impc_calibration",
+    "evaluate_crisprscan_transfer",
     "integrate_outputs",
     "integrate_behive_efficiency",
     "import_crispritz_targets",

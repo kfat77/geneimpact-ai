@@ -107,7 +107,8 @@ def capabilities_for_species(species_profile: str) -> tuple[PredictorCapability,
                 evidence_reference=_CRISPRSCAN_REFERENCE,
                 note=(
                     "Version-locked scoring is available for canonical SpCas9, T7 in-vitro-"
-                    "transcribed guides in zebrafish embryos; modern independent benchmarking is pending."
+                    "transcribed guides in zebrafish embryos; an independent RNP transfer "
+                    "benchmark is available but does not close the in-domain validation gap."
                 ),
             )
         )

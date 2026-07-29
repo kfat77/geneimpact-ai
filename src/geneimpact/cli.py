@@ -13,6 +13,7 @@ from .behive_validation import evaluate_behive_validation
 from .capabilities import capabilities_for_species
 from .crispritz import import_crispritz_targets
 from .crisprscan import score_crisprscan
+from .crisprscan_validation import PREDICTION_FIELDS, evaluate_crisprscan_transfer
 from .datasources import check_ncbi_profile
 from .benchmark import build_mgi_benchmark
 from .baseline import evaluate_benchmark
@@ -118,6 +119,17 @@ def main() -> None:
     )
     crisprscan_score.add_argument("--input", required=True, type=Path)
     crisprscan_score.add_argument("--output", required=True, type=Path)
+    crisprscan_validation = subparsers.add_parser(
+        "validate-crisprscan-transfer",
+        help="Evaluate reported CRISPRscan scores on an independent transfer dataset.",
+    )
+    crisprscan_validation.add_argument("--input", required=True, type=Path)
+    crisprscan_validation.add_argument(
+        "--prediction-field",
+        choices=PREDICTION_FIELDS,
+        default="reported_crisprscan_score",
+    )
+    crisprscan_validation.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
 
     if args.command == "source-check":
@@ -288,6 +300,22 @@ def main() -> None:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(rendered, encoding="utf-8")
         print(f"CRISPRscan score report written to {args.output}")
+        return
+    if args.command == "validate-crisprscan-transfer":
+        try:
+            dataset = json.loads(args.input.read_text(encoding="utf-8"))
+            if not isinstance(dataset, dict):
+                raise ValueError("CRISPRscan validation dataset must be a JSON object.")
+            report = evaluate_crisprscan_transfer(
+                dataset,
+                prediction_field=args.prediction_field,
+            )
+        except (OSError, json.JSONDecodeError, TypeError, ValueError) as error:
+            parser.error(str(error))
+        rendered = json.dumps(asdict(report), indent=2, ensure_ascii=False) + "\n"
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(rendered, encoding="utf-8")
+        print(f"CRISPRscan transfer report written to {args.output}")
         return
 
     try:

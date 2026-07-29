@@ -58,3 +58,33 @@ A CRISPRscan score is not a calibrated editing probability. It does not predict
 repair products, tissue mosaicism, phenotype, off-target cutting, welfare
 effects, or safety. Results outside the declared expression, nuclease,
 developmental, strain, or species context require separate validation.
+
+## Independent transfer benchmark
+
+GeneImpact includes a transformed, sequence-hashed benchmark from
+Uribe-Salazar et al. (2022), who tested 50 guides across 14 genes in NHGRI-1
+zebrafish and measured indel fractions by Illumina sequencing with
+CrispRVariants:
+
+```bash
+python -m geneimpact validate-crisprscan-transfer \
+  --input data/benchmarks/crisprscan-nhgri1-2022.json \
+  --output crisprscan-transfer-report.json
+```
+
+On the study's reported standard-reference CRISPRscan scores, GeneImpact
+reproduces Pearson correlation 0.271 (95% CI -0.008 to 0.511), Spearman
+correlation 0.273, and 56.25% within-gene pairwise ranking agreement. Using
+the study's NHGRI-1-adjusted scores gives Pearson 0.352 (95% CI 0.081 to
+0.574), Spearman 0.311, and 56.72% pairwise agreement.
+
+These are modest positive associations, not strong predictive performance.
+The experiment used annealed crRNA:tracrRNA with SpCas9 ribonucleoprotein,
+whereas the declared CRISPRscan adapter domain is T7 in-vitro-transcribed
+guides. The system therefore labels this a retrospective external transfer
+benchmark, not an in-domain validation or a preregistered success.
+
+The benchmark's 50 protospacers were also compared with all 1,280 canonical
+training oligos from the 2015 paper. No direct or reverse-complement sequence
+overlaps were found. Both source workbook checksums and the zero-overlap audit
+are bound into the benchmark metadata and validation report.
