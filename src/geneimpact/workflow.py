@@ -5,6 +5,11 @@ from __future__ import annotations
 from dataclasses import asdict
 from typing import Any, Mapping
 
+from .behive import (
+    BehiveEfficiencyPrediction,
+    integrate_behive_efficiency,
+    normalize_behive_efficiency,
+)
 from .edit_assessment import EditEvidence, assess_edit
 from .predictors import PredictionTask, PredictorOutput, integrate_outputs
 from .provenance import StudyContext, create_record
@@ -24,7 +29,7 @@ REQUIRED_EVIDENCE = (
     "network_impact_evidence",
     "welfare_relevance",
 )
-DEFAULT_MODEL_VERSION = "0.3.0"
+DEFAULT_MODEL_VERSION = "0.5.0"
 
 
 def assess_request(
@@ -68,6 +73,16 @@ def assess_request(
         }
         for item in integrated
     ]
+    behive_outputs = _behive_outputs(request.get("behive_efficiency_outputs", []))
+    behive_integrated = integrate_behive_efficiency(
+        behive_outputs, context.species, context.edit_class
+    )
+    result["model_predictions"] = []
+    for item in behive_integrated:
+        prediction = asdict(item.prediction)
+        prediction["applicability"] = item.applicability
+        prediction["applicability_note"] = item.note
+        result["model_predictions"].append(prediction)
     result["report_notice"] = (
         "Research decision-support only. This report does not establish safety, "
         "authorize an edit, or replace ethics, biosafety, veterinary, or experimental review."
@@ -110,4 +125,18 @@ def _predictor_outputs(raw_outputs: Any) -> tuple[PredictorOutput, ...]:
             )
         except (KeyError, TypeError, ValueError) as error:
             raise ValueError(f"invalid predictor output: {error}") from error
+    return tuple(outputs)
+
+
+def _behive_outputs(raw_outputs: Any) -> tuple[BehiveEfficiencyPrediction, ...]:
+    if not isinstance(raw_outputs, list):
+        raise ValueError("behive_efficiency_outputs must be a list.")
+    outputs: list[BehiveEfficiencyPrediction] = []
+    for raw in raw_outputs:
+        if not isinstance(raw, Mapping):
+            raise ValueError("each BE-Hive efficiency output must be an object.")
+        try:
+            outputs.append(normalize_behive_efficiency(raw))
+        except (TypeError, ValueError) as error:
+            raise ValueError(f"invalid BE-Hive efficiency output: {error}") from error
     return tuple(outputs)

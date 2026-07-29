@@ -1,0 +1,11 @@
+{
+  "request": {
+    "sequence": "TATCAGCGGGAATTCAAGCGCACCAGCCAGAGGTGTACCGTGGACGTGAG",
+    "base_editor": "BE4",
+    "cell_type": "mES",
+    "model_commit": "fbd495910d6c95b24081649015d6257a8badc9d7"
+  },
+  "raw_output": {
+    "Predicted logit score": 0.4
+  }
+}

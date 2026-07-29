@@ -23,6 +23,16 @@ from .impc_calibration import (
     ImpcCalibrationReport,
     evaluate_impc_calibration,
 )
+from .behive import (
+    BEHIVE_EFFICIENCY_COMMIT,
+    BEHIVE_EFFICIENCY_REFERENCE,
+    BEHIVE_MOUSE_EDITORS,
+    BehiveApplicability,
+    BehiveEfficiencyPrediction,
+    BehiveEfficiencyRequest,
+    integrate_behive_efficiency,
+    normalize_behive_efficiency,
+)
 
 __all__ = [
     "AssessmentRecord",
@@ -30,6 +40,12 @@ __all__ = [
     "BenchmarkManifest",
     "BenchmarkRecord",
     "BaselineReport",
+    "BEHIVE_EFFICIENCY_COMMIT",
+    "BEHIVE_EFFICIENCY_REFERENCE",
+    "BEHIVE_MOUSE_EDITORS",
+    "BehiveApplicability",
+    "BehiveEfficiencyPrediction",
+    "BehiveEfficiencyRequest",
     "BinaryCalibrationMetrics",
     "ConstantSignificanceModel",
     "EditAssessment",
@@ -66,7 +82,9 @@ __all__ = [
     "evaluate_benchmark",
     "evaluate_impc_calibration",
     "integrate_outputs",
+    "integrate_behive_efficiency",
     "normalize_phenotypic_alleles",
+    "normalize_behive_efficiency",
     "permitted_wording",
     "rank_interactions",
     "validate_study_context",

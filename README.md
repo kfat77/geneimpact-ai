@@ -57,9 +57,12 @@ python -m geneimpact benchmark-mgi --input data/mgi/endonuclease-alleles.jsonl -
 python -m geneimpact evaluate-baseline --benchmark-dir data/benchmarks/mgi-v1 --k 5
 python -m geneimpact benchmark-impc --gene Prkdc --gene Kit --output data/benchmarks/impc-validation.jsonl
 python -m geneimpact calibrate-impc --calibration data/benchmarks/impc-calibration-v1.jsonl --test data/benchmarks/impc-test-v1.jsonl --output data/benchmarks/impc-calibration-report-v1.json
+python -m geneimpact import-behive-efficiency --input examples/behive-efficiency-import.json --output behive-audit.json
 ```
 
-Read the [researcher guide](docs/researcher-guide.md) before using the tool with study evidence.
+Read the [researcher guide](docs/researcher-guide.md) before using the tool with
+study evidence. The [BE-Hive adapter guide](docs/behive-adapter.md) documents
+the first real model integration and its deliberately narrow mES scope.
 
 ## Initial API concept
 
@@ -93,7 +96,10 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [x] Manifest-bound Recall@K baseline for unseen genes
 - [x] Bounded independent IMPC validation builder with tested outcomes
 - [x] Gene-disjoint IMPC Brier/ECE calibration baseline
+- [x] Version-locked BE-Hive mES efficiency import and audit adapter
 - [ ] IMPC phenotype snapshot adapter
+- [ ] Isolated, license-reviewed BE-Hive execution environment
+- [ ] Held-out mES efficiency comparison against an independent experimental dataset
 - [ ] Reproducible species/edit-class split and calibration workflow
 - [ ] Independent laboratory replication benchmarks
 - [ ] Restricted animal-study data access layer

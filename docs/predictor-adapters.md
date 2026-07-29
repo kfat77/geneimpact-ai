@@ -2,6 +2,11 @@
 
 GeneImpact AI does not treat a named prediction tool as universally valid. Each upstream result is submitted with its model version, source record, declared species, declared edit class, concern score, and confidence.
 
+Task-specific quantitative outputs that are not concern scores are stored
+separately under `model_predictions`. For example, a BE-Hive efficiency logit
+must not be relabelled as risk. See the
+[BE-Hive adapter](behive-adapter.md).
+
 ## Supported task labels
 
 - `guide_activity`

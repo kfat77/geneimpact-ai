@@ -7,6 +7,7 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
+from .behive import normalize_behive_efficiency
 from .datasources import check_ensembl_profile
 from .benchmark import build_mgi_benchmark
 from .baseline import evaluate_benchmark
@@ -76,6 +77,12 @@ def main() -> None:
     impc_calibration.add_argument("--calibration", required=True, type=Path)
     impc_calibration.add_argument("--test", required=True, type=Path)
     impc_calibration.add_argument("--output", required=True, type=Path)
+    behive_import = subparsers.add_parser(
+        "import-behive-efficiency",
+        help="Validate and normalize an externally executed BE-Hive efficiency result.",
+    )
+    behive_import.add_argument("--input", required=True, type=Path)
+    behive_import.add_argument("--output", type=Path)
     args = parser.parse_args()
 
     if args.command == "source-check":
@@ -172,6 +179,20 @@ def main() -> None:
         except (OSError, ValueError) as error:
             parser.error(str(error))
         print(json.dumps(asdict(report), indent=2))
+        return
+    if args.command == "import-behive-efficiency":
+        try:
+            document = json.loads(args.input.read_text(encoding="utf-8"))
+            prediction = normalize_behive_efficiency(document)
+        except (OSError, json.JSONDecodeError, TypeError, ValueError) as error:
+            parser.error(str(error))
+        rendered = json.dumps(asdict(prediction), indent=2, ensure_ascii=False) + "\n"
+        if args.output:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(rendered, encoding="utf-8")
+            print(f"BE-Hive audit record written to {args.output}")
+        else:
+            print(rendered, end="")
         return
 
     try:
