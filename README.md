@@ -49,6 +49,8 @@ pytest
 
 ```bash
 python -m geneimpact assess examples/assessment-request.json --output assessment-report.json
+python -m geneimpact source-check --species mouse
+python -m geneimpact snapshot-mgi --report all-phenotypes --output-dir data/mgi
 ```
 
 Read the [researcher guide](docs/researcher-guide.md) before using the tool with study evidence.
@@ -77,7 +79,9 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [x] Animal-edit pre-registration and evidence-grading templates
 - [x] Audit-ready study context and held-out calibration metrics
 - [x] Runnable JSON-to-report researcher workflow
-- [ ] Versioned reference-genome and annotation adapters
+- [x] Registered mouse/GRCm39 profile and live Ensembl metadata adapter
+- [x] Checksum-bearing MGI phenotype snapshot adapter
+- [ ] IMPC phenotype snapshot adapter
 - [ ] Reproducible species/edit-class split and calibration workflow
 - [ ] Independent laboratory replication benchmarks
 - [ ] Restricted animal-study data access layer

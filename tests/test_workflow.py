@@ -24,6 +24,7 @@ def test_request_generates_auditable_report():
 
     assert report["assessment"]["tier"] == "high_concern_review"
     assert report["context"]["species"] == "mouse"
+    assert report["species_validation"]["supported"]
     assert report["predictor_outputs"] == []
     assert "does not establish safety" in report["report_notice"]
 

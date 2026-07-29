@@ -8,6 +8,7 @@ from typing import Any, Mapping
 from .edit_assessment import EditEvidence, assess_edit
 from .predictors import PredictionTask, PredictorOutput, integrate_outputs
 from .provenance import StudyContext, create_record
+from .species import validate_study_context
 
 
 REQUIRED_CONTEXT = (
@@ -23,9 +24,12 @@ REQUIRED_EVIDENCE = (
     "network_impact_evidence",
     "welfare_relevance",
 )
+DEFAULT_MODEL_VERSION = "0.3.0"
 
 
-def assess_request(request: Mapping[str, Any], model_version: str = "0.2.0") -> dict[str, Any]:
+def assess_request(
+    request: Mapping[str, Any], model_version: str = DEFAULT_MODEL_VERSION
+) -> dict[str, Any]:
     """Validate a standard request and return a JSON-serializable report.
 
     Inputs are evidence summaries produced under the user's approved research
@@ -37,10 +41,18 @@ def assess_request(request: Mapping[str, Any], model_version: str = "0.2.0") -> 
     _required(evidence_data, REQUIRED_EVIDENCE, "evidence")
 
     context = StudyContext(**{key: context_data[key] for key in REQUIRED_CONTEXT})
+    species_validation = validate_study_context(context)
+    if species_validation.errors:
+        raise ValueError("invalid study context: " + " ".join(species_validation.errors))
     evidence = EditEvidence(**{key: evidence_data[key] for key in REQUIRED_EVIDENCE})
     record = create_record(context, assess_edit(evidence), model_version)
     result = asdict(record)
     result["assessment"]["tier"] = record.assessment.tier.value
+    result["species_validation"] = {
+        "supported": species_validation.supported,
+        "profile_key": species_validation.profile_key,
+        "warnings": list(species_validation.warnings),
+    }
     outputs = _predictor_outputs(request.get("predictor_outputs", []))
     integrated = integrate_outputs(outputs, context.species, context.edit_class)
     result["predictor_outputs"] = [

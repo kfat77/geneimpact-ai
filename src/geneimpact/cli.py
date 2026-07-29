@@ -6,7 +6,10 @@ import argparse
 import json
 from pathlib import Path
 
-from .workflow import assess_request
+from .datasources import check_ensembl_profile
+from .snapshots import MGI_REPORTS, create_mgi_snapshot
+from .species import PROFILES
+from .workflow import DEFAULT_MODEL_VERSION, assess_request
 
 
 def main() -> None:
@@ -15,8 +18,44 @@ def main() -> None:
     assess = subparsers.add_parser("assess", help="Create an assessment report from a JSON request.")
     assess.add_argument("request", type=Path, help="Path to an assessment request JSON file.")
     assess.add_argument("--output", "-o", type=Path, help="Write the report to this JSON file.")
-    assess.add_argument("--model-version", default="0.2.0")
+    assess.add_argument("--model-version", default=DEFAULT_MODEL_VERSION)
+    source_check = subparsers.add_parser(
+        "source-check", help="Verify a registered species profile against Ensembl."
+    )
+    source_check.add_argument("--species", default="mouse", choices=sorted(PROFILES))
+    snapshot = subparsers.add_parser(
+        "snapshot-mgi", help="Download a versioned MGI report with a checksum manifest."
+    )
+    snapshot.add_argument("--report", required=True, choices=sorted(MGI_REPORTS))
+    snapshot.add_argument("--output-dir", required=True, type=Path)
     args = parser.parse_args()
+
+    if args.command == "source-check":
+        try:
+            result = check_ensembl_profile(PROFILES[args.species])
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
+        print(json.dumps({
+            "source": result.source,
+            "matches": result.matches,
+            "checked_release": result.checked_release,
+            "errors": list(result.errors),
+        }, indent=2))
+        return
+    if args.command == "snapshot-mgi":
+        try:
+            manifest = create_mgi_snapshot(args.report, args.output_dir)
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
+        print(json.dumps({
+            "source": manifest.source,
+            "report_key": manifest.report_key,
+            "filename": manifest.filename,
+            "sha256": manifest.sha256,
+            "byte_count": manifest.byte_count,
+            "retrieved_at": manifest.retrieved_at,
+        }, indent=2))
+        return
 
     try:
         request = json.loads(args.request.read_text(encoding="utf-8"))
