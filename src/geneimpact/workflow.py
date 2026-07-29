@@ -6,6 +6,7 @@ from dataclasses import asdict
 from typing import Any, Mapping
 
 from .edit_assessment import EditEvidence, assess_edit
+from .predictors import PredictionTask, PredictorOutput, integrate_outputs
 from .provenance import StudyContext, create_record
 
 
@@ -40,6 +41,21 @@ def assess_request(request: Mapping[str, Any], model_version: str = "0.2.0") -> 
     record = create_record(context, assess_edit(evidence), model_version)
     result = asdict(record)
     result["assessment"]["tier"] = record.assessment.tier.value
+    outputs = _predictor_outputs(request.get("predictor_outputs", []))
+    integrated = integrate_outputs(outputs, context.species, context.edit_class)
+    result["predictor_outputs"] = [
+        {
+            "predictor": item.output.predictor,
+            "predictor_version": item.output.predictor_version,
+            "task": item.output.task.value,
+            "concern_score": item.output.concern_score,
+            "confidence": item.output.confidence,
+            "applicability": item.applicability.value,
+            "note": item.note,
+            "evidence_reference": item.output.evidence_reference,
+        }
+        for item in integrated
+    ]
     result["report_notice"] = (
         "Research decision-support only. This report does not establish safety, "
         "authorize an edit, or replace ethics, biosafety, veterinary, or experimental review."
@@ -58,3 +74,28 @@ def _required(data: Mapping[str, Any], fields: tuple[str, ...], section: str) ->
     missing = [field for field in fields if field not in data]
     if missing:
         raise ValueError(f"{section} is missing required fields: {', '.join(missing)}")
+
+
+def _predictor_outputs(raw_outputs: Any) -> tuple[PredictorOutput, ...]:
+    if not isinstance(raw_outputs, list):
+        raise ValueError("predictor_outputs must be a list.")
+    outputs: list[PredictorOutput] = []
+    for raw in raw_outputs:
+        if not isinstance(raw, Mapping):
+            raise ValueError("each predictor output must be an object.")
+        try:
+            outputs.append(
+                PredictorOutput(
+                    predictor=str(raw["predictor"]),
+                    predictor_version=str(raw["predictor_version"]),
+                    task=PredictionTask(raw["task"]),
+                    concern_score=float(raw["concern_score"]),
+                    confidence=float(raw["confidence"]),
+                    supported_species=tuple(raw["supported_species"]),
+                    supported_edit_classes=tuple(raw["supported_edit_classes"]),
+                    evidence_reference=str(raw["evidence_reference"]),
+                )
+            )
+        except (KeyError, TypeError, ValueError) as error:
+            raise ValueError(f"invalid predictor output: {error}") from error
+    return tuple(outputs)

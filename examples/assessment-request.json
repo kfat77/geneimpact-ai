@@ -11,5 +11,17 @@
     "off_target_evidence": 0.4,
     "network_impact_evidence": 0.5,
     "welfare_relevance": 0.8
-  }
+  },
+  "predictor_outputs": [
+    {
+      "predictor": "example-repair-model",
+      "predictor_version": "validated-local-release",
+      "task": "repair_outcome",
+      "concern_score": 0.6,
+      "confidence": 0.7,
+      "supported_species": ["mouse"],
+      "supported_edit_classes": ["knockout"],
+      "evidence_reference": "approved-internal-validation-record"
+    }
+  ]
 }
