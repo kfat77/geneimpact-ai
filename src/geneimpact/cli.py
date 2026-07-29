@@ -12,6 +12,7 @@ from .benchmark import build_mgi_benchmark
 from .baseline import evaluate_benchmark
 from .impc import ImpcClient
 from .impc_validation import build_impc_validation
+from .impc_calibration import evaluate_impc_calibration
 from .mgi import normalize_phenotypic_alleles
 from .snapshots import MGI_REPORTS, create_mgi_snapshot
 from .species import PROFILES
@@ -69,6 +70,12 @@ def main() -> None:
     )
     impc_validation.add_argument("--gene", action="append", required=True)
     impc_validation.add_argument("--output", required=True, type=Path)
+    impc_calibration = subparsers.add_parser(
+        "calibrate-impc", help="Evaluate a probability baseline on gene-disjoint IMPC data."
+    )
+    impc_calibration.add_argument("--calibration", required=True, type=Path)
+    impc_calibration.add_argument("--test", required=True, type=Path)
+    impc_calibration.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
 
     if args.command == "source-check":
@@ -154,6 +161,17 @@ def main() -> None:
         except (OSError, ValueError) as error:
             parser.error(str(error))
         print(json.dumps(asdict(manifest), indent=2))
+        return
+    if args.command == "calibrate-impc":
+        try:
+            report = evaluate_impc_calibration(
+                args.calibration,
+                args.test,
+                output_path=args.output,
+            )
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
+        print(json.dumps(asdict(report), indent=2))
         return
 
     try:

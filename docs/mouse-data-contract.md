@@ -73,6 +73,17 @@ python -m geneimpact benchmark-impc \
 
 This dataset retains both significant and non-significant tested procedure/parameter results. A non-significant result means that a specific IMPC comparison did not meet its statistical significance criteria; it does not mean the edited gene has no phenotype. Runs are limited to 50 genes to keep public API usage bounded.
 
+## Establish an IMPC calibration baseline
+
+```bash
+python -m geneimpact calibrate-impc \
+  --calibration data/benchmarks/impc-calibration-v1.jsonl \
+  --test data/benchmarks/impc-test-v1.jsonl \
+  --output data/benchmarks/impc-calibration-report-v1.json
+```
+
+The evaluator rejects any gene overlap, estimates a Jeffreys-smoothed significance prevalence on calibration genes, and reports Brier Score plus expected calibration error on untouched test genes. The task predicts whether a specific IMPC assay comparison is significant; it does not predict whether an edit is safe.
+
 ## Build leakage-aware benchmark splits
 
 ```bash

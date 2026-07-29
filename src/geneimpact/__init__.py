@@ -17,6 +17,12 @@ from .impc_validation import (
     ImpcValidationRecord,
     build_impc_validation,
 )
+from .impc_calibration import (
+    BinaryCalibrationMetrics,
+    ConstantSignificanceModel,
+    ImpcCalibrationReport,
+    evaluate_impc_calibration,
+)
 
 __all__ = [
     "AssessmentRecord",
@@ -24,6 +30,8 @@ __all__ = [
     "BenchmarkManifest",
     "BenchmarkRecord",
     "BaselineReport",
+    "BinaryCalibrationMetrics",
+    "ConstantSignificanceModel",
     "EditAssessment",
     "EditEvidence",
     "EvidenceLevel",
@@ -31,6 +39,7 @@ __all__ = [
     "ImpcClient",
     "ImpcGeneEvidence",
     "ImpcGenePhenotype",
+    "ImpcCalibrationReport",
     "ImpcValidationManifest",
     "ImpcValidationRecord",
     "MOUSE_PROFILE",
@@ -55,6 +64,7 @@ __all__ = [
     "create_mgi_snapshot",
     "expected_calibration_error",
     "evaluate_benchmark",
+    "evaluate_impc_calibration",
     "integrate_outputs",
     "normalize_phenotypic_alleles",
     "permitted_wording",
