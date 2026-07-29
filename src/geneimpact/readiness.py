@@ -11,6 +11,7 @@ from .housden import (
     HOUSDEN_SPECIES_PROFILE,
     HOUSDEN_TRAINING_DOMAIN,
 )
+from .fruit_fly_cas12a import FRUIT_FLY_CAS12A_REFERENCE
 from .species import PROFILES
 
 
@@ -18,6 +19,7 @@ class EvidenceUseStatus(str, Enum):
     """The strongest use justified by one evidence record."""
 
     USABLE_ADAPTER = "usable_adapter"
+    USABLE_BOUNDED_BENCHMARK = "usable_bounded_benchmark"
     TRANSFER_EVIDENCE_ONLY = "transfer_evidence_only"
     HAZARD_EVIDENCE_ONLY = "hazard_evidence_only"
     INSUFFICIENT_PUBLIC_DATA = "insufficient_public_data"
@@ -122,6 +124,40 @@ _RECORDS = (
         training_overlap_audited=False,
         source_reference=HOUSDEN_METHOD_REFERENCE,
         limitations="in vivo and embryo/germline predictive validity are not established",
+    ),
+    EvidenceQualification(
+        record_id="fruit-fly-port-2026-cas12a-array-loh-v1",
+        species_profile="fruit_fly",
+        predictor_or_method="Port 2026 Cas12a array LOH evidence",
+        task="in_vivo_cas12a_array_loh_evidence",
+        status=EvidenceUseStatus.USABLE_BOUNDED_BENCHMARK,
+        biological_domain=(
+            "adult Drosophila wing-disc LOH screens over monitored "
+            "chromosome-2 intervals"
+        ),
+        strain_stock_or_population="HD12aCFD attP40 array lines",
+        genome_build_or_target_sequence=(
+            "published HD12aCFD three- or four-guide array library"
+        ),
+        edit_system="LbCas12a-D156R knockout arrays",
+        delivery_or_developmental_context=(
+            "in-vivo somatic wing-disc LOH observation"
+        ),
+        labels_public=True,
+        target_count=845,
+        sample_count=None,
+        independent_evidence=(
+            "publisher source workbooks are checksum-pinned and structurally "
+            "audited; article aggregates are retained separately"
+        ),
+        license_status="CC BY 4.0 source data; publisher files are not bundled",
+        training_overlap_audited=False,
+        source_reference=FRUIT_FLY_CAS12A_REFERENCE,
+        limitations=(
+            "array-level LOH observations cannot be assigned to one component "
+            "guide and do not provide a probability, phenotype, welfare, "
+            "repair-outcome, or genome-wide safety prediction"
+        ),
     ),
     EvidenceQualification(
         record_id="rat-anderson-2018-in-vivo-transfer-v1",

@@ -24,6 +24,12 @@ externally generated scores on 14 uniquely mapped historical guides. It is not
 integrated into the dossier as an applicable rat predictor and cannot support
 an edit-safety claim.
 
+For fruit-fly Cas12a work, the separate
+[Port 2026 evidence audit](fruit-fly-cas12a-evidence.md) verifies the original
+publisher files and can retrieve observations for one indivisible HD12aCFD
+array. Do not assign an array observation to one component guide or interpret
+it as a calibrated edit, phenotype, welfare, or safety probability.
+
 The older `assess` command remains available for minimal evidence-triage
 records.
 

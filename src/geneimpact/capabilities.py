@@ -12,6 +12,7 @@ from .housden import (
     HOUSDEN_SPECIES_PROFILE,
     HOUSDEN_TRAINING_DOMAIN,
 )
+from .fruit_fly_cas12a import FRUIT_FLY_CAS12A_REFERENCE
 from .species import PROFILES
 
 
@@ -155,6 +156,24 @@ def capabilities_for_species(species_profile: str) -> tuple[PredictorCapability,
                     note=(
                         "The service exposes this genome, but the activity model is "
                         "not treated as species-validated for this profile."
+                    ),
+                ),
+                PredictorCapability(
+                    species_profile="fruit_fly",
+                    predictor="Port 2026 Cas12a array LOH evidence",
+                    task="in_vivo_cas12a_array_loh_evidence",
+                    edit_classes=("knockout",),
+                    status=CapabilityStatus.VALIDATION_CANDIDATE,
+                    biological_domain=(
+                        "adult wing-disc LOH screens using HD12aCFD "
+                        "three- or four-guide arrays"
+                    ),
+                    evidence_reference=FRUIT_FLY_CAS12A_REFERENCE,
+                    note=(
+                        "Checksum-pinned array-level evidence audit is "
+                        "available. This is not a predictor: observations "
+                        "cannot be assigned to component guides or interpreted "
+                        "as calibrated probabilities."
                     ),
                 ),
             )

@@ -108,3 +108,20 @@ genetically engineered rats and mice." Nature Methods 15, 512–514 (2018).
 The supplementary files are publicly downloadable, but no explicit dataset
 reuse licence was located. GeneImpact AI therefore stores source URLs and
 checksums and does not bundle or publish a transformed benchmark dataset.
+
+## Port et al. fruit-fly Cas12a evidence
+
+GeneImpact AI does not bundle the HD12aCFD library, genotype workbook, or
+source-data workbook. Researchers download the three files from the publisher;
+the audit verifies their SHA-256 checksums and emits aggregate counts or
+sequence hashes rather than copying spacer sequences.
+
+The source is attributed to:
+
+Port F, et al. "Highly efficient genome engineering in Drosophila with
+CRISPR-Cas12a." Nature Communications (2026).
+<https://doi.org/10.1038/s41467-026-68434-z>
+
+The article and its source data are distributed under the Creative Commons
+Attribution 4.0 International License:
+<https://creativecommons.org/licenses/by/4.0/>.

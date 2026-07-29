@@ -18,6 +18,11 @@ from .crisprscan_validation import PREDICTION_FIELDS, evaluate_crisprscan_transf
 from .datasources import check_ncbi_profile
 from .dossier import build_research_dossier, verify_dossier_integrity
 from .housden import normalize_housden
+from .fruit_fly_cas12a import (
+    PORT_2026_CAS12A_SOURCE,
+    audit_fruit_fly_cas12a_evidence,
+    lookup_fruit_fly_cas12a_array,
+)
 from .benchmark import build_mgi_benchmark
 from .baseline import evaluate_benchmark
 from .impc import ImpcClient
@@ -179,6 +184,20 @@ def main() -> None:
     rat_validation.add_argument("--table5", required=True, type=Path)
     rat_validation.add_argument("--predictions", required=True, type=Path)
     rat_validation.add_argument("--output", required=True, type=Path)
+    fruit_fly_cas12a = subparsers.add_parser(
+        "audit-fruit-fly-cas12a-evidence",
+        help=(
+            "Audit pinned Port 2026 in-vivo Cas12a array-level LOH evidence."
+        ),
+    )
+    fruit_fly_cas12a.add_argument("--library", required=True, type=Path)
+    fruit_fly_cas12a.add_argument("--genotypes", required=True, type=Path)
+    fruit_fly_cas12a.add_argument("--source-data", required=True, type=Path)
+    fruit_fly_cas12a.add_argument(
+        "--line-id",
+        help="Optionally include one indivisible HD12aCFD array lookup.",
+    )
+    fruit_fly_cas12a.add_argument("--output", required=True, type=Path)
     dossier = subparsers.add_parser(
         "dossier",
         help="Build one unified, integrity-checkable research dossier.",
@@ -485,6 +504,32 @@ def main() -> None:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(rendered, encoding="utf-8")
         print(f"Rat guide-transfer report written to {args.output}")
+        return
+    if args.command == "audit-fruit-fly-cas12a-evidence":
+        try:
+            audit = audit_fruit_fly_cas12a_evidence(
+                args.library,
+                args.genotypes,
+                args.source_data,
+                source=PORT_2026_CAS12A_SOURCE,
+            )
+            report = {"audit": asdict(audit)}
+            if args.line_id:
+                report["array_evidence"] = asdict(
+                    lookup_fruit_fly_cas12a_array(
+                        args.library,
+                        args.genotypes,
+                        args.source_data,
+                        args.line_id,
+                        source=PORT_2026_CAS12A_SOURCE,
+                    )
+                )
+        except (OSError, TypeError, ValueError) as error:
+            parser.error(str(error))
+        rendered = json.dumps(report, indent=2, ensure_ascii=False) + "\n"
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(rendered, encoding="utf-8")
+        print(f"Fruit-fly Cas12a evidence audit written to {args.output}")
         return
     if args.command == "dossier":
         try:

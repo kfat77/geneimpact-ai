@@ -54,6 +54,7 @@ reported as an error rather than silently accepting coordinate drift.
 | inDelphi repair-outcome import | Narrow mESC scope | Out of scope | Out of scope | Out of scope | Out of scope | Out of scope |
 | CRISPRscan guide-activity scoring | Out of scope | Out of scope | Narrow embryo scope | Out of scope | Out of scope | Out of scope |
 | Housden guide-activity ranking | Out of scope | Out of scope | Out of scope | Narrow S2R+ cell scope | Out of scope | Out of scope |
+| Port 2026 Cas12a array LOH evidence | Out of scope | Out of scope | Out of scope | Bounded in-vivo array audit | Out of scope | Out of scope |
 | Independent species-specific transfer evidence | Mouse embryo retrospective | 14-guide rat embryo retrospective | Zebrafish RNP retrospective | Qualitative published comparisons | Hazard evidence only | Hazard evidence only |
 
 An output from a human-cell or mouse-cell model is not promoted to another
@@ -72,13 +73,19 @@ python -m geneimpact readiness --all
 ```
 
 The `readiness` command additionally qualifies public datasets and papers as
-`usable_adapter`, `transfer_evidence_only`, `hazard_evidence_only`, or
-`insufficient_public_data`. A hazard observation or method paper is never
-promoted to executable prediction capability.
+`usable_adapter`, `usable_bounded_benchmark`, `transfer_evidence_only`,
+`hazard_evidence_only`, or `insufficient_public_data`. A bounded benchmark,
+hazard observation, or method paper is never promoted to executable prediction
+capability.
 
 For rat, `validation_candidate` means that a pinned external-transfer evaluator
 exists. It does not mean that GeneImpact ships or endorses a rat guide-activity
 predictor. See the [rat transfer benchmark](rat-transfer-benchmark.md).
+
+For fruit fly, `usable_bounded_benchmark` identifies checksum-pinned Port 2026
+Cas12a evidence at the three- or four-guide array level. It does not mean that
+the component guides, repair outcomes, phenotypes, or safety are predictable.
+See the [fruit-fly Cas12a evidence guide](fruit-fly-cas12a-evidence.md).
 
 Status meanings:
 

@@ -38,6 +38,17 @@ def test_fruit_fly_readiness_is_limited_to_the_declared_cell_domain():
     assert housden.biological_domain == "Drosophila S2R+ cell culture"
     assert "in vivo" in housden.limitations
 
+    cas12a = next(
+        record
+        for record in readiness.evidence_records
+        if record.task == "in_vivo_cas12a_array_loh_evidence"
+    )
+    assert cas12a.status is EvidenceUseStatus.USABLE_BOUNDED_BENCHMARK
+    assert cas12a.eligible_for_predictive_capability is False
+    assert cas12a.labels_public is True
+    assert cas12a.target_count == 845
+    assert "array" in cas12a.limitations
+
 
 def test_rat_readiness_reports_transfer_evidence_without_predictor_promotion():
     readiness = readiness_for_species("rat")
