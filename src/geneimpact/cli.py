@@ -12,6 +12,7 @@ from .behive_bystander import normalize_behive_bystander
 from .behive_validation import evaluate_behive_validation
 from .capabilities import capabilities_for_species
 from .crispritz import import_crispritz_targets
+from .crisprscan import score_crisprscan
 from .datasources import check_ncbi_profile
 from .benchmark import build_mgi_benchmark
 from .baseline import evaluate_benchmark
@@ -111,6 +112,12 @@ def main() -> None:
     crispritz_import.add_argument("--metadata", required=True, type=Path)
     crispritz_import.add_argument("--targets", required=True, type=Path)
     crispritz_import.add_argument("--output", required=True, type=Path)
+    crisprscan_score = subparsers.add_parser(
+        "score-crisprscan",
+        help="Score guides in the declared zebrafish embryo CRISPRscan domain.",
+    )
+    crisprscan_score.add_argument("--input", required=True, type=Path)
+    crisprscan_score.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
 
     if args.command == "source-check":
@@ -268,6 +275,19 @@ def main() -> None:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(rendered, encoding="utf-8")
         print(f"CRISPRitz audit report written to {args.output}")
+        return
+    if args.command == "score-crisprscan":
+        try:
+            request = json.loads(args.input.read_text(encoding="utf-8"))
+            if not isinstance(request, dict):
+                raise ValueError("CRISPRscan request must be a JSON object.")
+            report = score_crisprscan(request)
+        except (OSError, json.JSONDecodeError, TypeError, ValueError) as error:
+            parser.error(str(error))
+        rendered = json.dumps(asdict(report), indent=2, ensure_ascii=False) + "\n"
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(rendered, encoding="utf-8")
+        print(f"CRISPRscan score report written to {args.output}")
         return
 
     try:

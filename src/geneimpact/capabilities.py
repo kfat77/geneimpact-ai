@@ -102,12 +102,12 @@ def capabilities_for_species(species_profile: str) -> tuple[PredictorCapability,
                 predictor="CRISPRscan",
                 task="guide_activity",
                 edit_classes=("knockout",),
-                status=CapabilityStatus.VALIDATION_CANDIDATE,
+                status=CapabilityStatus.AVAILABLE_DECLARED_DOMAIN,
                 biological_domain="in-vivo zebrafish embryo mutagenesis; predominantly TU background",
                 evidence_reference=_CRISPRSCAN_REFERENCE,
                 note=(
-                    "Species-relevant candidate; adapter must account for reference-build "
-                    "and strain differences before reporting applicable scores."
+                    "Version-locked scoring is available for canonical SpCas9, T7 in-vitro-"
+                    "transcribed guides in zebrafish embryos; modern independent benchmarking is pending."
                 ),
             )
         )

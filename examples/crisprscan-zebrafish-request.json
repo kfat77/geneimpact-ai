@@ -1,0 +1,15 @@
+{
+  "species_profile": "zebrafish",
+  "genome_build": "GRCz12tu",
+  "assembly_accession": "GCF_049306965.2",
+  "reference_strain_or_isolate": "Tuebingen",
+  "nuclease": "SpCas9",
+  "guide_expression": "t7_in_vitro_transcription",
+  "developmental_context": "zebrafish_embryo",
+  "guides": [
+    {
+      "guide_id": "zf-guide-001",
+      "context_35nt": "ACCTGGATCGATGCTGATGCTAGATAAGGTTGAGC"
+    }
+  ]
+}

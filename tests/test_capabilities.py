@@ -37,12 +37,12 @@ def test_behive_is_available_only_for_mouse_mes():
     assert not any(item.predictor.startswith("BE-Hive") for item in non_mouse)
 
 
-def test_crisprscan_is_candidate_only_in_zebrafish_domain():
+def test_crisprscan_is_available_only_in_zebrafish_domain():
     zebrafish = capabilities_for_species("zebrafish")
     fruit_fly = capabilities_for_species("fruit_fly")
 
     assert next(item for item in zebrafish if item.predictor == "CRISPRscan").status is (
-        CapabilityStatus.VALIDATION_CANDIDATE
+        CapabilityStatus.AVAILABLE_DECLARED_DOMAIN
     )
     assert next(item for item in fruit_fly if item.predictor == "CRISPRscan").status is (
         CapabilityStatus.OUT_OF_DOMAIN_ONLY

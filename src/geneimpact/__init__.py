@@ -71,6 +71,16 @@ from .crispritz import (
     CrispritzHit,
     import_crispritz_targets,
 )
+from .crisprscan import (
+    CRISPRSCAN_COEFFICIENTS_SHA256,
+    CRISPRSCAN_METHOD_REFERENCE,
+    CRISPRSCORE_COMMIT,
+    CRISPRSCORE_REFERENCE,
+    CRISPRSCORE_VERSION,
+    CrisprscanGuideScore,
+    CrisprscanReport,
+    score_crisprscan,
+)
 
 __all__ = [
     "AssessmentRecord",
@@ -101,6 +111,13 @@ __all__ = [
     "CrispritzAuditReport",
     "CrispritzDifferenceCount",
     "CrispritzHit",
+    "CRISPRSCAN_COEFFICIENTS_SHA256",
+    "CRISPRSCAN_METHOD_REFERENCE",
+    "CRISPRSCORE_COMMIT",
+    "CRISPRSCORE_REFERENCE",
+    "CRISPRSCORE_VERSION",
+    "CrisprscanGuideScore",
+    "CrisprscanReport",
     "EditAssessment",
     "EditEvidence",
     "EvidenceLevel",
@@ -150,5 +167,6 @@ __all__ = [
     "normalize_behive_bystander",
     "permitted_wording",
     "rank_interactions",
+    "score_crisprscan",
     "validate_study_context",
 ]
