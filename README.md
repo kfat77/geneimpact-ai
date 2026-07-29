@@ -17,6 +17,8 @@ The first release focuses on a transparent pipeline:
 5. Evaluate against held-out historical outcomes and an independent laboratory or dataset.
 6. Require human and animal-welfare review for every high-uncertainty or high-consequence result.
 
+Every assessment is also bound to a species, strain/breed, genome build, edit class, evidence snapshot, and model version. This prevents a result from being reused outside its demonstrated setting.
+
 ## Scientific guardrails
 
 - **Predictions are not guarantees.** Outputs distinguish biological plausibility, replicated empirical evidence, and uncertainty.
@@ -64,6 +66,7 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [x] Research scope, governance, and model-card templates
 - [x] Transparent evidence-to-review-tier baseline
 - [x] Animal-edit pre-registration and evidence-grading templates
+- [x] Audit-ready study context and held-out calibration metrics
 - [ ] Versioned reference-genome and annotation adapters
 - [ ] Reproducible species/edit-class split and calibration workflow
 - [ ] Independent laboratory replication benchmarks
