@@ -62,6 +62,17 @@ The command uses the official [IMPC statistical-result Solr API](https://www.ebi
 
 IMPC evidence is generated from standardized knockout mouse phenotyping. It can inform plausible phenotypic consequences, but it is not a prediction of every edit type, molecular context, strain, or off-target event.
 
+## Build a bounded IMPC validation set
+
+```bash
+python -m geneimpact benchmark-impc \
+  --gene Prkdc \
+  --gene Kit \
+  --output data/benchmarks/impc-validation.jsonl
+```
+
+This dataset retains both significant and non-significant tested procedure/parameter results. A non-significant result means that a specific IMPC comparison did not meet its statistical significance criteria; it does not mean the edited gene has no phenotype. Runs are limited to 50 genes to keep public API usage bounded.
+
 ## Build leakage-aware benchmark splits
 
 ```bash

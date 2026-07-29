@@ -55,6 +55,7 @@ python -m geneimpact normalize-mgi --input data/mgi/MGI_PhenotypicAllele.rpt --o
 python -m geneimpact impc-gene --gene Prkdc --output data/impc/Prkdc-significant.json
 python -m geneimpact benchmark-mgi --input data/mgi/endonuclease-alleles.jsonl --output-dir data/benchmarks/mgi-v1
 python -m geneimpact evaluate-baseline --benchmark-dir data/benchmarks/mgi-v1 --k 5
+python -m geneimpact benchmark-impc --gene Prkdc --gene Kit --output data/benchmarks/impc-validation.jsonl
 ```
 
 Read the [researcher guide](docs/researcher-guide.md) before using the tool with study evidence.
@@ -89,7 +90,7 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [x] Bounded IMPC significant gene-phenotype query adapter
 - [x] Leakage-aware, gene-grouped MGI positive-association benchmark
 - [x] Manifest-bound Recall@K baseline for unseen genes
-- [ ] Independent IMPC validation dataset with tested negative outcomes
+- [x] Bounded independent IMPC validation builder with tested outcomes
 - [ ] IMPC phenotype snapshot adapter
 - [ ] Reproducible species/edit-class split and calibration workflow
 - [ ] Independent laboratory replication benchmarks

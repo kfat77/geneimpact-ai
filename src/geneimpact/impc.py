@@ -31,6 +31,7 @@ class ImpcGenePhenotype:
     """A significant IMPC statistical result with experimental context."""
 
     marker_symbol: str
+    significant: bool
     mp_term_id: str | None
     mp_term_name: str | None
     top_level_mp_terms: tuple[str, ...]
@@ -50,6 +51,7 @@ class ImpcGeneEvidence:
     retrieved_at: str
     marker_symbol: str
     num_found: int
+    pages: int
     results: tuple[ImpcGenePhenotype, ...]
 
 
@@ -67,31 +69,74 @@ class ImpcClient:
     def significant_gene_phenotypes(
         self, marker_symbol: str, *, rows: int = 1000
     ) -> ImpcGeneEvidence:
+        return self.gene_phenotypes(marker_symbol, significant=True, rows=rows)
+
+    def gene_phenotypes(
+        self,
+        marker_symbol: str,
+        *,
+        significant: bool | None = None,
+        rows: int = 1000,
+        max_documents: int = 5000,
+    ) -> ImpcGeneEvidence:
+        """Fetch bounded statistical results, optionally filtered by significance."""
         marker_symbol = marker_symbol.strip()
         if not marker_symbol:
             raise ValueError("marker_symbol is required.")
         if not 1 <= rows <= 1000:
             raise ValueError("rows must be between 1 and 1000.")
-        query = f"marker_symbol:{marker_symbol} AND significant:true"
-        parameters = urlencode(
-            {
-                "q": query,
-                "fl": ",".join(STATISTICAL_FIELDS),
-                "rows": rows,
-                "wt": "json",
-            }
-        )
-        source_url = f"{self.base_url}/statistical-result/select?{parameters}"
-        payload = self.reader(source_url)
-        response = payload.get("response")
-        if not isinstance(response, Mapping) or not isinstance(response.get("docs"), list):
-            raise ValueError("IMPC response is missing response.docs.")
-        results = tuple(_normalize(document) for document in response["docs"])
+        query = f"marker_symbol:{marker_symbol}"
+        if significant is not None:
+            query += f" AND significant:{str(significant).lower()}"
+        if max_documents < rows:
+            raise ValueError("max_documents must be at least as large as rows.")
+        documents: list[Any] = []
+        start = 0
+        pages = 0
+        source_url = ""
+        num_found = 0
+        while True:
+            parameters = urlencode(
+                {
+                    "q": query,
+                    "fl": ",".join(STATISTICAL_FIELDS),
+                    "rows": rows,
+                    "start": start,
+                    "wt": "json",
+                }
+            )
+            page_url = f"{self.base_url}/statistical-result/select?{parameters}"
+            source_url = source_url or page_url
+            payload = self.reader(page_url)
+            response = payload.get("response")
+            if not isinstance(response, Mapping) or not isinstance(response.get("docs"), list):
+                raise ValueError("IMPC response is missing response.docs.")
+            num_found = int(response.get("numFound", len(response["docs"])))
+            if num_found > max_documents:
+                raise ValueError(
+                    f"IMPC returned {num_found} results for {marker_symbol!r}, exceeding "
+                    f"the run limit {max_documents}; use a narrower query."
+                )
+            page = response["docs"]
+            documents.extend(page)
+            pages += 1
+            if len(documents) >= num_found:
+                break
+            if not page:
+                raise ValueError("IMPC pagination ended before all reported results were returned.")
+            start = len(documents)
+
+        if len(documents) != num_found:
+            raise ValueError(
+                f"IMPC returned {len(documents)} documents but reported {num_found}."
+            )
+        results = tuple(_normalize(document) for document in documents)
         return ImpcGeneEvidence(
             source_url=source_url,
             retrieved_at=datetime.now(timezone.utc).isoformat(),
             marker_symbol=marker_symbol,
-            num_found=int(response.get("numFound", len(results))),
+            num_found=num_found,
+            pages=pages,
             results=results,
         )
 
@@ -101,6 +146,7 @@ def _normalize(document: Any) -> ImpcGenePhenotype:
         raise ValueError("IMPC result document must be an object.")
     return ImpcGenePhenotype(
         marker_symbol=str(document["marker_symbol"]),
+        significant=bool(document.get("significant", False)),
         mp_term_id=_optional_string(document.get("mp_term_id")),
         mp_term_name=_optional_string(document.get("mp_term_name")),
         top_level_mp_terms=tuple(

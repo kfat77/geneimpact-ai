@@ -11,6 +11,7 @@ from .datasources import check_ensembl_profile
 from .benchmark import build_mgi_benchmark
 from .baseline import evaluate_benchmark
 from .impc import ImpcClient
+from .impc_validation import build_impc_validation
 from .mgi import normalize_phenotypic_alleles
 from .snapshots import MGI_REPORTS, create_mgi_snapshot
 from .species import PROFILES
@@ -63,6 +64,11 @@ def main() -> None:
     )
     baseline.add_argument("--benchmark-dir", required=True, type=Path)
     baseline.add_argument("--k", type=int, default=5)
+    impc_validation = subparsers.add_parser(
+        "benchmark-impc", help="Build a bounded assay-level IMPC validation dataset."
+    )
+    impc_validation.add_argument("--gene", action="append", required=True)
+    impc_validation.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
 
     if args.command == "source-check":
@@ -141,6 +147,13 @@ def main() -> None:
         except (OSError, ValueError) as error:
             parser.error(str(error))
         print(json.dumps(asdict(report), indent=2))
+        return
+    if args.command == "benchmark-impc":
+        try:
+            manifest = build_impc_validation(args.gene, args.output)
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
+        print(json.dumps(asdict(manifest), indent=2))
         return
 
     try:

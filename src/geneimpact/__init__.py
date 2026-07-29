@@ -12,6 +12,11 @@ from .mgi import MgiAlleleEvidence, NormalizationSummary, normalize_phenotypic_a
 from .impc import ImpcClient, ImpcGeneEvidence, ImpcGenePhenotype
 from .benchmark import BenchmarkManifest, BenchmarkRecord, assign_gene_split, build_mgi_benchmark
 from .baseline import BaselineReport, PhenotypePriorModel, RankingMetrics, evaluate_benchmark
+from .impc_validation import (
+    ImpcValidationManifest,
+    ImpcValidationRecord,
+    build_impc_validation,
+)
 
 __all__ = [
     "AssessmentRecord",
@@ -26,6 +31,8 @@ __all__ = [
     "ImpcClient",
     "ImpcGeneEvidence",
     "ImpcGenePhenotype",
+    "ImpcValidationManifest",
+    "ImpcValidationRecord",
     "MOUSE_PROFILE",
     "MGI_REPORTS",
     "MgiAlleleEvidence",
@@ -43,6 +50,7 @@ __all__ = [
     "assign_gene_split",
     "brier_score",
     "build_mgi_benchmark",
+    "build_impc_validation",
     "create_record",
     "create_mgi_snapshot",
     "expected_calibration_error",
