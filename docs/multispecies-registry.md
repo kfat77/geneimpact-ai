@@ -51,8 +51,9 @@ reported as an error rather than silently accepting coordinate drift.
 | Generic external-output applicability audit | Ready | Ready | Ready | Ready | Ready | Ready |
 | MGI/IMPC phenotype evidence baseline | Research baseline | Not applicable | Not applicable | Not applicable | Not applicable | Not applicable |
 | BE-Hive mES efficiency and bystander import | Narrow mES scope | Out of scope | Out of scope | Out of scope | Out of scope | Out of scope |
-| Species-specific validated edit prediction | In progress | Planned | Planned | Planned | Planned | Planned |
-| Independent species-specific performance report | Pending eligible data | Pending | Pending | Pending | Pending | Pending |
+| inDelphi repair-outcome import | Narrow mESC scope | Out of scope | Out of scope | Out of scope | Out of scope | Out of scope |
+| CRISPRscan guide-activity scoring | Out of scope | Out of scope | Narrow embryo scope | Out of scope | Out of scope | Out of scope |
+| Independent species-specific transfer evidence | Mouse embryo retrospective | Pending | Zebrafish RNP retrospective | Pending | Pending | Pending |
 
 An output from a human-cell or mouse-cell model is not promoted to another
 species. It may remain in an audit report as `out_of_scope`, but it must not

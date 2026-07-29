@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import pytest
 
@@ -161,6 +162,70 @@ def test_rejects_attachment_path_escape(tmp_path):
     request["predictors"]["crispritz"] = {"targets_file": "../outside.txt"}
 
     with pytest.raises(ValueError, match="escapes"):
+        build_research_dossier(request, attachment_base_dir=tmp_path)
+
+
+def test_integrates_multiple_version_locked_indelphi_results(tmp_path):
+    result = Path("examples/indelphi-mouse-result.json").read_text(
+        encoding="utf-8"
+    )
+    (tmp_path / "guide-1.json").write_text(result, encoding="utf-8")
+    second = json.loads(result)
+    second["request"]["target_id"] = "Tyr-guide-synthetic-02"
+    (tmp_path / "guide-2.json").write_text(
+        json.dumps(second),
+        encoding="utf-8",
+    )
+    request = _request(
+        study_id="mouse-indelphi-study",
+        species_profile="mouse",
+        strain_or_breed="C57BL/6J",
+        genome_build="GRCm39",
+        assembly_accession="GCF_000001635.27",
+        delivery_context="spcas9_ribonucleoprotein",
+        developmental_context="one_cell_embryo",
+    )
+    request["predictors"]["indelphi"] = {
+        "result_files": ["guide-1.json", "guide-2.json"]
+    }
+
+    dossier = build_research_dossier(request, attachment_base_dir=tmp_path)
+
+    predictions = [
+        row
+        for row in dossier["model_predictions"]
+        if row["predictor"] == "inDelphi"
+    ]
+    assert len(predictions) == 2
+    assert predictions[0]["source_document_sha256"]
+    assert predictions[0]["external_validation"]["guide_count"] == 14
+    assert any(
+        row["predictor"] == "inDelphi"
+        and row["execution_state"] == "included"
+        for row in dossier["capability_coverage"]
+    )
+    assert "inDelphi" not in dossier["evidence_completeness"][
+        "available_predictors_not_run"
+    ]
+
+
+def test_rejects_indelphi_context_mismatch(tmp_path):
+    result = json.loads(
+        Path("examples/indelphi-mouse-result.json").read_text(encoding="utf-8")
+    )
+    result["request"]["developmental_context"] = "mismatch"
+    (tmp_path / "guide.json").write_text(json.dumps(result), encoding="utf-8")
+    request = _request(
+        species_profile="mouse",
+        strain_or_breed="C57BL/6J",
+        genome_build="GRCm39",
+        assembly_accession="GCF_000001635.27",
+        delivery_context="spcas9_ribonucleoprotein",
+        developmental_context="one_cell_embryo",
+    )
+    request["predictors"]["indelphi"] = {"result_files": ["guide.json"]}
+
+    with pytest.raises(ValueError, match="developmental_context"):
         build_research_dossier(request, attachment_base_dir=tmp_path)
 
 

@@ -1,0 +1,44 @@
+{
+  "dossier_schema_version": "1.0",
+  "study_context": {
+    "study_id": "mouse-synthetic-indelphi-demo",
+    "species_profile": "mouse",
+    "strain_or_breed": "C57BL/6J",
+    "genome_build": "GRCm39",
+    "assembly_accession": "GCF_000001635.27",
+    "edit_class": "knockout",
+    "delivery_context": "spcas9_ribonucleoprotein",
+    "developmental_context": "one_cell_embryo",
+    "evidence_snapshot_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "target_genes": [
+    {
+      "gene_id": "MGI:98880",
+      "gene_symbol": "Tyr",
+      "intended_change": "loss_of_function",
+      "evidence_signal": 0.8,
+      "evidence_reference": "synthetic-placeholder-not-research-evidence"
+    }
+  ],
+  "intended_outcomes": [
+    "Synthetic format example only"
+  ],
+  "welfare_endpoints": [
+    "Synthetic endpoint placeholder"
+  ],
+  "interaction_evidence": [],
+  "evidence": {
+    "on_target_uncertainty": 0.5,
+    "off_target_evidence": 0.5,
+    "network_impact_evidence": 0.5,
+    "welfare_relevance": 0.5
+  },
+  "predictors": {
+    "indelphi": {
+      "result_files": [
+        "indelphi-mouse-result.json"
+      ]
+    }
+  },
+  "example_notice": "Synthetic contract fixture only. Replace every placeholder and predictor result before research use."
+}

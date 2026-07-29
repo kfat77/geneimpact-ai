@@ -92,6 +92,20 @@ from .dossier import (
     build_research_dossier,
     verify_dossier_integrity,
 )
+from .indelphi import (
+    INDELPHI_COMMIT,
+    INDELPHI_MODEL_ARTIFACT_FAMILY,
+    INDELPHI_REFERENCE,
+    INDELPHI_REPOSITORY,
+    IndelphiOutcome,
+    IndelphiPrediction,
+    normalize_indelphi,
+)
+from .indelphi_validation import (
+    INDELPHI_MOUSE_SUPPLEMENT_SHA256,
+    IndelphiMouseTransferEvidence,
+    indelphi_mouse_transfer_evidence,
+)
 
 __all__ = [
     "AssessmentRecord",
@@ -143,6 +157,14 @@ __all__ = [
     "ImpcCalibrationReport",
     "ImpcValidationManifest",
     "ImpcValidationRecord",
+    "INDELPHI_COMMIT",
+    "INDELPHI_MODEL_ARTIFACT_FAMILY",
+    "INDELPHI_MOUSE_SUPPLEMENT_SHA256",
+    "INDELPHI_REFERENCE",
+    "INDELPHI_REPOSITORY",
+    "IndelphiMouseTransferEvidence",
+    "IndelphiOutcome",
+    "IndelphiPrediction",
     "MOUSE_PROFILE",
     "MGI_REPORTS",
     "MgiAlleleEvidence",
@@ -178,10 +200,12 @@ __all__ = [
     "evaluate_crisprscan_transfer",
     "integrate_outputs",
     "integrate_behive_efficiency",
+    "indelphi_mouse_transfer_evidence",
     "import_crispritz_targets",
     "normalize_phenotypic_alleles",
     "normalize_behive_efficiency",
     "normalize_behive_bystander",
+    "normalize_indelphi",
     "permitted_wording",
     "rank_interactions",
     "score_crisprscan",

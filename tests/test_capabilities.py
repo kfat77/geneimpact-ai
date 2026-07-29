@@ -37,6 +37,22 @@ def test_behive_is_available_only_for_mouse_mes():
     assert not any(item.predictor.startswith("BE-Hive") for item in non_mouse)
 
 
+def test_indelphi_external_import_is_available_only_for_mouse_knockout():
+    mouse = capabilities_for_species("mouse")
+    indelphi = next(item for item in mouse if item.predictor == "inDelphi")
+
+    assert indelphi.status is CapabilityStatus.AVAILABLE_DECLARED_DOMAIN
+    assert indelphi.edit_classes == ("knockout",)
+    assert all(
+        not any(
+            item.predictor == "inDelphi"
+            for item in capabilities_for_species(profile)
+        )
+        for profile in PROFILES
+        if profile != "mouse"
+    )
+
+
 def test_crisprscan_is_available_only_in_zebrafish_domain():
     zebrafish = capabilities_for_species("zebrafish")
     fruit_fly = capabilities_for_species("fruit_fly")

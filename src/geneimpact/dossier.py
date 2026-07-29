@@ -13,6 +13,7 @@ from typing import Any, Mapping, Sequence
 from .capabilities import CapabilityStatus, capabilities_for_species
 from .crispritz import import_crispritz_targets
 from .crisprscan import score_crisprscan
+from .indelphi import normalize_indelphi
 from .interactions import rank_interactions
 from .species import PROFILES
 from .workflow import DEFAULT_MODEL_VERSION, assess_request
@@ -165,6 +166,69 @@ def build_research_dossier(
             asdict(import_crispritz_targets(crispritz_metadata, targets_path))
         )
         executed_predictors.add("CRISPRitz")
+
+    if "indelphi" in predictors:
+        if profile_key != "mouse" or context["edit_class"] != "knockout":
+            raise ValueError(
+                "predictors.indelphi is available only for mouse knockout studies."
+            )
+        config = _mapping(predictors, "indelphi")
+        result_files = config.get("result_files")
+        if (
+            not isinstance(result_files, Sequence)
+            or isinstance(result_files, (str, bytes))
+            or not 1 <= len(result_files) <= 100
+        ):
+            raise ValueError(
+                "predictors.indelphi.result_files must contain 1-100 relative paths."
+            )
+        indelphi_predictions = []
+        target_ids: set[str] = set()
+        for raw_result_path in result_files:
+            result_path = _resolve_attachment(
+                raw_result_path,
+                attachment_base_dir,
+                "predictors.indelphi.result_files",
+            )
+            result_bytes = result_path.read_bytes()
+            try:
+                result_document = json.loads(result_bytes.decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError) as error:
+                raise ValueError(
+                    f"inDelphi result is not valid UTF-8 JSON: {raw_result_path}"
+                ) from error
+            if not isinstance(result_document, Mapping):
+                raise ValueError("each inDelphi result must be a JSON object.")
+            prediction = normalize_indelphi(
+                result_document,
+                source_document_sha256=sha256(result_bytes).hexdigest(),
+            )
+            if prediction.genome_build.casefold() != str(
+                context["genome_build"]
+            ).casefold():
+                raise ValueError(
+                    "inDelphi result genome_build must match study_context."
+                )
+            if prediction.assembly_accession != context["assembly_accession"]:
+                raise ValueError(
+                    "inDelphi result assembly_accession must match study_context."
+                )
+            if prediction.delivery_context != context["delivery_context"]:
+                raise ValueError(
+                    "inDelphi result delivery_context must match study_context."
+                )
+            if prediction.developmental_context != context[
+                "developmental_context"
+            ]:
+                raise ValueError(
+                    "inDelphi result developmental_context must match study_context."
+                )
+            if prediction.target_id in target_ids:
+                raise ValueError("inDelphi result target_id values must be unique.")
+            target_ids.add(prediction.target_id)
+            indelphi_predictions.append(asdict(prediction))
+        model_predictions.extend(indelphi_predictions)
+        executed_predictors.add("inDelphi")
 
     capability_coverage = _capability_coverage(
         profile_key,
@@ -510,9 +574,13 @@ def _review_flags(
     return flags
 
 
-def _resolve_attachment(raw_path: Any, base_dir: Path) -> Path:
+def _resolve_attachment(
+    raw_path: Any,
+    base_dir: Path,
+    label: str = "predictors.crispritz.targets_file",
+) -> Path:
     if not isinstance(raw_path, str) or not raw_path.strip():
-        raise ValueError("predictors.crispritz.targets_file is required.")
+        raise ValueError(f"{label} requires a non-empty relative path.")
     relative = Path(raw_path)
     if relative.is_absolute():
         raise ValueError("attachment paths must be relative to the request directory.")

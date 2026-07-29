@@ -66,6 +66,8 @@ python -m geneimpact benchmark-impc --gene Prkdc --gene Kit --output data/benchm
 python -m geneimpact calibrate-impc --calibration data/benchmarks/impc-calibration-v1.jsonl --test data/benchmarks/impc-test-v1.jsonl --output data/benchmarks/impc-calibration-report-v1.json
 python -m geneimpact import-behive-efficiency --input examples/behive-efficiency-import.json --output behive-audit.json
 python -m geneimpact import-behive-bystander --input examples/behive-bystander-import.json --output behive-bystander-audit.json
+python -m geneimpact import-indelphi --input examples/indelphi-mouse-result.json --output indelphi-audit.json
+python -m geneimpact dossier examples/dossier-mouse-indelphi-request.json --output mouse-research-dossier.json
 python -m geneimpact capabilities --species zebrafish
 python -m geneimpact import-crispritz --metadata examples/crispritz-rat-metadata.json --targets examples/crispritz-synthetic.targets.txt --output crispritz-audit.json
 python -m geneimpact score-crisprscan --input examples/crisprscan-zebrafish-request.json --output crisprscan-report.json
@@ -80,7 +82,9 @@ the first real model integration and its deliberately narrow mES scope. The
 [CRISPRitz adapter guide](docs/crispritz-adapter.md) documents cross-species
 reference-search auditing and its interpretation limits. The
 [CRISPRscan adapter guide](docs/crisprscan-adapter.md) defines the narrower
-zebrafish embryo activity-scoring domain.
+zebrafish embryo activity-scoring domain. The
+[inDelphi adapter guide](docs/indelphi-adapter.md) documents the licensed
+external-result workflow and mouse-embryo transfer evidence.
 
 ## Initial API concept
 
@@ -114,6 +118,7 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [x] Version-locked CRISPRscan zebrafish embryo activity scorer
 - [x] Independent 50-guide zebrafish RNP transfer benchmark with honest domain labeling
 - [x] Unified multi-species research dossier with target-gene interactions and integrity verification
+- [x] Version-locked inDelphi mESC repair-outcome import with external mouse-embryo transfer evidence
 - [x] Checksum-bearing MGI phenotype snapshot adapter
 - [x] Streaming MGI genome-edit evidence normalization
 - [x] Bounded IMPC significant gene-phenotype query adapter
@@ -129,6 +134,7 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [ ] Held-out mES efficiency comparison against an independent experimental dataset
 - [ ] Reproducible species/edit-class split and calibration workflow
 - [ ] Independent laboratory replication benchmarks
+- [ ] Prospective locus- and laboratory-specific mESC-to-embryo validation
 - [ ] Restricted animal-study data access layer
 
 ## License

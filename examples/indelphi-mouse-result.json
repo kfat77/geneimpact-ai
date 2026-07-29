@@ -1,0 +1,67 @@
+{
+  "request": {
+    "target_id": "Tyr-guide-synthetic-01",
+    "species_profile": "mouse",
+    "genome_build": "GRCm39",
+    "assembly_accession": "GCF_000001635.27",
+    "sequence_source_strain_or_isolate": "C57BL/6J",
+    "sequence": "ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT",
+    "cutsite": 60,
+    "cell_type": "mESC",
+    "model_commit": "9ab67ca53ebb91e49aeb4530ec1e999ee9827ca1",
+    "model_artifact_family": "model-sklearn-0.18.1",
+    "nuclease": "SpCas9",
+    "delivery_context": "spcas9_ribonucleoprotein",
+    "developmental_context": "one_cell_embryo",
+    "target_context": "coding_sequence"
+  },
+  "execution": {
+    "repository_commit": "9ab67ca53ebb91e49aeb4530ec1e999ee9827ca1",
+    "model_artifact_family": "model-sklearn-0.18.1",
+    "model_bundle_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "cell_type": "mESC",
+    "python_version": "3.6.15",
+    "sklearn_version": "0.18.1"
+  },
+  "raw_output": {
+    "stats": {
+      "Phi": 8.0,
+      "Precision": 0.06276943678387026,
+      "1-bp ins frequency": 20.0,
+      "MH del frequency": 50.0,
+      "MHless del frequency": 30.0,
+      "Frameshift frequency": 70.0,
+      "Frame +0 frequency": 30.0,
+      "Frame +1 frequency": 20.0,
+      "Frame +2 frequency": 50.0,
+      "Highest outcome frequency": 50.0,
+      "Highest del frequency": 50.0,
+      "Highest ins frequency": 20.0,
+      "Expected indel length": 3.1,
+      "Reference sequence": "ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT",
+      "Cutsite": 60,
+      "Celltype": "mESC"
+    },
+    "outcomes": [
+      {
+        "Category": "ins",
+        "Length": 1,
+        "Inserted Bases": "A",
+        "Predicted frequency": 20.0
+      },
+      {
+        "Category": "del",
+        "Length": 3,
+        "Genotype position": "e",
+        "Predicted frequency": 30.0
+      },
+      {
+        "Category": "del",
+        "Length": 4,
+        "Genotype position": 2,
+        "Predicted frequency": 50.0
+      }
+    ]
+  },
+  "example_notice": "Synthetic contract fixture only. These values are not an inDelphi prediction and must not be used for research."
+}

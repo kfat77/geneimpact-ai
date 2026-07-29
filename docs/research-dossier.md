@@ -25,6 +25,10 @@ python -m geneimpact dossier \
   --output research-dossier.json
 
 python -m geneimpact verify-dossier research-dossier.json
+
+python -m geneimpact dossier \
+  examples/dossier-mouse-indelphi-request.json \
+  --output mouse-research-dossier.json
 ```
 
 The example is a synthetic format demonstration. Its placeholder evidence
@@ -69,11 +73,19 @@ The dossier can currently include:
 - externally generated, version-locked CRISPRitz target-search results for
   every registered reference genome;
 - externally generated BE-Hive efficiency and bystander results in mouse mES;
+- externally executed, version-locked inDelphi mESC repair-outcome results for
+  mouse knockout studies;
 - validated generic concern outputs under the predictor adapter contract.
 
 For CRISPRitz, `targets_file` must be a relative path beneath the request file's
 directory. Absolute paths and directory traversal are rejected. The imported
 file checksum is retained in the report.
+
+For inDelphi, `result_files` contains 1–100 relative JSON paths beneath the
+request directory. Every result is checked against the dossier's assembly,
+delivery context, and developmental context. The adapter recalculates the
+reported distribution statistics and includes pinned external mouse-embryo
+transfer evidence. See the [inDelphi adapter](indelphi-adapter.md).
 
 Every capability relevant to the selected species and edit class is listed as
 `included`, `available_not_run`, `not_integrated`, `out_of_domain`, or

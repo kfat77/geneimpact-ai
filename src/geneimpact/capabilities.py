@@ -88,10 +88,17 @@ def capabilities_for_species(species_profile: str) -> tuple[PredictorCapability,
                     predictor="inDelphi",
                     task="repair_outcome",
                     edit_classes=("knockout",),
-                    status=CapabilityStatus.VALIDATION_CANDIDATE,
-                    biological_domain="mouse embryonic stem-cell repair data",
+                    status=CapabilityStatus.AVAILABLE_DECLARED_DOMAIN,
+                    biological_domain=(
+                        "mESC integrated-target repair model; external transfer "
+                        "evidence in C57BL/6JJmsSlc blastocysts"
+                    ),
                     evidence_reference=_INDELPHI_REFERENCE,
-                    note="Candidate for the next version-locked repair-outcome adapter.",
+                    note=(
+                        "Version-locked external-result import is available. The "
+                        "upstream license is restricted, the model does not predict "
+                        "editing efficiency, and prospective mESC validation is required."
+                    ),
                 ),
             )
         )

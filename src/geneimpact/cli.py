@@ -22,6 +22,7 @@ from .baseline import evaluate_benchmark
 from .impc import ImpcClient
 from .impc_validation import build_impc_validation
 from .impc_calibration import evaluate_impc_calibration
+from .indelphi import normalize_indelphi
 from .mgi import normalize_phenotypic_alleles
 from .snapshots import MGI_REPORTS, create_mgi_snapshot
 from .species import PROFILES
@@ -103,6 +104,12 @@ def main() -> None:
     )
     behive_bystander.add_argument("--input", required=True, type=Path)
     behive_bystander.add_argument("--output", type=Path)
+    indelphi_import = subparsers.add_parser(
+        "import-indelphi",
+        help="Validate a version-locked external inDelphi mESC result.",
+    )
+    indelphi_import.add_argument("--input", required=True, type=Path)
+    indelphi_import.add_argument("--output", type=Path)
     capabilities = subparsers.add_parser(
         "capabilities",
         help="Show available and candidate predictors for a registered species.",
@@ -276,6 +283,36 @@ def main() -> None:
             args.output.parent.mkdir(parents=True, exist_ok=True)
             args.output.write_text(rendered, encoding="utf-8")
             print(f"BE-Hive bystander audit record written to {args.output}")
+        else:
+            print(rendered, end="")
+        return
+    if args.command == "import-indelphi":
+        try:
+            input_bytes = args.input.read_bytes()
+            document = json.loads(input_bytes.decode("utf-8"))
+            if not isinstance(document, dict):
+                raise ValueError("inDelphi input must be a JSON object.")
+            prediction = normalize_indelphi(
+                document,
+                source_document_sha256=sha256(input_bytes).hexdigest(),
+            )
+        except (
+            OSError,
+            UnicodeDecodeError,
+            json.JSONDecodeError,
+            TypeError,
+            ValueError,
+        ) as error:
+            parser.error(str(error))
+        rendered = json.dumps(
+            asdict(prediction),
+            indent=2,
+            ensure_ascii=False,
+        ) + "\n"
+        if args.output:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(rendered, encoding="utf-8")
+            print(f"inDelphi audit record written to {args.output}")
         else:
             print(rendered, end="")
         return

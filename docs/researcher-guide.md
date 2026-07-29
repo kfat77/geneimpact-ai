@@ -13,6 +13,11 @@ This preserves the study context, target-gene and pair evidence, predictor
 coverage, task-specific model outputs, evidence gaps, and report integrity in
 one artifact. See the [research dossier guide](research-dossier.md).
 
+For mouse SpCas9 knockout work, the dossier may attach version-locked external
+inDelphi mESC results. Read the [inDelphi adapter guide](indelphi-adapter.md)
+before interpreting repair-product frequencies; the model does not predict
+editing efficiency or animal phenotype.
+
 The older `assess` command remains available for minimal evidence-triage
 records.
 

@@ -47,3 +47,25 @@ normalized, and no raw sequencing data was copied.
 The zero-overlap audit also reads canonical training oligos from Supplementary
 Table 1 of Moreno-Mateos et al. (2015),
 https://doi.org/10.1038/nmeth.3543. The training workbook is not redistributed.
+
+## inDelphi external model and mouse validation evidence
+
+GeneImpact AI does not redistribute the inDelphi source code or model files.
+The external-result adapter records the official repository commit
+`9ab67ca53ebb91e49aeb4530ec1e999ee9827ca1`. The upstream repository declares a
+limited copyright license whose terms name eligible academic users and US
+government research institutions for non-commercial research, and requires a
+separate agreement for commercial or industrially sponsored use:
+<https://github.com/maxwshen/inDelphi-model/blob/9ab67ca53ebb91e49aeb4530ec1e999ee9827ca1/LICENSE.txt>.
+
+Aggregate mouse-embryo transfer evidence is attributed to:
+
+Lkhagvadorj K, Okamura E, Taki T, et al. "Optimizing CRISPR precision in mouse
+embryos via microhomology-mediated end joining-dominant targeting."
+Communications Biology 9, 371 (2026).
+<https://doi.org/10.1038/s42003-026-09771-z>
+
+The article and supplementary workbook are marked CC BY-NC-ND 4.0. GeneImpact
+AI does not copy or transform the workbook rows. It stores the source URL,
+SHA-256 checksum, and aggregate factual metrics independently recomputed from
+the unmodified source.
