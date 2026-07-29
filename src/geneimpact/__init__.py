@@ -9,6 +9,7 @@ from .predictors import Applicability, PredictionTask, PredictorOutput, integrat
 from .species import MOUSE_PROFILE, SpeciesProfile, SpeciesValidation, validate_study_context
 from .snapshots import MGI_REPORTS, SnapshotManifest, create_mgi_snapshot
 from .mgi import MgiAlleleEvidence, NormalizationSummary, normalize_phenotypic_alleles
+from .impc import ImpcClient, ImpcGeneEvidence, ImpcGenePhenotype
 
 __all__ = [
     "AssessmentRecord",
@@ -17,6 +18,9 @@ __all__ = [
     "EditEvidence",
     "EvidenceLevel",
     "InteractionResult",
+    "ImpcClient",
+    "ImpcGeneEvidence",
+    "ImpcGenePhenotype",
     "MOUSE_PROFILE",
     "MGI_REPORTS",
     "MgiAlleleEvidence",

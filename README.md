@@ -52,6 +52,7 @@ python -m geneimpact assess examples/assessment-request.json --output assessment
 python -m geneimpact source-check --species mouse
 python -m geneimpact snapshot-mgi --report all-phenotypes --output-dir data/mgi
 python -m geneimpact normalize-mgi --input data/mgi/MGI_PhenotypicAllele.rpt --output data/mgi/endonuclease-alleles.jsonl
+python -m geneimpact impc-gene --gene Prkdc --output data/impc/Prkdc-significant.json
 ```
 
 Read the [researcher guide](docs/researcher-guide.md) before using the tool with study evidence.
@@ -83,6 +84,8 @@ The result is an evidence trace and review tier for downstream research. It is n
 - [x] Registered mouse/GRCm39 profile and live Ensembl metadata adapter
 - [x] Checksum-bearing MGI phenotype snapshot adapter
 - [x] Streaming MGI genome-edit evidence normalization
+- [x] Bounded IMPC significant gene-phenotype query adapter
+- [ ] MGI/IMPC evidence-linked benchmark dataset
 - [ ] IMPC phenotype snapshot adapter
 - [ ] Reproducible species/edit-class split and calibration workflow
 - [ ] Independent laboratory replication benchmarks

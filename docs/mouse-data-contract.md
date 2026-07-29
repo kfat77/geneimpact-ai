@@ -49,3 +49,15 @@ python -m geneimpact normalize-mgi \
 By default, normalization retains only MGI rows classified as `Endonuclease-mediated`. Each JSONL record preserves the allele, marker, Ensembl gene, allele attributes, publication reference, and high-level Mammalian Phenotype identifiers. A companion manifest records input/output SHA-256 values and record counts for audit.
 
 These records are prior phenotype evidence, not direct measurements of a proposed edit and not causal labels. Missing phenotype annotations remain missing; they are not interpreted as “no phenotype.”
+
+## Query IMPC knockout phenotypes
+
+```bash
+python -m geneimpact impc-gene \
+  --gene Prkdc \
+  --output data/impc/Prkdc-significant.json
+```
+
+The command uses the official [IMPC statistical-result Solr API](https://www.ebi.ac.uk/training/online/courses/impc-solr-api/introduction-to-the-solr-api-accessing-impc-data-programmatically/using-simple-solr-syntax-in-your-browser/) and requests only significant results for one marker. The result retains MP terms, effect sizes, P values, sex, zygosity, procedure, parameter, source query, and retrieval timestamp.
+
+IMPC evidence is generated from standardized knockout mouse phenotyping. It can inform plausible phenotypic consequences, but it is not a prediction of every edit type, molecular context, strain, or off-target event.

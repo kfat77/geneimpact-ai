@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import argparse
 import json
+from dataclasses import asdict
 from pathlib import Path
 
 from .datasources import check_ensembl_profile
+from .impc import ImpcClient
 from .mgi import normalize_phenotypic_alleles
 from .snapshots import MGI_REPORTS, create_mgi_snapshot
 from .species import PROFILES
@@ -39,6 +41,11 @@ def main() -> None:
         action="store_true",
         help="Include non-endonuclease-mediated alleles.",
     )
+    impc_gene = subparsers.add_parser(
+        "impc-gene", help="Fetch significant IMPC phenotype results for one mouse gene."
+    )
+    impc_gene.add_argument("--gene", required=True)
+    impc_gene.add_argument("--output", type=Path)
     args = parser.parse_args()
 
     if args.command == "source-check":
@@ -86,6 +93,19 @@ def main() -> None:
             "output_records": summary.output_records,
             "output": str(args.output),
         }, indent=2))
+        return
+    if args.command == "impc-gene":
+        try:
+            evidence = ImpcClient().significant_gene_phenotypes(args.gene)
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
+        rendered = json.dumps(asdict(evidence), indent=2, ensure_ascii=False) + "\n"
+        if args.output:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(rendered, encoding="utf-8")
+            print(f"IMPC evidence written to {args.output}")
+        else:
+            print(rendered, end="")
         return
 
     try:
