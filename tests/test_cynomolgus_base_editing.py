@@ -233,9 +233,11 @@ def test_evaluates_only_within_context_and_hides_source_labels(tmp_path):
     assert report.target_sequence_verified_on_source_assembly is False
     assert report.target_sequence_verified_on_target is False
     assert report.geneimpact_version == "0.16.1"
-    assert report.evaluator_code_revision.startswith("sha256:")
-    assert report.evaluator_code_revision_verified is True
-    assert report.evaluator_code_revision_status == "module_source_sha256"
+    assert report.evaluator_code_revision.startswith("runtime-manifest-sha256:")
+    assert report.evaluator_code_revision_verified is False
+    assert report.evaluator_code_revision_status == (
+        "runtime_manifest_sha256_unattested"
+    )
     assert report.record_count == 3
     assert report.context_count == 2
     assert report.comparison_stratum_count == 2

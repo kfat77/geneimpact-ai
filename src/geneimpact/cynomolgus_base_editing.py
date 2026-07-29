@@ -6,10 +6,12 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from hashlib import sha256
 from io import BytesIO
+from importlib.metadata import PackageNotFoundError, version as package_version
 import json
 import math
 from pathlib import Path
 import re
+import sys
 from typing import Any, Iterator, Mapping, Sequence
 import warnings
 
@@ -18,7 +20,22 @@ from openpyxl import load_workbook
 from .species import PROFILES
 
 
-GENEIMPACT_VERSION = "0.16.1"
+def _project_version() -> str:
+    project_file = Path(__file__).parents[2] / "pyproject.toml"
+    try:
+        project_text = project_file.read_text(encoding="utf-8")
+        match = re.search(r'^version\s*=\s*"([^"]+)"$', project_text, re.MULTILINE)
+        if match:
+            return match.group(1)
+    except OSError:
+        pass
+    try:
+        return package_version("geneimpact-ai")
+    except PackageNotFoundError:
+        return "unknown"
+
+
+GENEIMPACT_VERSION = _project_version()
 CYNOMOLGUS_BASE_EDITING_REFERENCE = (
     "https://doi.org/10.1038/s41467-020-16173-0"
 )
@@ -62,6 +79,33 @@ _TARGET_HEADERS = (
     "Position",
     "Direction",
 )
+
+
+def _evaluator_code_revision() -> str:
+    manifest: list[str] = [
+        f"python={sys.version.split()[0]}",
+        f"openpyxl={_dependency_version('openpyxl')}",
+        f"xlrd={_dependency_version('xlrd')}",
+    ]
+    for label, path in (
+        ("evaluator", Path(__file__)),
+        ("species", Path(__file__).with_name("species.py")),
+        ("project", Path(__file__).parents[2] / "pyproject.toml"),
+    ):
+        if path.exists():
+            manifest.append(f"{label}={sha256(path.read_bytes()).hexdigest()}")
+        else:
+            manifest.append(f"{label}=missing")
+    return "runtime-manifest-sha256:" + sha256(
+        "\n".join(manifest).encode("utf-8")
+    ).hexdigest()
+
+
+def _dependency_version(distribution: str) -> str:
+    try:
+        return package_version(distribution)
+    except PackageNotFoundError:
+        return "unknown"
 
 
 @dataclass(frozen=True)
@@ -536,11 +580,9 @@ def evaluate_cynomolgus_base_editing_transfer(
         submitted_code_revision=metadata["submitted_code_revision"],
         code_revision_verified=False,
         geneimpact_version=GENEIMPACT_VERSION,
-        evaluator_code_revision=(
-            "sha256:" + sha256(Path(__file__).read_bytes()).hexdigest()
-        ),
-        evaluator_code_revision_verified=True,
-        evaluator_code_revision_status="module_source_sha256",
+        evaluator_code_revision=_evaluator_code_revision(),
+        evaluator_code_revision_verified=False,
+        evaluator_code_revision_status="runtime_manifest_sha256_unattested",
         data_split_identifier=CYNOMOLGUS_BASE_EDITING_DATA_SPLIT_IDENTIFIER,
         study_context=(
             "cynomolgus zygote editor mRNA/T7 sgRNA cytoplasmic microinjection "

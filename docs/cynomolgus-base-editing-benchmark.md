@@ -59,8 +59,10 @@ visible and does not become an independently verified test.
 The report marks `code_revision_verified=false`: the caller-supplied revision
 is retained for lineage but is not cryptographically checked by this workflow.
 It also records the running GeneImpact AI package version and an automatic
-SHA-256 of the evaluator module (`evaluator_code_revision_status=
-module_source_sha256`), which are the authoritative evaluator provenance fields.
+runtime manifest SHA-256 covering the evaluator, species registry, project
+metadata, Python, and key dependency versions. Its status is
+`runtime_manifest_sha256_unattested`: it distinguishes runs but is not a
+signed build attestation.
 
 ## Evaluate the submission
 
