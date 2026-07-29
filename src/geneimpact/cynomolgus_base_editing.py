@@ -15,6 +15,8 @@ import warnings
 
 from openpyxl import load_workbook
 
+from .species import PROFILES
+
 
 CYNOMOLGUS_BASE_EDITING_REFERENCE = (
     "https://doi.org/10.1038/s41467-020-16173-0"
@@ -35,6 +37,15 @@ CYNOMOLGUS_BASE_EDITING_TARGET_SITES_SHA256 = (
 CYNOMOLGUS_BASE_EDITING_SOURCE_DATA_SHA256 = (
     "efe82aca05dffc4ba96df0ee177a90128f5e466d6a6dc3b282c9c817d05c763a"
 )
+CYNOMOLGUS_BASE_EDITING_DATA_SPLIT_IDENTIFIER = (
+    "zhang-2020-fixed-external-transfer-v1"
+)
+CYNOMOLGUS_BASE_EDITING_TARGET_ASSEMBLY_ACCESSION = PROFILES[
+    "cynomolgus_macaque"
+].assembly_accession
+CYNOMOLGUS_BASE_EDITING_TARGET_GENOME_BUILD = PROFILES[
+    "cynomolgus_macaque"
+].genome_build
 
 _MAX_TARGET_SITES_BYTES = 2_000_000
 _MAX_SOURCE_DATA_BYTES = 64_000_000
@@ -115,9 +126,13 @@ class _ObservedBaseRecord:
 class CynomolgusBaseEditingTransferMetrics:
     """Metrics that do not compare arbitrary scores across contexts."""
 
+    within_context_candidate_pair_count: int
+    within_context_observation_tie_pair_count: int
+    within_context_prediction_tie_pair_count: int
     within_context_pair_count: int
     within_context_concordant_pair_count: int
     within_context_pairwise_accuracy: float | None
+    within_context_prediction_coverage: float | None
     mean_absolute_error: float | None
     root_mean_squared_error: float | None
 
@@ -137,9 +152,21 @@ class CynomolgusBaseEditingTransferReport:
     source_license_note: str
     source_genome_build: str
     current_registered_genome_build: str
+    source_assembly_accession: str
+    target_assembly_accession: str
+    liftover_status: str
+    target_sequence_verified_on_source: bool
+    target_sequence_verified_on_target: bool
     target_sites_sha256: str
     source_data_sha256: str
     source_verification: str
+    evidence_snapshot_identifier: str
+    code_revision: str
+    data_split_identifier: str
+    study_context: str
+    population_or_strain: str
+    functional_annotation_status: str
+    exclusion_rules: tuple[str, ...]
     target_site_count: int
     record_count: int
     context_count: int
@@ -152,6 +179,8 @@ class CynomolgusBaseEditingTransferReport:
     sequence_basis: str
     training_overlap_status: str
     training_overlap_evidence_reference: str
+    confidence_interval_status: str
+    confidence_interval_note: str
     prediction_submission_sha256: str
     independence_verified: bool
     independence_interpretation: str
@@ -370,11 +399,22 @@ def prepare_cynomolgus_base_editing_transfer_template(
             "target_sites_sha256": digests[0],
             "source_data_sha256": digests[1],
             "source_genome_build": source.source_genome_build,
+            "source_assembly_accession": source.source_genome_build,
+            "target_assembly_accession": (
+                CYNOMOLGUS_BASE_EDITING_TARGET_ASSEMBLY_ACCESSION
+            ),
+            "liftover_status": "not_performed",
+            "target_sequence_verified_on_source": True,
+            "target_sequence_verified_on_target": False,
+            "data_split_identifier": (
+                CYNOMOLGUS_BASE_EDITING_DATA_SPLIT_IDENTIFIER
+            ),
             "license_note": source.license_note,
         },
         "prediction": {
             "name": "REPLACE_WITH_PREDICTOR_NAME",
             "version": "REPLACE_WITH_VERSION_OR_COMMIT",
+            "code_revision": "REPLACE_WITH_CODE_COMMIT",
             "score_direction": "higher_is_more_edited",
             "score_semantics": "ranking_score",
             "prediction_target": (
@@ -427,7 +467,7 @@ def evaluate_cynomolgus_base_editing_transfer(
         record.record_id: record.intended_count / record.clone_denominator
         for record in records
     }
-    pair_count, concordant_count = _within_context_concordance(
+    pairwise = _within_context_concordance(
         records,
         scores,
         observed,
@@ -443,12 +483,25 @@ def evaluate_cynomolgus_base_editing_transfer(
         (scores[record.record_id] - observed[record.record_id]) ** 2
         for record in records
     ]
+    overlap_is_verified = metadata["training_overlap_status"] == (
+        "declared_no_overlap"
+    )
+    evaluation_status = (
+        "retrospective_external_transfer_benchmark"
+        if overlap_is_verified
+        else "descriptive_evaluation_with_unverified_overlap"
+    )
+    use = (
+        "bounded_external_transfer_benchmark_only"
+        if overlap_is_verified
+        else "descriptive_only_unverified_overlap"
+    )
     return CynomolgusBaseEditingTransferReport(
         predictor=metadata["name"],
         predictor_version=metadata["version"],
         species_profile="cynomolgus_macaque",
-        evaluation_status="retrospective_external_transfer_benchmark",
-        use="bounded_external_transfer_benchmark_only",
+        evaluation_status=evaluation_status,
+        use=use,
         predictive_adapter_available=False,
         source_id=source.source_id,
         source_reference=source.article_reference,
@@ -456,10 +509,32 @@ def evaluate_cynomolgus_base_editing_transfer(
         source_data_url=source.source_data_url,
         source_license_note=source.license_note,
         source_genome_build=source.source_genome_build,
-        current_registered_genome_build="T2T-MFA8v1.1",
+        current_registered_genome_build=CYNOMOLGUS_BASE_EDITING_TARGET_GENOME_BUILD,
+        source_assembly_accession=source.source_genome_build,
+        target_assembly_accession=CYNOMOLGUS_BASE_EDITING_TARGET_ASSEMBLY_ACCESSION,
+        liftover_status="not_performed",
+        target_sequence_verified_on_source=True,
+        target_sequence_verified_on_target=False,
         target_sites_sha256=digests[0],
         source_data_sha256=digests[1],
         source_verification="pinned_workbooks_verified",
+        evidence_snapshot_identifier=source.source_id,
+        code_revision=metadata["code_revision"],
+        data_split_identifier=CYNOMOLGUS_BASE_EDITING_DATA_SPLIT_IDENTIFIER,
+        study_context=(
+            "cynomolgus zygote editor mRNA/T7 sgRNA cytoplasmic microinjection "
+            "10–12 hours after ICSI with pooled Sanger-clone genotyping"
+        ),
+        population_or_strain=(
+            "source colony; geographic population not resolved in the source"
+        ),
+        functional_annotation_status="not_applicable_sequence_only",
+        exclusion_rules=(
+            "known training overlap is rejected",
+            "observation ties are excluded from strict ranking pairs",
+            "scores are never compared across editor/context strata",
+            "source labels and raw target sequences are excluded from reports",
+        ),
         target_site_count=len({record.target_site_id for record in records}),
         record_count=len(records),
         context_count=len({record.context_id for record in records}),
@@ -478,6 +553,14 @@ def evaluate_cynomolgus_base_editing_transfer(
         sequence_basis=metadata["sequence_basis"],
         training_overlap_status=metadata["training_overlap_status"],
         training_overlap_evidence_reference=metadata["evidence_reference"],
+        confidence_interval_status=(
+            "unavailable_correlated_embryo_clustered_source"
+        ),
+        confidence_interval_note=(
+            "No interval is reported: embryo, target-base, and clone outcomes "
+            "are clustered within injection contexts and the benchmark has "
+            "too few independent units for a defensible interval."
+        ),
         prediction_submission_sha256=sha256(
             json.dumps(
                 predictions,
@@ -492,11 +575,17 @@ def evaluate_cynomolgus_base_editing_transfer(
             "reproduced by GeneImpact AI."
         ),
         metrics=CynomolgusBaseEditingTransferMetrics(
-            within_context_pair_count=pair_count,
-            within_context_concordant_pair_count=concordant_count,
-            within_context_pairwise_accuracy=(
-                concordant_count / pair_count if pair_count else None
+            within_context_candidate_pair_count=pairwise.candidate_pair_count,
+            within_context_observation_tie_pair_count=(
+                pairwise.observation_tie_pair_count
             ),
+            within_context_prediction_tie_pair_count=(
+                pairwise.prediction_tie_pair_count
+            ),
+            within_context_pair_count=pairwise.strict_pair_count,
+            within_context_concordant_pair_count=pairwise.concordant_pair_count,
+            within_context_pairwise_accuracy=pairwise.accuracy,
+            within_context_prediction_coverage=pairwise.prediction_coverage,
             mean_absolute_error=(
                 sum(absolute_errors) / len(records)
                 if expected_fractions
@@ -520,7 +609,8 @@ def evaluate_cynomolgus_base_editing_transfer(
             "The source used legacy assembly GCF_000364345.1, not the current "
             "registered T2T-MFA8v1.1 assembly.",
             "Training-overlap status is self-declared; this report is not an "
-            "independently verified held-out test.",
+            "independently verified held-out test. Unknown overlap is "
+            "descriptive only and is not labelled external validation.",
             "The source uses zygote mRNA/sgRNA microinjection and pooled "
             "Sanger-clone fractions; results do not transfer automatically "
             "to another editor, delivery, developmental stage, population, "
@@ -551,6 +641,12 @@ def _validate_predictions(
         "target_sites_sha256": source.target_sites_sha256,
         "source_data_sha256": source.source_data_sha256,
         "source_genome_build": source.source_genome_build,
+        "source_assembly_accession": source.source_genome_build,
+        "target_assembly_accession": CYNOMOLGUS_BASE_EDITING_TARGET_ASSEMBLY_ACCESSION,
+        "liftover_status": "not_performed",
+        "target_sequence_verified_on_source": True,
+        "target_sequence_verified_on_target": False,
+        "data_split_identifier": CYNOMOLGUS_BASE_EDITING_DATA_SPLIT_IDENTIFIER,
         "license_note": source.license_note,
     }
     if any(
@@ -570,6 +666,7 @@ def _validate_predictions(
         for key in (
             "name",
             "version",
+            "code_revision",
             "score_direction",
             "score_semantics",
             "prediction_target",
@@ -583,10 +680,15 @@ def _validate_predictions(
         or values["name"].startswith("REPLACE_WITH")
         or not values["version"]
         or values["version"].startswith("REPLACE_WITH")
+        or not values["code_revision"]
+        or values["code_revision"].startswith("REPLACE_WITH")
         or not values["evidence_reference"]
         or values["evidence_reference"].startswith("REPLACE_WITH")
     ):
-        raise ValueError("predictor name, version, and evidence reference are required.")
+        raise ValueError(
+            "predictor name, version, code revision, and evidence reference "
+            "are required."
+        )
     if values["score_direction"] != "higher_is_more_edited":
         raise ValueError("score_direction must be higher_is_more_edited.")
     if values["score_semantics"] not in {
@@ -659,36 +761,73 @@ def _validate_predictions(
     return values, scores
 
 
+@dataclass(frozen=True)
+class _PairwiseConcordance:
+    candidate_pair_count: int
+    observation_tie_pair_count: int
+    prediction_tie_pair_count: int
+    strict_pair_count: int
+    concordant_pair_count: int
+    accuracy: float | None
+    prediction_coverage: float | None
+
+
 def _within_context_concordance(
     records: tuple[_ObservedBaseRecord, ...],
     scores: Mapping[str, float],
     observed: Mapping[str, float],
-) -> tuple[int, int]:
+) -> _PairwiseConcordance:
     groups: dict[tuple[str, str], list[_ObservedBaseRecord]] = {}
     for record in records:
         groups.setdefault(
             (record.context_id, record.editor),
             [],
         ).append(record)
-    comparable = 0
+    candidate_pairs = 0
+    observation_ties = 0
+    prediction_ties = 0
+    strict_pairs = 0
     concordant = 0
+    weighted_concordant = 0.0
     for group in groups.values():
         for left_index, left in enumerate(group):
             for right in group[left_index + 1 :]:
+                candidate_pairs += 1
                 prediction_delta = (
                     scores[left.record_id] - scores[right.record_id]
                 )
                 observation_delta = (
                     observed[left.record_id] - observed[right.record_id]
                 )
-                if prediction_delta == 0 or observation_delta == 0:
+                if observation_delta == 0:
+                    observation_ties += 1
                     continue
-                comparable += 1
-                concordant += int(
-                    math.copysign(1, prediction_delta)
-                    == math.copysign(1, observation_delta)
+                if prediction_delta == 0:
+                    prediction_ties += 1
+                    weighted_concordant += 0.5
+                    continue
+                strict_pairs += 1
+                is_concordant = math.copysign(1, prediction_delta) == math.copysign(
+                    1, observation_delta
                 )
-    return comparable, concordant
+                concordant += int(is_concordant)
+                weighted_concordant += int(is_concordant)
+    eligible_pairs = candidate_pairs - observation_ties
+    return _PairwiseConcordance(
+        candidate_pair_count=candidate_pairs,
+        observation_tie_pair_count=observation_ties,
+        prediction_tie_pair_count=prediction_ties,
+        strict_pair_count=strict_pairs,
+        concordant_pair_count=concordant,
+        accuracy=(
+            weighted_concordant / eligible_pairs
+            if eligible_pairs
+            else None
+        ),
+        prediction_coverage=(
+            strict_pairs / eligible_pairs if eligible_pairs else None
+        ),
+    )
 
 
 def _finite_number(value: object, label: str) -> float:

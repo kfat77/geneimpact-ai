@@ -1,6 +1,6 @@
 # Cynomolgus embryo base-editing transfer benchmark
 
-GeneImpact AI v0.16.0 provides a checksum-pinned workflow for testing an
+GeneImpact AI v0.16.1 provides a checksum-pinned workflow for testing an
 external base-editing model against Zhang et al. 2020 cynomolgus embryo data.
 It is a retrospective transfer evaluator, not a macaque predictor.
 
@@ -48,6 +48,7 @@ emit the source target sequence or observed editing label.
 Run the external model using the publisher target sequence, then fill:
 
 - immutable model name and version or commit;
+- `code_revision`: the exact GeneImpact AI code commit used for evaluation;
 - `score_semantics`: `ranking_score` or `expected_edit_fraction`;
 - training-overlap status;
 - model/run evidence reference;
@@ -71,11 +72,19 @@ records sharing both an editor and one injection context. The six injection
 contexts therefore form seven comparison strata because one context combines
 SaKKH-BE3 and ABE7.10. This prevents an arbitrary BE3 score from being ranked
 directly against ABE7.10 or against a different multiplex delivery.
+Prediction ties receive half credit, observation ties are excluded, and the
+report exposes candidate-pair count and prediction coverage so ties cannot be
+hidden by a point estimate.
 
 If the submitted values explicitly represent expected edit fractions, the
 report additionally computes MAE and RMSE against the pooled intended
 base-conversion fraction. These are descriptive transfer errors, not
 calibration metrics.
+
+The report records the fixed external-transfer split identifier, source and
+target assembly accessions, `liftover_status=not_performed`, and an explicit
+confidence-interval status. No interval is reported here because the source
+observations are clustered within embryo batches and injection contexts.
 
 ## Interpretation limits
 
