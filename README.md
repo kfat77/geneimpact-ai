@@ -18,9 +18,9 @@
 >
 > The light-theme, bilingual demo runs a synthetic analysis entirely in your browser, with real-time biostatistical feedback, species validation, multi-omics context checks, and an audit-style result view.
 
-[![GeneImpact AI interactive demo preview](docs/assets/demo-preview.gif)](https://geneimpact-ai-sigma.vercel.app/)
+[![GeneImpact AI interactive demo preview](docs/assets/demo-preview.gif)](https://kfat77.github.io/geneimpact-ai/)
 
-🚀 **[Try the Live Demo Here](https://geneimpact-ai-sigma.vercel.app/)**
+🚀 **[Try the Live Demo Here](https://kfat77.github.io/geneimpact-ai/)**
 
 > [!IMPORTANT]
 > The Web Demo uses synthetic data and illustrative outputs. It is a product preview—not experimental evidence, an edit-design service, or a safety determination.
