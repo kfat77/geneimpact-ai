@@ -25,6 +25,7 @@ from .efficiency import (
 )
 from .genomics import FastaReader, gc_content, reverse_complement, validate_dna_sequence
 from .offtarget import OffTargetReport, compute_offtarget_risk, find_offtargets
+from .fast_offtarget import fast_find_offtargets, build_seed_index
 from .provenance import StudyContext, create_record
 from .sgrna_design import NucleaseType, SgrnaCandidate, SgrnaDesignResult, design_sgrnas
 from .species import PROFILES, SpeciesProfile, validate_study_context
@@ -143,7 +144,7 @@ class PipelineReport:
     species_validation: Any
     guides: list[GuideResult]
     warnings: list[str] = field(default_factory=list)
-    pipeline_version: str = "1.0.0"
+    pipeline_version: str = "1.1.0"
     timestamp: str = ""
 
     def to_dict(self) -> dict[str, Any]:
@@ -263,17 +264,27 @@ def run_pipeline(
             species_key=study_context.species,
         )
 
-        # Off-target search
+        # Off-target search (use fast algorithm for large references)
         ot_report: OffTargetReport | None = None
         if config.search_reference:
             try:
-                ot_report = find_offtargets(
-                    guide_sequence=candidate.guide_sequence,
-                    reference_sequences=reference_sequences,
-                    fasta_reader=fasta_reader,
-                    nuclease=config.nuclease,
-                    max_mismatches=config.max_offtargets,
-                )
+                # Use seed-and-extend for sequences > 10kb, brute-force for smaller
+                total_ref_len = sum(len(s) for s in (reference_sequences or {}).values()) if reference_sequences else 0
+                if reference_sequences and total_ref_len > 10000:
+                    ot_report = fast_find_offtargets(
+                        guide_sequence=candidate.guide_sequence,
+                        reference_sequences=reference_sequences,
+                        nuclease=config.nuclease,
+                        max_mismatches=config.max_offtargets,
+                    )
+                else:
+                    ot_report = find_offtargets(
+                        guide_sequence=candidate.guide_sequence,
+                        reference_sequences=reference_sequences,
+                        fasta_reader=fasta_reader,
+                        nuclease=config.nuclease,
+                        max_mismatches=config.max_offtargets,
+                    )
             except (ValueError, KeyError) as e:
                 warnings.append(
                     f"Off-target search failed for {candidate.guide_id}: {e}"

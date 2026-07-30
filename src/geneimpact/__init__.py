@@ -207,6 +207,24 @@ from .visualization import (
     generate_efficiency_chart,
     generate_evidence_radar,
 )
+from .advanced_models import (
+    ThermodynamicFeatures,
+    Ruleset2Score,
+    compute_thermodynamics,
+    score_ruleset2,
+    calibrate_species,
+    MODEL_INFO as ADVANCED_MODEL_INFO,
+)
+from .fast_offtarget import (
+    SeedIndex,
+    fast_find_offtargets,
+    build_seed_index,
+)
+from .genome_downloader import (
+    download_sequence,
+    download_genome,
+    list_species as list_downloadable_species,
+)
 
 __all__ = [
     "AssessmentRecord",
@@ -392,4 +410,19 @@ __all__ = [
     "generate_offtarget_heatmap",
     "generate_efficiency_chart",
     "generate_evidence_radar",
+    # Advanced model exports
+    "ThermodynamicFeatures",
+    "Ruleset2Score",
+    "compute_thermodynamics",
+    "score_ruleset2",
+    "calibrate_species",
+    "ADVANCED_MODEL_INFO",
+    # Fast off-target exports
+    "SeedIndex",
+    "fast_find_offtargets",
+    "build_seed_index",
+    # Genome downloader exports
+    "download_sequence",
+    "download_genome",
+    "list_downloadable_species",
 ]

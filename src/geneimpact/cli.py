@@ -45,6 +45,8 @@ from .pipeline import PipelineConfig, run_pipeline
 from .provenance import StudyContext
 from .visualization import generate_html_report
 from .genomics import FastaReader
+from .genome_downloader import download_sequence, list_species as list_dl_species
+from .advanced_models import score_ruleset2, MODEL_INFO
 
 
 def main() -> None:
@@ -313,6 +315,36 @@ def main() -> None:
         "--html", type=Path,
         help="Also generate an HTML visualization report.",
     )
+
+    # Download genome command
+    dl_cmd = subparsers.add_parser(
+        "download-genome",
+        help="Download a genome sequence from Ensembl or NCBI.",
+    )
+    dl_cmd.add_argument("--species", required=True, choices=list_dl_species())
+    dl_cmd.add_argument("--chrom", required=True, help="Chromosome name (e.g., '1', 'X').")
+    dl_cmd.add_argument("--start", type=int, help="1-based start position (for region download).")
+    dl_cmd.add_argument("--end", type=int, help="1-based end position (for region download).")
+    dl_cmd.add_argument("--source", default="ensembl", choices=["ensembl", "ncbi"])
+    dl_cmd.add_argument("--cache-dir", default="./genome_cache")
+    dl_cmd.add_argument("--force-refresh", action="store_true")
+
+    # Web app command
+    webapp_cmd = subparsers.add_parser(
+        "webapp",
+        help="Start the interactive web application server.",
+    )
+    webapp_cmd.add_argument("--host", default="0.0.0.0")
+    webapp_cmd.add_argument("--port", type=int, default=5000)
+    webapp_cmd.add_argument("--debug", action="store_true")
+
+    # Predict with advanced model detail
+    predict_detail = subparsers.add_parser(
+        "predict-detail",
+        help="Predict efficiency with detailed Rule Set 2 feature breakdown.",
+    )
+    predict_detail.add_argument("--guide", required=True, help="20-nt guide sequence.")
+    predict_detail.add_argument("--species", default="mouse")
 
     args = parser.parse_args()
 
@@ -898,6 +930,71 @@ def main() -> None:
             args.html.parent.mkdir(parents=True, exist_ok=True)
             args.html.write_text(html_text, encoding="utf-8")
             print(f"HTML visualization written to {args.html}")
+        return
+
+    if args.command == "download-genome":
+        try:
+            result = download_sequence(
+                species=args.species,
+                chrom=args.chrom,
+                start=args.start,
+                end=args.end,
+                cache_dir=args.cache_dir,
+                source=args.source,
+                force_refresh=args.force_refresh,
+            )
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
+        print(json.dumps({
+            "species": result.species,
+            "chrom": result.chrom,
+            "source": result.source,
+            "assembly": result.assembly,
+            "local_path": result.local_path,
+            "sequence_length": result.sequence_length,
+            "sha256": result.sha256,
+            "cached": result.cached,
+            "warnings": list(result.warnings),
+        }, indent=2))
+        return
+
+    if args.command == "webapp":
+        try:
+            from .webapp import run_app
+        except ImportError:
+            parser.error(
+                "Flask is not installed. Install with: pip install flask"
+            )
+        run_app(host=args.host, port=args.port, debug=args.debug)
+        return
+
+    if args.command == "predict-detail":
+        guide = args.guide.upper().replace(" ", "")
+        try:
+            rs2 = score_ruleset2(guide, args.species)
+        except ValueError as error:
+            parser.error(str(error))
+        output = {
+            "guide": guide,
+            "species": args.species,
+            "model": rs2.model_name,
+            "model_version": rs2.model_version,
+            "feature_count": rs2.feature_count,
+            "raw_score": round(rs2.raw_score, 4),
+            "calibrated_score": round(rs2.calibrated_score, 4),
+            "confidence": round(rs2.confidence, 4),
+            "contributions": {
+                "pwm": round(rs2.pwm_contribution, 4),
+                "thermodynamic": round(rs2.thermo_contribution, 4),
+                "composition": round(rs2.composition_contribution, 4),
+            },
+            "features": {
+                k: round(v, 4) if isinstance(v, float) else v
+                for k, v in rs2.features.items()
+                if not k.startswith("pos_")
+            },
+        }
+        print(json.dumps(output, indent=2, ensure_ascii=False))
         return
 
     try:

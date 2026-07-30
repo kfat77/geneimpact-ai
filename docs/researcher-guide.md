@@ -138,7 +138,7 @@ geneimpact offtarget \
 
 ```json
 {
-  "pipeline_version": "1.0.0",
+  "pipeline_version": "1.1.0",
   "timestamp": "2026-07-30T...",
   "config": { ... },
   "study_context": { ... },

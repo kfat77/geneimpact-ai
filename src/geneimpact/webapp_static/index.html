@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeneImpact AI — Interactive CRISPR Prediction</title>
+<style>
+:root {
+  --bg: #0f172a; --surface: #1e293b; --surface2: #334155;
+  --border: #475569; --text: #f1f5f9; --text-dim: #94a3b8;
+  --primary: #3b82f6; --primary-hover: #2563eb;
+  --accent: #10b981; --warning: #f59e0b; --danger: #ef4444;
+  --radius: 12px; --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+.container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+header { text-align: center; padding: 3rem 0 2rem; }
+header h1 { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; }
+header p { color: var(--text-dim); font-size: 1.1rem; }
+.badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 99px; background: var(--surface2); color: var(--text-dim); font-size: 0.8rem; font-weight: 600; margin-bottom: 1rem; }
+.badge .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-right: 0.4rem; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; }
+.card h2 { font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+.card h2 .icon { font-size: 1.3rem; }
+textarea { width: 100%; min-height: 120px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; color: var(--text); font-family: var(--mono); font-size: 0.9rem; resize: vertical; }
+textarea:focus { outline: none; border-color: var(--primary); }
+.controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.control label { display: block; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.4rem; font-weight: 600; }
+select, input[type="number"] { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.8rem; color: var(--text); font-size: 0.9rem; }
+select:focus, input:focus { outline: none; border-color: var(--primary); }
+.btn-row { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
+button { padding: 0.7rem 1.5rem; border-radius: 8px; border: none; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-secondary { background: var(--surface2); color: var(--text); }
+.btn-secondary:hover { background: var(--border); }
+.tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 2px solid var(--border); flex-wrap: wrap; }
+.tab { padding: 0.6rem 1.2rem; cursor: pointer; border: none; background: none; color: var(--text-dim); font-size: 0.9rem; font-weight: 600; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab:hover { color: var(--text); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+th { text-align: left; padding: 0.6rem 0.5rem; border-bottom: 2px solid var(--border); color: var(--text-dim); font-weight: 700; white-space: nowrap; }
+td { padding: 0.5rem; border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+tr:hover { background: var(--surface2); }
+.seq-mono { font-family: var(--mono); font-size: 0.8rem; }
+.score-bar { display: inline-block; width: 60px; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; vertical-align: middle; margin-right: 4px; }
+.score-fill { height: 100%; border-radius: 3px; }
+.risk-high { color: var(--danger); font-weight: 700; }
+.risk-moderate { color: var(--warning); font-weight: 600; }
+.risk-low { color: var(--accent); }
+.loading { text-align: center; padding: 2rem; color: var(--text-dim); }
+.spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; text-align: center; }
+.stat .value { font-size: 1.8rem; font-weight: 800; }
+.stat .label { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.2rem; }
+.notice { background: rgba(59,130,246,0.1); border: 1px solid var(--primary); border-radius: 8px; padding: 0.8rem 1rem; font-size: 0.85rem; color: var(--text-dim); margin-top: 1rem; }
+.error-msg { background: rgba(239,68,68,0.1); border: 1px solid var(--danger); border-radius: 8px; padding: 1rem; color: var(--danger); margin-top: 1rem; }
+.evidence-radar { max-width: 300px; margin: 1rem auto; }
+footer { text-align: center; padding: 2rem 0; color: var(--text-dim); font-size: 0.8rem; }
+@media (max-width: 640px) { header h1 { font-size: 1.8rem; } .container { padding: 1rem; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge"><span class="dot"></span> v1.1.0 · RuleSet2-Enhanced Model</div>
+    <h1>GeneImpact AI</h1>
+    <p>Interactive CRISPR Gene Editing Prediction Platform</p>
+  </header>
+
+  <!-- Input Section -->
+  <div class="card">
+    <h2><span class="icon">🧬</span> Target Sequence Input</h2>
+    <textarea id="sequence" placeholder="Paste your DNA sequence here (ATCG only, min 50bp for meaningful results)...
+Example: ATCGATCGATCGATCGATCGGGATCGATCGATCGATCGATCGG"></textarea>
+    <div class="controls">
+      <div class="control">
+        <label>Species</label>
+        <select id="species">
+          <option value="mouse">Mouse (Mus musculus)</option>
+          <option value="rat">Rat (Rattus norvegicus)</option>
+          <option value="zebrafish">Zebrafish (Danio rerio)</option>
+          <option value="fruit_fly">Fruit Fly (Drosophila)</option>
+          <option value="rhesus_macaque">Rhesus Macaque</option>
+          <option value="cynomolgus_macaque">Cynomolgus Macaque</option>
+        </select>
+      </div>
+      <div class="control">
+        <label>Nuclease</label>
+        <select id="nuclease">
+          <option value="SpCas9">SpCas9 (NGG PAM)</option>
+          <option value="SaCas9">SaCas9 (NNGRRT PAM)</option>
+          <option value="Cas12a">Cas12a (TTTV PAM)</option>
+        </select>
+      </div>
+      <div class="control">
+        <label>Max Candidates</label>
+        <input type="number" id="maxCandidates" value="50" min="5" max="500">
+      </div>
+      <div class="control">
+        <label>Max Mismatches (off-target)</label>
+        <input type="number" id="maxMismatches" value="4" min="0" max="6">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-primary" id="runPipeline" onclick="runPipeline()">⚡ Run Full Pipeline</button>
+      <button class="btn-secondary" onclick="loadDemo()">📋 Load Demo Sequence</button>
+      <button class="btn-secondary" onclick="exportResults()">💾 Export JSON</button>
+    </div>
+    <div id="errorDisplay"></div>
+  </div>
+
+  <!-- Results Section -->
+  <div id="resultsSection" style="display:none;">
+    <!-- Stats Overview -->
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <!-- Tabs -->
+    <div class="card">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('guides')">🎯 sgRNA Candidates</button>
+        <button class="tab" onclick="switchTab('efficiency')">📊 Efficiency</button>
+        <button class="tab" onclick="switchTab('offtarget')">🔍 Off-Target</button>
+        <button class="tab" onclick="switchTab('assessment')">⚖️ Assessment</button>
+      </div>
+
+      <div class="tab-content active" id="tab-guides">
+        <div id="guidesTable"></div>
+      </div>
+      <div class="tab-content" id="tab-efficiency">
+        <div id="efficiencyContent"></div>
+      </div>
+      <div class="tab-content" id="tab-offtarget">
+        <div id="offtargetContent"></div>
+      </div>
+      <div class="tab-content" id="tab-assessment">
+        <div id="assessmentContent"></div>
+      </div>
+    </div>
+
+    <div class="notice">
+      ⚠️ Research decision-support only. Predictions are based on computational models and must be validated experimentally.
+      This report does not establish safety, authorize an edit, or replace ethics review.
+    </div>
+  </div>
+
+  <footer>
+    GeneImpact AI v1.1.0 · <a href="https://github.com/kfat77/geneimpact-ai" style="color:var(--primary)">GitHub</a> ·
+    RuleSet2-Enhanced Model · 38 features · PWM + Thermodynamics + Species Calibration
+  </footer>
+</div>
+
+<script>
+let currentResult = null;
+let activeTab = 'guides';
+
+function loadDemo() {
+  document.getElementById('sequence').value = 'ATCGATCGATCGATCGATCGGGATCGATCGATCGATCGATCGGATCGATCGATCGATCGATCGG\nGAGTCTGCTGACAGAGCTCGGGATCGATCGATCGATCGATCGGATCGATCGATCGATCGATCGG\nATCGATCGATCGATCGATCGGGGAGTCTGCTGACAGAGCTCGGATCGATCGATCGATCGATCGG\nATCGATCGATCGATCGATCGGGATCGATCGATCGATCGATCGGATCGATCGATCGATCGATCGG';
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+async function runPipeline() {
+  const seq = document.getElementById('sequence').value.trim();
+  if (!seq) { showError('Please enter a DNA sequence.'); return; }
+
+  const btn = document.getElementById('runPipeline');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="width:16px;height:16px"></span> Running...';
+  hideError();
+
+  const payload = {
+    sequence: seq,
+    species: document.getElementById('species').value,
+    nuclease: document.getElementById('nuclease').value,
+    max_candidates: parseInt(document.getElementById('maxCandidates').value),
+    max_mismatches: parseInt(document.getElementById('maxMismatches').value),
+    top_k: 10,
+  };
+
+  // Use target sequence as reference for off-target search
+  payload.reference = { 'target': seq.replace(/[^ATCGNatcgn]/g, '') };
+
+  try {
+    const resp = await fetch('/api/pipeline', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await resp.json();
+    if (!resp.ok) { showError(data.error || 'Pipeline failed'); return; }
+    currentResult = data;
+    renderResults(data);
+  } catch (e) {
+    showError('Network error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '⚡ Run Full Pipeline';
+  }
+}
+
+function renderResults(data) {
+  document.getElementById('resultsSection').style.display = 'block';
+
+  // Stats
+  const guides = data.guides || [];
+  const stats = document.getElementById('statsGrid');
+  const highEff = guides.filter(g => g.efficiency?.score >= 0.5).length;
+  const avgEff = guides.length ? (guides.reduce((s,g) => s + (g.efficiency?.score||0), 0) / guides.length) : 0;
+  const avgConf = guides.length ? (guides.reduce((s,g) => s + (g.efficiency?.confidence||0), 0) / guides.length) : 0;
+  const highRisk = guides.reduce((s,g) => s + (g.offtarget?.high_risk||0), 0);
+
+  stats.innerHTML = `
+    <div class="stat"><div class="value" style="color:var(--primary)">${guides.length}</div><div class="label">sgRNA Candidates</div></div>
+    <div class="stat"><div class="value" style="color:var(--accent)">${(avgEff*100).toFixed(1)}%</div><div class="label">Avg Efficiency</div></div>
+    <div class="stat"><div class="value" style="color:var(--primary)">${(avgConf*100).toFixed(1)}%</div><div class="label">Avg Confidence</div></div>
+    <div class="stat"><div class="value" style="color:${highRisk>0?'var(--danger)':'var(--accent)'}">${highRisk}</div><div class="label">High-Risk Off-Targets</div></div>
+  `;
+
+  renderGuides(guides);
+  renderEfficiency(guides);
+  renderOffTarget(guides);
+  renderAssessment(guides);
+}
+
+function scoreColor(score) {
+  if (score >= 0.7) return 'var(--accent)';
+  if (score >= 0.4) return 'var(--warning)';
+  return 'var(--danger)';
+}
+
+function renderGuides(guides) {
+  if (!guides.length) { document.getElementById('guidesTable').innerHTML = '<p>No candidates found.</p>'; return; }
+  let html = '<table><thead><tr><th>#</th><th>Guide Sequence</th><th>PAM</th><th>Strand</th><th>GC%</th><th>Efficiency</th><th>Confidence</th><th>Specificity</th><th>Tier</th></tr></thead><tbody>';
+  guides.forEach(g => {
+    const eff = g.efficiency?.score || 0;
+    const conf = g.efficiency?.confidence || 0;
+    const spec = g.offtarget?.specificity_score || 0;
+    const tier = g.assessment?.tier || 'N/A';
+    const tierClass = tier === 'high_concern' ? 'risk-high' : tier === 'enhanced' ? 'risk-moderate' : 'risk-low';
+    html += `<tr>
+      <td>${g.rank||1}</td>
+      <td class="seq-mono">${g.guide_sequence}</td>
+      <td class="seq-mono">${g.pam}</td>
+      <td>${g.strand}</td>
+      <td>${(g.gc_content*100).toFixed(0)}%</td>
+      <td><span class="score-bar"><span class="score-fill" style="width:${eff*100}%;background:${scoreColor(eff)}"></span></span>${eff.toFixed(3)}</td>
+      <td><span class="score-bar"><span class="score-fill" style="width:${conf*100}%;background:var(--primary)"></span></span>${conf.toFixed(2)}</td>
+      <td><span class="score-bar"><span class="score-fill" style="width:${spec*100}%;background:${spec>0.7?'var(--accent)':'var(--warning)'}"></span></span>${spec.toFixed(3)}</td>
+      <td class="${tierClass}">${tier}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('guidesTable').innerHTML = html;
+}
+
+function renderEfficiency(guides) {
+  if (!guides.length) { document.getElementById('efficiencyContent').innerHTML = '<p>No data.</p>'; return; }
+  let html = '<table><thead><tr><th>#</th><th>Guide</th><th>Model</th><th>Efficiency</th><th>Confidence</th><th>Indel: Del/Ins/None</th><th>Most Likely</th></tr></thead><tbody>';
+  guides.forEach(g => {
+    const indel = g.indel_outcome || {};
+    html += `<tr>
+      <td>${g.rank||1}</td>
+      <td class="seq-mono">${g.guide_sequence}</td>
+      <td>${g.efficiency?.model||'N/A'}</td>
+      <td><span class="score-bar"><span class="score-fill" style="width:${(g.efficiency?.score||0)*100}%;background:${scoreColor(g.efficiency?.score||0)}"></span></span>${(g.efficiency?.score||0).toFixed(3)}</td>
+      <td>${(g.efficiency?.confidence||0).toFixed(2)}</td>
+      <td>${((indel.deletion_rate||0)*100).toFixed(0)}/${((indel.insertion_rate||0)*100).toFixed(0)}/${((indel.no_edit_rate||0)*100).toFixed(0)}%</td>
+      <td>${indel.most_likely||'N/A'} (${indel.predicted_size||0}bp)</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  html += '<div class="notice" style="margin-top:1rem">📊 Model: RuleSet2-Enhanced v2.1 — 38 features including position weight matrix, thermodynamic stability (Tm/ΔG), dinucleotide composition, and species-specific logistic calibration.</div>';
+  document.getElementById('efficiencyContent').innerHTML = html;
+}
+
+function renderOffTarget(guides) {
+  let html = '';
+  guides.forEach(g => {
+    const ot = g.offtarget;
+    if (!ot) return;
+    html += `<h3 style="margin:1rem 0 0.5rem;font-size:0.95rem">Guide #${g.rank}: <span class="seq-mono">${g.guide_sequence}</span></h3>`;
+    html += `<div style="display:flex;gap:1rem;margin-bottom:0.5rem;flex-wrap:wrap">
+      <span>Specificity: <b style="color:${ot.specificity_score>0.7?'var(--accent)':'var(--warning)'}">${ot.specificity_score.toFixed(3)}</b></span>
+      <span class="risk-high">High: ${ot.high_risk||0}</span>
+      <span class="risk-moderate">Moderate: ${ot.moderate_risk||0}</span>
+      <span class="risk-low">Low: ${ot.low_risk||0}</span>
+    </div>`;
+    if (ot.top_sites && ot.top_sites.length) {
+      html += '<table style="font-size:0.8rem"><thead><tr><th>Chrom</th><th>Start</th><th>Strand</th><th>Sequence</th><th>PAM</th><th>MM</th><th>Score</th><th>Risk</th></tr></thead><tbody>';
+      ot.top_sites.slice(0, 10).forEach(s => {
+        html += `<tr><td>${s.chrom}</td><td>${s.start}</td><td>${s.strand}</td><td class="seq-mono">${s.sequence}</td><td class="seq-mono">${s.pam}</td><td>${s.mismatches}</td><td>${s.score.toFixed(3)}</td><td class="risk-${s.risk}">${s.risk}</td></tr>`;
+      });
+      html += '</tbody></table>';
+    } else {
+      html += '<p style="color:var(--text-dim);padding:0.5rem 0">No off-target sites found (high specificity).</p>';
+    }
+  });
+  document.getElementById('offtargetContent').innerHTML = html || '<p>No off-target data.</p>';
+}
+
+function renderAssessment(guides) {
+  if (!guides.length) { document.getElementById('assessmentContent').innerHTML = '<p>No data.</p>'; return; }
+  let html = '<table><thead><tr><th>#</th><th>Guide</th><th>On-Target Unc.</th><th>Off-Target Ev.</th><th>Network Impact</th><th>Welfare Rel.</th><th>Concern</th><th>Tier</th><th>Recommendation</th></tr></thead><tbody>';
+  guides.forEach(g => {
+    const ev = g.evidence_scores || {};
+    const tier = g.assessment?.tier || 'N/A';
+    const tierClass = tier === 'high_concern' ? 'risk-high' : tier === 'enhanced' ? 'risk-moderate' : 'risk-low';
+    html += `<tr>
+      <td>${g.rank||1}</td>
+      <td class="seq-mono">${g.guide_sequence}</td>
+      <td>${(ev.on_target_uncertainty||0).toFixed(3)}</td>
+      <td>${(ev.off_target_evidence||0).toFixed(3)}</td>
+      <td>${(ev.network_impact_evidence||0).toFixed(3)}</td>
+      <td>${(ev.welfare_relevance||0).toFixed(3)}</td>
+      <td><b>${(g.assessment?.concern_score||0).toFixed(3)}</b></td>
+      <td class="${tierClass}">${tier}</td>
+      <td style="max-width:250px;white-space:normal;font-size:0.8rem">${g.recommendation||''}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('assessmentContent').innerHTML = html;
+}
+
+function showError(msg) {
+  document.getElementById('errorDisplay').innerHTML = `<div class="error-msg">⚠️ ${msg}</div>`;
+}
+function hideError() { document.getElementById('errorDisplay').innerHTML = ''; }
+
+function exportResults() {
+  if (!currentResult) { showError('No results to export. Run the pipeline first.'); return; }
+  const blob = new Blob([JSON.stringify(currentResult, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'geneimpact_report.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>

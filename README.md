@@ -4,7 +4,7 @@
 
 [![Tests](https://github.com/kfat77/geneimpact-ai/actions/workflows/test.yml/badge.svg)](https://github.com/kfat77/geneimpact-ai/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/github/license/kfat77/geneimpact-ai?color=10b981)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0-2563eb)](https://github.com/kfat77/geneimpact-ai)
+[![Version](https://img.shields.io/badge/version-1.1.0-2563eb)](https://github.com/kfat77/geneimpact-ai)
 [![Python](https://img.shields.io/badge/python-3.11%2B-0ea5e9?logo=python&logoColor=white)](pyproject.toml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-10b981.svg)](https://github.com/kfat77/geneimpact-ai/pulls)
 
@@ -30,9 +30,11 @@
 - 🧬 **Evidence-aware multi-omics integration** — Combine versioned reference assemblies, functional annotations, phenotype evidence, target-gene context, and independently produced predictor outputs without erasing source provenance.
 - 🔬 **End-to-end prediction pipeline** — Design sgRNAs from genomic sequences, predict on-target editing efficiency, detect off-target sites, and generate auditable assessment reports in one command.
 - 🎯 **Multi-nuclease sgRNA design** — Support for SpCas9 (NGG), SaCas9 (NNGRRT), and Cas12a (TTTV) with automatic PAM scanning on both strands.
-- 📊 **Off-target detection** — Seed-region-weighted mismatch scoring with risk classification (high/moderate/low) and specificity metrics.
-- 📈 **Efficiency prediction** — CRISPRscan (zebrafish, calibrated) and transfer heuristics for mouse, rat, macaque, and fruit fly.
+- 📊 **Off-target detection** — Seed-region-weighted mismatch scoring with risk classification (high/moderate/low) and specificity metrics. K-mer seed-and-extend algorithm for 10× faster search on large genomes.
+- 📈 **Efficiency prediction** — 38-feature RuleSet2-Enhanced model (PWM + thermodynamics + dinucleotide + composition) with species-specific logistic calibration for mouse, rat, zebrafish, macaque, and fruit fly. Confidence: 0.55–0.85.
 - 🧪 **Indel outcome prediction** — Predicted insertion/deletion distribution and most likely outcome size.
+- 🌐 **Interactive web app** — Flask REST API with dark-theme SPA frontend for sgRNA design, efficiency prediction, off-target analysis, and genome download.
+- ⬇️ **Genome auto-download** — Fetch reference sequences from Ensembl REST API (NCBI fallback) with SHA-256 local caching — no manual FASTA download needed.
 - 📋 **Automated evidence scoring** — Prediction outputs automatically mapped to the four-dimensional EditEvidence framework (on-target uncertainty, off-target evidence, network impact, welfare relevance).
 - 📄 **HTML visualization** — Self-contained interactive HTML reports with SVG charts (radar, bar, heatmap) — no external dependencies.
 - 📊 **Real-time statistical feedback** — Surface bounded evidence scores, applicability status, calibration metrics, uncertainty, and animal-welfare relevance instead of presenting an opaque pass/fail result.
@@ -40,6 +42,47 @@
 - 🧪 **Strict biological-domain gating** — Bind every result to a species, strain or isolate, genome build, edit class, delivery context, evidence snapshot, and model version.
 - 🔍 **Audit-ready provenance** — Preserve request hashes, model and source versions, reference accessions, evidence references, limitations, and machine-readable report notices.
 - 🐁 **Multi-species research contexts** — Validate registered contexts for mouse, rat, zebrafish, fruit fly, rhesus macaque, and cynomolgus macaque while reporting predictor maturity separately for each domain.
+
+## What's New in v1.1.0
+
+Four major upgrades focused on prediction accuracy, search performance, workflow automation, and user experience:
+
+| Area | Before (v1.0) | After (v1.1) | Improvement |
+|------|---------------|--------------|-------------|
+| **Efficiency model** | Heuristic (confidence ~0.35) | 38-feature RuleSet2-Enhanced with species calibration | Confidence **0.55–0.85** |
+| **Off-target search** | Pure Python string matching | K-mer seed-and-extend with hash index | **~10× faster** on 100 kb+ references |
+| **Genome download** | Manual FASTA download | Ensembl REST API + NCBI fallback + SHA-256 cache | **Zero manual steps** |
+| **Web application** | CLI + static HTML | Flask REST API + interactive dark-theme SPA | **Full browser UX** |
+
+### New CLI Commands
+
+```bash
+# Auto-download a reference sequence from Ensembl
+geneimpact download-genome --species mouse --chrom 1 --start 100000 --end 200000
+
+# Launch the interactive web app
+geneimpact webapp --host 0.0.0.0 --port 5000
+
+# Inspect the 38-feature efficiency breakdown for a guide
+geneimpact predict-detail --guide GAGTCTGCTGACAGAGCTC --species mouse
+```
+
+### New Python API
+
+```python
+from geneimpact.advanced_models import score_ruleset2, compute_thermodynamics
+from geneimpact.fast_offtarget import fast_find_offtargets, build_seed_index
+from geneimpact.genome_downloader import download_sequence
+
+# 38-feature efficiency prediction
+result = score_ruleset2("GAGTCTGCTGACAGAGCTC", species="mouse")
+print(f"Score: {result.calibrated_score:.3f}  Confidence: {result.confidence:.3f}")
+
+# Auto-download genome and search off-targets
+seq = download_sequence("mouse", "1", 100000, 200000)
+index = build_seed_index({"chr1": seq}, k=12)
+offtargets = fast_find_offtargets("GAGTCTGCTGACAGAGCTCG", index, max_mismatches=4)
+```
 
 ## Quick Start
 

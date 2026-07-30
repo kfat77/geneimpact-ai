@@ -60,8 +60,9 @@ class TestPredictEfficiency:
     def test_mouse_prediction(self, good_candidate):
         pred = predict_efficiency(good_candidate, species_key="mouse")
         assert 0.0 <= pred.efficiency_score <= 1.0
-        assert pred.model_name == "RuleSet2-Transfer"
+        assert pred.model_name == "RuleSet2-Enhanced"
         assert pred.species == "mouse"
+        assert pred.confidence >= 0.50  # Enhanced model has higher confidence
 
     def test_zebrafish_with_context(self, good_candidate):
         pred = predict_efficiency(good_candidate, species_key="zebrafish")

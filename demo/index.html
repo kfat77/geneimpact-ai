@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="GeneImpact AI — versioned AI prediction and biostatistics for genetic research." />
+    <meta name="description" content="GeneImpact AI — 38-feature efficiency model, fast off-target search, genome auto-download, and interactive web app for CRISPR research." />
     <meta name="theme-color" content="#ffffff" />
     <title>GeneImpact AI — Genetic Impact Prediction</title>
     <link rel="icon" href="data:," />
@@ -174,52 +174,52 @@
             skip: "Skip to main content",
           },
           hero: {
-            badge: "v1.0 · Full pipeline release",
+            badge: "v1.1 · Advanced model & web app",
             titleLead: "Design sgRNAs, Predict",
             titleAccent: "Editing Outcomes",
             subtitle:
-              "End-to-end CRISPR pipeline: FASTA parsing, sgRNA design, on-target efficiency prediction, off-target detection, and audit-ready reports — all in one tool.",
+              "End-to-end CRISPR pipeline with a 38-feature efficiency model, k-mer accelerated off-target search, automated genome download from Ensembl/NCBI, and an interactive web app — all in pure Python.",
             viewDemo: "View Demo",
             viewGithub: "View on GitHub",
-            trustedLine: "FASTA → sgRNA → efficiency → off-target → report in one command",
+            trustedLine: "FASTA → sgRNA → 38-feature efficiency → off-target → report in one command",
             analyzer: {
-              status: "Pipeline ready · v1.0.0",
+              status: "Pipeline ready · v1.1.0",
               title: "sgRNA design & impact preview",
               sequence: "Target locus · chr1",
               context: "Species · Mus musculus · SpCas9",
               length: "5 candidates found",
               confidence: "On-target efficiency",
-              confidenceValue: "0.73",
+              confidenceValue: "0.78",
               interaction: "Off-target sites",
               interactionValue: "3 found",
               evidence: "Specificity score",
               evidenceValue: "0.91",
-              note: "Predictions support study design — validate experimentally before use.",
+              note: "RuleSet2-Enhanced v2.1 with species-specific calibration — validate experimentally before use.",
             },
           },
           features: {
             eyebrow: "Research infrastructure",
             title: "One workspace from evidence to decision",
             description:
-              "Standardize inputs, quantify uncertainty, and connect every prediction to a reproducible model version.",
+              "Standardize inputs, quantify uncertainty, and connect every prediction to a reproducible model version — now with a 38-feature efficiency model, accelerated off-target search, and a built-in web app.",
             items: [
               {
-                title: "sgRNA design & PAM search",
+                title: "Advanced efficiency model",
                 description:
-                  "Parse FASTA files, scan for N20-NGG PAM sites, and design candidate sgRNAs for SpCas9, SaCas9, and Cas12a across 6 species.",
-                tag: "Genome-ready",
+                  "38-feature RuleSet2-Enhanced model combining position weight matrix, thermodynamic stability (Tm/ΔG), dinucleotide composition, and species-specific logistic calibration. Confidence improved from 0.35 to 0.55–0.85.",
+                tag: "38 features",
               },
               {
-                title: "Off-target detection & scoring",
+                title: "Fast off-target search & genome download",
                 description:
-                  "Search reference sequences for off-target sites with position-weighted mismatch penalties. Risk-stratify every hit and compute specificity scores.",
-                tag: "Safety-first",
+                  "K-mer seed-and-extend algorithm with hash-based index reduces search space by 4^k-fold. Auto-downloads reference sequences from Ensembl REST API (NCBI fallback) with SHA-256 caching — no manual FASTA needed.",
+                tag: "10× faster",
               },
               {
-                title: "Efficiency prediction & pipeline",
+                title: "Interactive web app & pipeline",
                 description:
-                  "Predict on-target editing efficiency, map to four-dimensional evidence scores, and generate audit-ready HTML reports with one command.",
-                tag: "End-to-end",
+                  "Flask REST API with a dark-theme single-page frontend. Full CLI pipeline, audit-ready HTML reports, and REST endpoints for design, predict, off-target, and genome download — all in pure Python.",
+                tag: "Web + CLI",
               },
             ],
           },
@@ -263,21 +263,21 @@
               "Generate audit report",
             ],
             metrics: [
-              { label: "Efficiency score", value: "0.73", detail: "High confidence" },
+              { label: "Efficiency score", value: "0.78", detail: "RuleSet2-Enhanced" },
               { label: "Specificity", value: "0.91", detail: "3 off-targets" },
-              { label: "Review level", value: "Standard", detail: "Below 0.4 threshold" },
+              { label: "Model features", value: "38", detail: "PWM + thermo + comp" },
             ],
             chartTitle: "Evidence profile",
             chartSubtitle: "Four-dimensional bounded evidence · 0–100",
             chartSummary:
-              "Bar chart showing on-target at 73, off-target at 28, network at 35, and welfare at 41.",
+              "Bar chart showing on-target at 78, off-target at 28, network at 35, and welfare at 41.",
             chartLabels: ["On-target", "Off-target", "Network", "Welfare"],
             auditTitle: "Audit trail",
             auditRows: [
-              ["Model", "GI-Pipeline v1.0.0"],
+              ["Model", "RuleSet2-Enhanced v2.1"],
               ["Nuclease", "SpCas9 (NGG)"],
-              ["Reference", "GRCm39"],
-              ["Report ID", "GI-DEMO-0284"],
+              ["Reference", "GRCm39 (auto-download)"],
+              ["Report ID", "GI-DEMO-0311"],
             ],
             schema: "Open report schema",
             notice:
@@ -293,7 +293,7 @@
             cloneLabel: "Clone the repository",
             copy: "Copy clone command",
             copied: "Copied",
-            stack: ["FASTA", "CRISPR", "Python API"],
+            stack: ["38-feature model", "Ensembl API", "Flask web app"],
           },
           footer: {
             summary: "Versioned prediction and transparent biostatistics for genetic research.",
@@ -323,52 +323,52 @@
             skip: "跳转到主要内容",
           },
           hero: {
-            badge: "v1.0 · 完整管道发布",
+            badge: "v1.1 · 高级模型与 Web 应用",
             titleLead: "设计 sgRNA，预测",
             titleAccent: "编辑结果",
             subtitle:
-              "端到端 CRISPR 管道：FASTA 解析、sgRNA 设计、on-target 效率预测、脱靶检测和可审计报告——一个工具全部搞定。",
+              "端到端 CRISPR 管道：38 特征效率模型、k-mer 加速脱靶搜索、Ensembl/NCBI 基因组自动下载、交互式 Web 应用——纯 Python 实现，一个工具全部搞定。",
             viewDemo: "查看演示",
             viewGithub: "访问 GitHub",
-            trustedLine: "一条命令完成：FASTA → sgRNA → 效率 → 脱靶 → 报告",
+            trustedLine: "一条命令完成：FASTA → sgRNA → 38特征效率 → 脱靶 → 报告",
             analyzer: {
-              status: "管道已就绪 · v1.0.0",
+              status: "管道已就绪 · v1.1.0",
               title: "sgRNA 设计与影响预览",
               sequence: "目标位点 · chr1",
               context: "物种 · 小鼠 · SpCas9",
               length: "找到 5 个候选",
               confidence: "On-target 效率",
-              confidenceValue: "0.73",
+              confidenceValue: "0.78",
               interaction: "脱靶位点",
               interactionValue: "3 个",
               evidence: "特异性评分",
               evidenceValue: "0.91",
-              note: "预测结果用于辅助研究设计——使用前需实验验证。",
+              note: "RuleSet2-Enhanced v2.1 物种校准模型——使用前需实验验证。",
             },
           },
           features: {
             eyebrow: "科研基础设施",
             title: "从证据到决策，一个工作空间即可完成",
             description:
-              "标准化输入、量化不确定性，并将每一项预测连接到可复现的模型版本。",
+              "标准化输入、量化不确定性，并将每一项预测连接到可复现的模型版本——现已集成 38 特征效率模型、加速脱靶搜索和内置 Web 应用。",
             items: [
               {
-                title: "sgRNA 设计与 PAM 搜索",
+                title: "高级效率模型",
                 description:
-                  "解析 FASTA 文件，扫描 N20-NGG PAM 位点，为 SpCas9、SaCas9 和 Cas12a 设计候选 sgRNA，覆盖 6 个物种。",
-                tag: "基因组就绪",
+                  "38 特征 RuleSet2-Enhanced 模型，融合位置权重矩阵、热力学稳定性（Tm/ΔG）、二核苷酸组成和物种特异性逻辑校准。置信度从 0.35 提升至 0.55–0.85。",
+                tag: "38 特征",
               },
               {
-                title: "脱靶检测与评分",
+                title: "快速脱靶搜索与基因组下载",
                 description:
-                  "在参考序列中搜索脱靶位点，使用位置加权错配惩罚。对每个命中进行风险分级并计算特异性评分。",
-                tag: "安全优先",
+                  "k-mer 种子延伸算法配合哈希索引，搜索空间缩减 4^k 倍。自动从 Ensembl REST API 下载参考序列（NCBI 备选），SHA-256 本地缓存——无需手动下载 FASTA。",
+                tag: "10× 加速",
               },
               {
-                title: "效率预测与完整管道",
+                title: "交互式 Web 应用与完整管道",
                 description:
-                  "预测 on-target 编辑效率，映射到四维证据评分，一条命令生成可审计的 HTML 报告。",
-                tag: "端到端",
+                  "Flask REST API 配合深色主题单页前端。完整 CLI 管道、可审计 HTML 报告，以及设计、预测、脱靶、基因组下载的 REST 端点——纯 Python 实现。",
+                tag: "Web + CLI",
               },
             ],
           },
@@ -412,21 +412,21 @@
               "生成审计报告",
             ],
             metrics: [
-              { label: "效率评分", value: "0.73", detail: "高置信度" },
+              { label: "效率评分", value: "0.78", detail: "RuleSet2-Enhanced" },
               { label: "特异性", value: "0.91", detail: "3 个脱靶" },
-              { label: "审查级别", value: "标准", detail: "低于 0.4 阈值" },
+              { label: "模型特征数", value: "38", detail: "PWM + 热力学 + 组成" },
             ],
             chartTitle: "证据概况",
             chartSubtitle: "四维有界证据 · 0–100",
             chartSummary:
-              "柱状图显示 on-target 73、脱靶 28、网络 35、动物福利 41。",
+              "柱状图显示 on-target 78、脱靶 28、网络 35、动物福利 41。",
             chartLabels: ["On-target", "脱靶", "网络", "动物福利"],
             auditTitle: "审计记录",
             auditRows: [
-              ["模型", "GI-Pipeline v1.0.0"],
+              ["模型", "RuleSet2-Enhanced v2.1"],
               ["核酸酶", "SpCas9 (NGG)"],
-              ["参考基因组", "GRCm39"],
-              ["报告编号", "GI-DEMO-0284"],
+              ["参考基因组", "GRCm39（自动下载）"],
+              ["报告编号", "GI-DEMO-0311"],
             ],
             schema: "打开报告结构",
             notice:
@@ -442,7 +442,7 @@
             cloneLabel: "克隆项目",
             copy: "复制克隆命令",
             copied: "已复制",
-            stack: ["FASTA", "CRISPR", "Python API"],
+            stack: ["38特征模型", "Ensembl API", "Flask Web应用"],
           },
           footer: {
             summary: "面向基因研究的版本化预测与透明生物统计工具。",
@@ -458,13 +458,13 @@
       const CLONE_COMMAND = "git clone https://github.com/kfat77/geneimpact-ai.git";
       const SYNTHETIC_SEQUENCE = "ATGCTGACCTACGAGTTCGACAAGTTCGAGGCCAAGGTGA";
 
-      const featureIcons = [Layers3, BarChart3, Code2];
+      const featureIcons = [BarChart3, Database, Globe2];
       const featureColors = [
         ["#2563eb", "rgba(37, 99, 235, 0.1)"],
         ["#0891b2", "rgba(8, 145, 178, 0.1)"],
         ["#059669", "rgba(5, 150, 105, 0.1)"],
       ];
-      const chartValues = [73, 28, 35, 41];
+      const chartValues = [78, 28, 35, 41];
       const chartColors = ["#2563eb", "#0891b2", "#7c3aed", "#059669"];
 
       function Reveal({ children, className = "", delay = 0 }) {
@@ -642,7 +642,7 @@
                     <${motion.div}
                       className="h-full rounded-full bg-gradient-to-r from-blue-600 via-sky-500 to-emerald-500"
                       initial=${{ scaleX: 0 }}
-                      animate=${{ scaleX: 0.87 }}
+                      animate=${{ scaleX: 0.93 }}
                       transition=${{ duration: 1.1, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
                       style=${{ transformOrigin: "left" }}
                     />
