@@ -4,7 +4,7 @@
 
 [![Tests](https://github.com/kfat77/geneimpact-ai/actions/workflows/test.yml/badge.svg)](https://github.com/kfat77/geneimpact-ai/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/github/license/kfat77/geneimpact-ai?color=10b981)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.15.0-2563eb)](https://github.com/kfat77/geneimpact-ai)
+[![Version](https://img.shields.io/badge/version-1.0.0-2563eb)](https://github.com/kfat77/geneimpact-ai)
 [![Python](https://img.shields.io/badge/python-3.11%2B-0ea5e9?logo=python&logoColor=white)](pyproject.toml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-10b981.svg)](https://github.com/kfat77/geneimpact-ai/pulls)
 
@@ -28,6 +28,13 @@
 ## Key Features
 
 - 🧬 **Evidence-aware multi-omics integration** — Combine versioned reference assemblies, functional annotations, phenotype evidence, target-gene context, and independently produced predictor outputs without erasing source provenance.
+- 🔬 **End-to-end prediction pipeline** — Design sgRNAs from genomic sequences, predict on-target editing efficiency, detect off-target sites, and generate auditable assessment reports in one command.
+- 🎯 **Multi-nuclease sgRNA design** — Support for SpCas9 (NGG), SaCas9 (NNGRRT), and Cas12a (TTTV) with automatic PAM scanning on both strands.
+- 📊 **Off-target detection** — Seed-region-weighted mismatch scoring with risk classification (high/moderate/low) and specificity metrics.
+- 📈 **Efficiency prediction** — CRISPRscan (zebrafish, calibrated) and transfer heuristics for mouse, rat, macaque, and fruit fly.
+- 🧪 **Indel outcome prediction** — Predicted insertion/deletion distribution and most likely outcome size.
+- 📋 **Automated evidence scoring** — Prediction outputs automatically mapped to the four-dimensional EditEvidence framework (on-target uncertainty, off-target evidence, network impact, welfare relevance).
+- 📄 **HTML visualization** — Self-contained interactive HTML reports with SVG charts (radar, bar, heatmap) — no external dependencies.
 - 📊 **Real-time statistical feedback** — Surface bounded evidence scores, applicability status, calibration metrics, uncertainty, and animal-welfare relevance instead of presenting an opaque pass/fail result.
 - 🔌 **Developer-friendly API and CLI** — Use typed Python interfaces or composable command-line workflows to generate JSON reports, verify dossier integrity, inspect species readiness, and integrate external predictors.
 - 🧪 **Strict biological-domain gating** — Bind every result to a species, strain or isolate, genome build, edit class, delivery context, evidence snapshot, and model version.

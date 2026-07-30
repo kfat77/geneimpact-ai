@@ -157,6 +157,57 @@ from .rat_validation import (
     prepare_rat_guide_transfer_template,
 )
 
+# New prediction pipeline modules
+from .genomics import (
+    FastaReader,
+    FastaRecord,
+    GenomicInterval,
+    gc_content,
+    reverse_complement,
+    validate_dna_sequence,
+)
+from .sgrna_design import (
+    NucleaseType,
+    PamPattern,
+    SgrnaCandidate,
+    SgrnaDesignResult,
+    PAM_PATTERNS,
+    design_sgrnas,
+    search_pam_sites,
+    compute_guide_features,
+)
+from .offtarget import (
+    OffTargetSite,
+    OffTargetReport,
+    MismatchPattern,
+    find_offtargets,
+    score_offtarget,
+    compute_offtarget_risk,
+)
+from .efficiency import (
+    EfficiencyPrediction,
+    IndelOutcome,
+    EfficiencyReport,
+    predict_efficiency,
+    predict_indel_outcomes,
+    compute_evidence_scores,
+    SPECIES_EFFICIENCY_MODELS,
+)
+from .pipeline import (
+    PipelineConfig,
+    GuideResult,
+    PipelineReport,
+    run_pipeline,
+    run_pipeline_from_fasta,
+)
+from .visualization import (
+    generate_html_report,
+    generate_sgrna_diagram,
+    generate_offtarget_heatmap,
+    generate_efficiency_chart,
+    generate_evidence_radar,
+)
+
 __all__ = [
     "AssessmentRecord",
     "Applicability",
@@ -303,4 +354,42 @@ __all__ = [
     "score_crisprscan",
     "validate_study_context",
     "verify_dossier_integrity",
+    # New prediction pipeline exports
+    "FastaReader",
+    "FastaRecord",
+    "GenomicInterval",
+    "gc_content",
+    "reverse_complement",
+    "validate_dna_sequence",
+    "NucleaseType",
+    "PamPattern",
+    "SgrnaCandidate",
+    "SgrnaDesignResult",
+    "PAM_PATTERNS",
+    "design_sgrnas",
+    "search_pam_sites",
+    "compute_guide_features",
+    "OffTargetSite",
+    "OffTargetReport",
+    "MismatchPattern",
+    "find_offtargets",
+    "score_offtarget",
+    "compute_offtarget_risk",
+    "EfficiencyPrediction",
+    "IndelOutcome",
+    "EfficiencyReport",
+    "predict_efficiency",
+    "predict_indel_outcomes",
+    "compute_evidence_scores",
+    "SPECIES_EFFICIENCY_MODELS",
+    "PipelineConfig",
+    "GuideResult",
+    "PipelineReport",
+    "run_pipeline",
+    "run_pipeline_from_fasta",
+    "generate_html_report",
+    "generate_sgrna_diagram",
+    "generate_offtarget_heatmap",
+    "generate_efficiency_chart",
+    "generate_evidence_radar",
 ]

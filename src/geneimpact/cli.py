@@ -38,6 +38,13 @@ from .rat_validation import (
 from .snapshots import MGI_REPORTS, create_mgi_snapshot
 from .species import PROFILES
 from .workflow import DEFAULT_MODEL_VERSION, assess_request
+from .sgrna_design import NucleaseType, design_sgrnas
+from .offtarget import find_offtargets
+from .efficiency import predict_efficiency, predict_indel_outcomes
+from .pipeline import PipelineConfig, run_pipeline
+from .provenance import StudyContext
+from .visualization import generate_html_report
+from .genomics import FastaReader
 
 
 def main() -> None:
@@ -210,6 +217,103 @@ def main() -> None:
         help="Verify a dossier content hash (not an authenticity signature).",
     )
     verify_dossier.add_argument("report", type=Path)
+
+    # --- New prediction pipeline commands ---
+
+    # design-sgrna: Design sgRNAs from a sequence file
+    design_sgrna_cmd = subparsers.add_parser(
+        "design-sgrna",
+        help="Design sgRNA candidates from a target DNA sequence.",
+    )
+    design_sgrna_cmd.add_argument(
+        "--input", required=True, type=Path,
+        help="Path to a FASTA or plain text file containing the target sequence.",
+    )
+    design_sgrna_cmd.add_argument("--output", "-o", type=Path, help="Write results to this JSON file.")
+    design_sgrna_cmd.add_argument(
+        "--nuclease", default="SpCas9",
+        choices=[n.value for n in NucleaseType],
+        help="CRISPR nuclease type (default: SpCas9).",
+    )
+    design_sgrna_cmd.add_argument("--guide-length", type=int, default=20)
+    design_sgrna_cmd.add_argument("--max-candidates", type=int, default=50)
+
+    # offtarget: Search for off-target sites
+    offtarget_cmd = subparsers.add_parser(
+        "offtarget",
+        help="Search for off-target sites for a guide RNA.",
+    )
+    offtarget_cmd.add_argument(
+        "--guide", required=True,
+        help="20-nt guide RNA sequence.",
+    )
+    offtarget_cmd.add_argument(
+        "--reference", type=Path,
+        help="FASTA file of reference sequences to search.",
+    )
+    offtarget_cmd.add_argument(
+        "--nuclease", default="SpCas9",
+        choices=[n.value for n in NucleaseType],
+    )
+    offtarget_cmd.add_argument("--max-mismatches", type=int, default=4)
+    offtarget_cmd.add_argument("--output", "-o", type=Path)
+
+    # predict: Predict editing efficiency for a guide
+    predict_cmd = subparsers.add_parser(
+        "predict",
+        help="Predict editing efficiency for a guide RNA.",
+    )
+    predict_cmd.add_argument("--guide", required=True, help="20-nt guide RNA sequence.")
+    predict_cmd.add_argument(
+        "--species", default="mouse",
+        choices=sorted(PROFILES),
+        help="Target species (default: mouse).",
+    )
+    predict_cmd.add_argument(
+        "--context-35nt",
+        help="35-nt context sequence (for CRISPRscan zebrafish scoring).",
+    )
+    predict_cmd.add_argument("--output", "-o", type=Path)
+
+    # pipeline: Run the full end-to-end pipeline
+    pipeline_cmd = subparsers.add_parser(
+        "pipeline",
+        help="Run the full prediction pipeline: design -> predict -> off-target -> assess.",
+    )
+    pipeline_cmd.add_argument(
+        "--input", required=True, type=Path,
+        help="FASTA file containing the target sequence.",
+    )
+    pipeline_cmd.add_argument("--chrom", help="Chromosome/sequence ID (default: first sequence).")
+    pipeline_cmd.add_argument("--start", type=int, help="1-based start position (default: 1).")
+    pipeline_cmd.add_argument("--end", type=int, help="1-based end position (default: full sequence).")
+    pipeline_cmd.add_argument(
+        "--reference", type=Path,
+        help="Reference genome FASTA for off-target search (default: use input file).",
+    )
+    pipeline_cmd.add_argument(
+        "--species", default="mouse", choices=sorted(PROFILES),
+    )
+    pipeline_cmd.add_argument(
+        "--nuclease", default="SpCas9",
+        choices=[n.value for n in NucleaseType],
+    )
+    pipeline_cmd.add_argument("--strain", default="C57BL/6J")
+    pipeline_cmd.add_argument("--genome-build", default="GRCm39")
+    pipeline_cmd.add_argument("--edit-class", default="knockout")
+    pipeline_cmd.add_argument("--gene-essentiality", type=float, default=0.0)
+    pipeline_cmd.add_argument("--phenotype-severity", type=float, default=0.0)
+    pipeline_cmd.add_argument("--top-k", type=int, default=10)
+    pipeline_cmd.add_argument("--max-candidates", type=int, default=50)
+    pipeline_cmd.add_argument("--max-mismatches", type=int, default=4)
+    pipeline_cmd.add_argument("--min-efficiency", type=float, default=0.3)
+    pipeline_cmd.add_argument("--min-specificity", type=float, default=0.5)
+    pipeline_cmd.add_argument("--output", "-o", required=True, type=Path)
+    pipeline_cmd.add_argument(
+        "--html", type=Path,
+        help="Also generate an HTML visualization report.",
+    )
+
     args = parser.parse_args()
 
     if args.command == "source-check":
@@ -567,6 +671,233 @@ def main() -> None:
         print(json.dumps(asdict(verification), indent=2, ensure_ascii=False))
         if not verification.matches:
             raise SystemExit(1)
+        return
+
+    # --- New prediction pipeline command handlers ---
+
+    if args.command == "design-sgrna":
+        try:
+            raw = args.input.read_text(encoding="utf-8").strip()
+            # Strip FASTA header if present
+            if raw.startswith(">"):
+                lines = raw.split("\n")
+                sequence = "".join(lines[1:]).replace(" ", "").replace("\n", "").upper()
+            else:
+                sequence = raw.replace(" ", "").replace("\n", "").upper()
+            nuclease = NucleaseType(args.nuclease)
+            result = design_sgrnas(
+                sequence=sequence,
+                chrom="target",
+                nuclease=nuclease,
+                guide_length=args.guide_length,
+                max_candidates=args.max_candidates,
+            )
+            output = {
+                "target_id": result.target_id,
+                "nuclease": result.nuclease.value,
+                "candidate_count": result.count,
+                "warnings": result.warnings,
+                "candidates": [
+                    {
+                        "guide_id": c.guide_id,
+                        "guide_sequence": c.guide_sequence,
+                        "pam": c.pam,
+                        "strand": c.strand,
+                        "start": c.start,
+                        "end": c.end,
+                        "gc_content": round(c.gc_content, 4),
+                        "features": {k: round(v, 4) for k, v in c.features.items()},
+                    }
+                    for c in result.top_candidates(20)
+                ],
+            }
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
+        rendered = json.dumps(output, indent=2, ensure_ascii=False) + "\n"
+        if args.output:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(rendered, encoding="utf-8")
+            print(f"sgRNA design results written to {args.output}")
+        else:
+            print(rendered, end="")
+        return
+
+    if args.command == "offtarget":
+        try:
+            guide = args.guide.upper().replace(" ", "")
+            if len(guide) != 20:
+                raise ValueError(f"guide must be 20 nt, got {len(guide)}")
+            ref_seqs = None
+            if args.reference:
+                reader = FastaReader(args.reference)
+                ref_seqs = {
+                    sid: reader[sid].sequence
+                    for sid in reader.sequence_ids[:10]
+                }
+            nuclease = NucleaseType(args.nuclease)
+            report = find_offtargets(
+                guide_sequence=guide,
+                reference_sequences=ref_seqs,
+                nuclease=nuclease,
+                max_mismatches=args.max_mismatches,
+            )
+            output = {
+                "guide_sequence": report.guide_sequence,
+                "nuclease": report.nuclease.value,
+                "total_sites_scanned": report.total_sites_scanned,
+                "high_risk_count": report.high_risk_count,
+                "moderate_risk_count": report.moderate_risk_count,
+                "low_risk_count": report.low_risk_count,
+                "specificity_score": round(report.specificity_score, 4),
+                "warnings": report.warnings,
+                "off_targets": [
+                    {
+                        "chrom": ot.chrom,
+                        "start": ot.start,
+                        "end": ot.end,
+                        "strand": ot.strand,
+                        "sequence": ot.off_target_sequence,
+                        "pam": ot.pam,
+                        "mismatches": ot.mismatch_count,
+                        "mismatch_positions": list(ot.mismatch_positions),
+                        "score": round(ot.score, 4),
+                        "risk_level": ot.risk_level,
+                    }
+                    for ot in report.off_targets[:50]
+                ],
+            }
+        except (OSError, ValueError, KeyError) as error:
+            parser.error(str(error))
+        rendered = json.dumps(output, indent=2, ensure_ascii=False) + "\n"
+        if args.output:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(rendered, encoding="utf-8")
+            print(f"Off-target report written to {args.output}")
+        else:
+            print(rendered, end="")
+        return
+
+    if args.command == "predict":
+        try:
+            guide = args.guide.upper().replace(" ", "")
+            if len(guide) != 20:
+                raise ValueError(f"guide must be 20 nt, got {len(guide)}")
+            from .sgrna_design import SgrnaCandidate, compute_guide_features
+            features = compute_guide_features(guide)
+            candidate = SgrnaCandidate(
+                guide_id="input",
+                guide_sequence=guide,
+                pam="NGG",
+                pam_strand="+",
+                chrom="N/A",
+                start=0,
+                end=0,
+                strand="+",
+                context_30nt="",
+                context_35nt=args.context_35nt.upper() if args.context_35nt else "",
+                gc_content=features["gc_content"],
+                nuclease=NucleaseType.SPCAS9,
+                features=features,
+            )
+            eff = predict_efficiency(candidate, species_key=args.species)
+            indel = predict_indel_outcomes(guide, species_key=args.species)
+            output = {
+                "guide_sequence": eff.guide_sequence,
+                "species": eff.species,
+                "nuclease": eff.nuclease,
+                "efficiency": {
+                    "score": round(eff.efficiency_score, 4),
+                    "confidence": round(eff.confidence, 4),
+                    "model": eff.model_name,
+                    "model_version": eff.model_version,
+                    "warnings": list(eff.warnings),
+                },
+                "indel_outcome": {
+                    "insertion_rate": round(indel.insertion_rate, 4),
+                    "deletion_rate": round(indel.deletion_rate, 4),
+                    "no_edit_rate": round(indel.no_edit_rate, 4),
+                    "most_likely_outcome": indel.most_likely_outcome,
+                    "predicted_indel_size": indel.predicted_indel_size,
+                },
+                "features": {k: round(v, 4) for k, v in eff.features.items()},
+            }
+        except (ValueError,) as error:
+            parser.error(str(error))
+        rendered = json.dumps(output, indent=2, ensure_ascii=False) + "\n"
+        if args.output:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(rendered, encoding="utf-8")
+            print(f"Efficiency prediction written to {args.output}")
+        else:
+            print(rendered, end="")
+        return
+
+    if args.command == "pipeline":
+        try:
+            reader = FastaReader(args.input)
+            if args.chrom:
+                chrom = args.chrom
+            else:
+                chrom = reader.sequence_ids[0]
+            seq_len = reader[chrom].length
+            start = args.start or 1
+            end = args.end or seq_len
+            target_seq = reader.fetch(chrom, start, end)
+
+            # Build reference sequences for off-target search
+            ref_seqs = None
+            if args.reference:
+                ref_reader = FastaReader(args.reference)
+                ref_seqs = {
+                    sid: ref_reader[sid].sequence
+                    for sid in ref_reader.sequence_ids[:10]
+                }
+            else:
+                # Use the input file as reference
+                ref_seqs = {
+                    sid: reader[sid].sequence
+                    for sid in reader.sequence_ids[:10]
+                }
+
+            species_profile = PROFILES[args.species]
+            study_context = StudyContext(
+                species=args.species,
+                strain_or_breed=args.strain,
+                genome_build=args.genome_build,
+                edit_class=args.edit_class,
+                evidence_snapshot=f"pipeline_run_{args.species}_{args.nuclease}",
+            )
+
+            config = PipelineConfig(
+                species=args.species,
+                nuclease=NucleaseType(args.nuclease),
+                max_candidates=args.max_candidates,
+                max_offtargets=args.max_mismatches,
+                gene_essentiality=args.gene_essentiality,
+                phenotype_severity=args.phenotype_severity,
+                min_efficiency=args.min_efficiency,
+                min_specificity=args.min_specificity,
+                top_k=args.top_k,
+            )
+
+            from .pipeline import run_pipeline as _run
+            report = _run(
+                sequence=target_seq,
+                config=config,
+                study_context=study_context,
+                reference_sequences=ref_seqs,
+            )
+        except (OSError, ValueError, KeyError) as error:
+            parser.error(str(error))
+
+        json_text = report.to_json(args.output)
+        print(f"Pipeline report written to {args.output}")
+
+        if args.html:
+            html_text = generate_html_report(report)
+            args.html.parent.mkdir(parents=True, exist_ok=True)
+            args.html.write_text(html_text, encoding="utf-8")
+            print(f"HTML visualization written to {args.html}")
         return
 
     try:

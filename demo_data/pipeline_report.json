@@ -1,0 +1,303 @@
+{
+  "pipeline_version": "1.0.0",
+  "timestamp": "2026-07-30T11:21:32.553006+00:00",
+  "config": {
+    "species": "mouse",
+    "nuclease": "SpCas9",
+    "guide_length": 20,
+    "max_candidates": 20,
+    "max_offtargets": 3,
+    "gene_essentiality": 0.0,
+    "phenotype_severity": 0.0,
+    "min_efficiency": 0.3,
+    "min_specificity": 0.5,
+    "top_k": 5
+  },
+  "study_context": {
+    "species": "mouse",
+    "strain_or_breed": "C57BL/6J",
+    "genome_build": "GRCm39",
+    "edit_class": "knockout",
+    "evidence_snapshot": "pipeline_run_mouse_SpCas9"
+  },
+  "species_validation": {
+    "supported": true,
+    "profile_key": "mouse",
+    "errors": [],
+    "warnings": []
+  },
+  "guides": [
+    {
+      "rank": 1,
+      "recommendation": "Recommended candidate; requires enhanced review.",
+      "guide_id": "mouse:64-83(+)",
+      "guide_sequence": "GGAGTCTGCTGACAGAGCTC",
+      "pam": "GGG",
+      "strand": "+",
+      "chrom": "mouse",
+      "start": 64,
+      "end": 83,
+      "gc_content": 0.6,
+      "nuclease": "SpCas9",
+      "efficiency": {
+        "score": 0.9135,
+        "confidence": 0.35,
+        "model": "RuleSet2-Transfer",
+        "model_version": "0.1",
+        "warnings": [
+          "Efficiency prediction for mouse uses a simplified heuristic model (Doench et al. 2016, Nat Biotechnol (simplified transfer)). Predictions should be validated experimentally."
+        ]
+      },
+      "evidence_scores": {
+        "on_target_uncertainty": 0.55,
+        "off_target_evidence": 0.0,
+        "network_impact_evidence": 0.0,
+        "welfare_relevance": 0.0,
+        "efficiency_score": 0.9135,
+        "efficiency_confidence": 0.35,
+        "specificity_score": 1.0,
+        "offtarget_high_risk_count": 0.0
+      },
+      "indel_outcome": {
+        "insertion_rate": 0.1148,
+        "deletion_rate": 0.4973,
+        "no_edit_rate": 0.388,
+        "most_likely": "deletion",
+        "predicted_size": -3
+      },
+      "offtarget": {
+        "total_sites": 0,
+        "high_risk": 0,
+        "moderate_risk": 0,
+        "low_risk": 0,
+        "specificity_score": 1.0,
+        "top_sites": []
+      },
+      "assessment": {
+        "concern_score": 0.55,
+        "tier": "enhanced_review",
+        "rationale": [
+          "on-target uncertainty"
+        ]
+      }
+    },
+    {
+      "rank": 2,
+      "recommendation": "Recommended candidate; requires enhanced review.",
+      "guide_id": "mouse:129-148(+)",
+      "guide_sequence": "ATCGATCGATCGATCGATCG",
+      "pam": "GGG",
+      "strand": "+",
+      "chrom": "mouse",
+      "start": 129,
+      "end": 148,
+      "gc_content": 0.5,
+      "nuclease": "SpCas9",
+      "efficiency": {
+        "score": 0.9025,
+        "confidence": 0.35,
+        "model": "RuleSet2-Transfer",
+        "model_version": "0.1",
+        "warnings": [
+          "Efficiency prediction for mouse uses a simplified heuristic model (Doench et al. 2016, Nat Biotechnol (simplified transfer)). Predictions should be validated experimentally."
+        ]
+      },
+      "evidence_scores": {
+        "on_target_uncertainty": 0.55,
+        "off_target_evidence": 0.0,
+        "network_impact_evidence": 0.0,
+        "welfare_relevance": 0.0,
+        "efficiency_score": 0.9025,
+        "efficiency_confidence": 0.35,
+        "specificity_score": 1.0,
+        "offtarget_high_risk_count": 0.0
+      },
+      "indel_outcome": {
+        "insertion_rate": 0.1215,
+        "deletion_rate": 0.5265,
+        "no_edit_rate": 0.352,
+        "most_likely": "deletion",
+        "predicted_size": -3
+      },
+      "offtarget": {
+        "total_sites": 0,
+        "high_risk": 0,
+        "moderate_risk": 0,
+        "low_risk": 0,
+        "specificity_score": 1.0,
+        "top_sites": []
+      },
+      "assessment": {
+        "concern_score": 0.55,
+        "tier": "enhanced_review",
+        "rationale": [
+          "on-target uncertainty"
+        ]
+      }
+    },
+    {
+      "rank": 3,
+      "recommendation": "Recommended candidate; requires enhanced review.",
+      "guide_id": "mouse:43-62(+)",
+      "guide_sequence": "GATCGATCGATCGATCGATC",
+      "pam": "GGG",
+      "strand": "+",
+      "chrom": "mouse",
+      "start": 43,
+      "end": 62,
+      "gc_content": 0.5,
+      "nuclease": "SpCas9",
+      "efficiency": {
+        "score": 0.8925,
+        "confidence": 0.35,
+        "model": "RuleSet2-Transfer",
+        "model_version": "0.1",
+        "warnings": [
+          "Efficiency prediction for mouse uses a simplified heuristic model (Doench et al. 2016, Nat Biotechnol (simplified transfer)). Predictions should be validated experimentally."
+        ]
+      },
+      "evidence_scores": {
+        "on_target_uncertainty": 0.55,
+        "off_target_evidence": 0.0,
+        "network_impact_evidence": 0.0,
+        "welfare_relevance": 0.0,
+        "efficiency_score": 0.8925,
+        "efficiency_confidence": 0.35,
+        "specificity_score": 1.0,
+        "offtarget_high_risk_count": 0.0
+      },
+      "indel_outcome": {
+        "insertion_rate": 0.1147,
+        "deletion_rate": 0.4972,
+        "no_edit_rate": 0.388,
+        "most_likely": "deletion",
+        "predicted_size": -3
+      },
+      "offtarget": {
+        "total_sites": 0,
+        "high_risk": 0,
+        "moderate_risk": 0,
+        "low_risk": 0,
+        "specificity_score": 1.0,
+        "top_sites": []
+      },
+      "assessment": {
+        "concern_score": 0.55,
+        "tier": "enhanced_review",
+        "rationale": [
+          "on-target uncertainty"
+        ]
+      }
+    },
+    {
+      "rank": 4,
+      "recommendation": "Recommended candidate; requires enhanced review.",
+      "guide_id": "mouse:128-147(+)",
+      "guide_sequence": "GATCGATCGATCGATCGATC",
+      "pam": "GGG",
+      "strand": "+",
+      "chrom": "mouse",
+      "start": 128,
+      "end": 147,
+      "gc_content": 0.5,
+      "nuclease": "SpCas9",
+      "efficiency": {
+        "score": 0.8925,
+        "confidence": 0.35,
+        "model": "RuleSet2-Transfer",
+        "model_version": "0.1",
+        "warnings": [
+          "Efficiency prediction for mouse uses a simplified heuristic model (Doench et al. 2016, Nat Biotechnol (simplified transfer)). Predictions should be validated experimentally."
+        ]
+      },
+      "evidence_scores": {
+        "on_target_uncertainty": 0.55,
+        "off_target_evidence": 0.0,
+        "network_impact_evidence": 0.0,
+        "welfare_relevance": 0.0,
+        "efficiency_score": 0.8925,
+        "efficiency_confidence": 0.35,
+        "specificity_score": 1.0,
+        "offtarget_high_risk_count": 0.0
+      },
+      "indel_outcome": {
+        "insertion_rate": 0.1147,
+        "deletion_rate": 0.4972,
+        "no_edit_rate": 0.388,
+        "most_likely": "deletion",
+        "predicted_size": -3
+      },
+      "offtarget": {
+        "total_sites": 0,
+        "high_risk": 0,
+        "moderate_risk": 0,
+        "low_risk": 0,
+        "specificity_score": 1.0,
+        "top_sites": []
+      },
+      "assessment": {
+        "concern_score": 0.55,
+        "tier": "enhanced_review",
+        "rationale": [
+          "on-target uncertainty"
+        ]
+      }
+    },
+    {
+      "rank": 5,
+      "recommendation": "Recommended candidate; requires enhanced review.",
+      "guide_id": "mouse:192-211(+)",
+      "guide_sequence": "GATCGATCGATCGATCGATC",
+      "pam": "GGG",
+      "strand": "+",
+      "chrom": "mouse",
+      "start": 192,
+      "end": 211,
+      "gc_content": 0.5,
+      "nuclease": "SpCas9",
+      "efficiency": {
+        "score": 0.8925,
+        "confidence": 0.35,
+        "model": "RuleSet2-Transfer",
+        "model_version": "0.1",
+        "warnings": [
+          "Efficiency prediction for mouse uses a simplified heuristic model (Doench et al. 2016, Nat Biotechnol (simplified transfer)). Predictions should be validated experimentally."
+        ]
+      },
+      "evidence_scores": {
+        "on_target_uncertainty": 0.55,
+        "off_target_evidence": 0.0,
+        "network_impact_evidence": 0.0,
+        "welfare_relevance": 0.0,
+        "efficiency_score": 0.8925,
+        "efficiency_confidence": 0.35,
+        "specificity_score": 1.0,
+        "offtarget_high_risk_count": 0.0
+      },
+      "indel_outcome": {
+        "insertion_rate": 0.1147,
+        "deletion_rate": 0.4972,
+        "no_edit_rate": 0.388,
+        "most_likely": "deletion",
+        "predicted_size": -3
+      },
+      "offtarget": {
+        "total_sites": 0,
+        "high_risk": 0,
+        "moderate_risk": 0,
+        "low_risk": 0,
+        "specificity_score": 1.0,
+        "top_sites": []
+      },
+      "assessment": {
+        "concern_score": 0.55,
+        "tier": "enhanced_review",
+        "rationale": [
+          "on-target uncertainty"
+        ]
+      }
+    }
+  ],
+  "warnings": [],
+  "report_notice": "Research decision-support only. Predictions are based on computational models and must be validated experimentally. This report does not establish safety, authorize an edit, or replace ethics, biosafety, veterinary, or experimental review."
+}
