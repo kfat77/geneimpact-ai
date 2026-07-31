@@ -1,212 +1,216 @@
-<div align="center">
+# GeneImpact AI
 
-# 🧬 GeneImpact AI
+状态：测试通过 | 许可证：MIT | 版本：1.1.0 | Python：>= 3.11
 
-[![Tests](https://github.com/kfat77/geneimpact-ai/actions/workflows/test.yml/badge.svg)](https://github.com/kfat77/geneimpact-ai/actions/workflows/test.yml)
-[![License: MIT](https://img.shields.io/github/license/kfat77/geneimpact-ai?color=10b981)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.1.0-2563eb)](https://github.com/kfat77/geneimpact-ai)
-[![Python](https://img.shields.io/badge/python-3.11%2B-0ea5e9?logo=python&logoColor=white)](pyproject.toml)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-10b981.svg)](https://github.com/kfat77/geneimpact-ai/pulls)
+GeneImpact AI 是一套面向动物基因组编辑研究的证据感知型预测与评估工具，覆盖从 sgRNA 设计、编辑效率预测、脱靶分析到可审计报告生成的完整流程。
 
-**Evidence-aware genome-editing analysis that turns declared study context, predictor outputs, and biological evidence into reproducible, uncertainty-bounded audit reports.**
+## 1. 项目简介
 
-</div>
+### 1.1 背景
 
-## 🌟 Live Interactive Demo
+CRISPR 基因编辑的预测工具常将模型输出呈现为不透明的"通过/失败"结论，忽视结果的适用范围、不确定性来源与数据血缘。在科研场景中，这种呈现方式难以支撑可复现的研究决策，也不利于伦理与动物福利审查。
 
-> ### Explore GeneImpact AI before installing anything
->
-> The light-theme, bilingual demo runs a synthetic analysis entirely in your browser, with real-time biostatistical feedback, species validation, multi-omics context checks, and an audit-style result view.
+### 1.2 解决的问题
 
-[![GeneImpact AI interactive demo preview](docs/assets/demo-preview.gif)](https://kfat77.github.io/geneimpact-ai/)
+- 预测结果缺乏适用性边界与不确定性量化，无法直接支撑研究决策。
+- 脱靶检测在大规模参考序列上计算开销高。
+- 参考基因组序列依赖研究者手动下载与整理。
+- 缺乏将预测输出、生物证据与数据来源绑定为可审计记录的能力。
 
-🚀 **[Try the Live Demo Here](https://kfat77.github.io/geneimpact-ai/)**
+### 1.3 核心功能
 
-> [!IMPORTANT]
-> The Web Demo uses synthetic data and illustrative outputs. It is a product preview—not experimental evidence, an edit-design service, or a safety determination.
+- sgRNA 设计：支持 SpCas9（NGG）、SaCas9（NNGRRT）、Cas12a（TTTV）的 PAM 扫描与候选设计。
+- 编辑效率预测：38 特征 RuleSet2-Enhanced 模型（位置权重矩阵 + 热力学稳定性 + 二核苷酸组成 + 物种特异性逻辑校准），置信度 0.55–0.85。
+- 脱靶检测：基于 k-mer 种子延伸与哈希索引的加速算法，支持位置加权错配评分与特异性指标。
+- 基因组序列获取：通过 Ensembl REST API（NCBI Datasets 兜底）自动下载，本地 SHA-256 缓存。
+- 端到端流水线：设计、预测、脱靶检测与报告生成一体化。
+- 交互式 Web 应用：基于 Flask 的 REST API 与单页前端。
+- 证据评分框架：将预测输出映射至多维有界证据评分。
 
-## Key Features
+### 1.4 近期更新（v1.1.0）
 
-- 🧬 **Evidence-aware multi-omics integration** — Combine versioned reference assemblies, functional annotations, phenotype evidence, target-gene context, and independently produced predictor outputs without erasing source provenance.
-- 🔬 **End-to-end prediction pipeline** — Design sgRNAs from genomic sequences, predict on-target editing efficiency, detect off-target sites, and generate auditable assessment reports in one command.
-- 🎯 **Multi-nuclease sgRNA design** — Support for SpCas9 (NGG), SaCas9 (NNGRRT), and Cas12a (TTTV) with automatic PAM scanning on both strands.
-- 📊 **Off-target detection** — Seed-region-weighted mismatch scoring with risk classification (high/moderate/low) and specificity metrics. K-mer seed-and-extend algorithm for 10× faster search on large genomes.
-- 📈 **Efficiency prediction** — 38-feature RuleSet2-Enhanced model (PWM + thermodynamics + dinucleotide + composition) with species-specific logistic calibration for mouse, rat, zebrafish, macaque, and fruit fly. Confidence: 0.55–0.85.
-- 🧪 **Indel outcome prediction** — Predicted insertion/deletion distribution and most likely outcome size.
-- 🌐 **Interactive web app** — Flask REST API with dark-theme SPA frontend for sgRNA design, efficiency prediction, off-target analysis, and genome download.
-- ⬇️ **Genome auto-download** — Fetch reference sequences from Ensembl REST API (NCBI fallback) with SHA-256 local caching — no manual FASTA download needed.
-- 📋 **Automated evidence scoring** — Prediction outputs automatically mapped to the four-dimensional EditEvidence framework (on-target uncertainty, off-target evidence, network impact, welfare relevance).
-- 📄 **HTML visualization** — Self-contained interactive HTML reports with SVG charts (radar, bar, heatmap) — no external dependencies.
-- 📊 **Real-time statistical feedback** — Surface bounded evidence scores, applicability status, calibration metrics, uncertainty, and animal-welfare relevance instead of presenting an opaque pass/fail result.
-- 🔌 **Developer-friendly API and CLI** — Use typed Python interfaces or composable command-line workflows to generate JSON reports, verify dossier integrity, inspect species readiness, and integrate external predictors.
-- 🧪 **Strict biological-domain gating** — Bind every result to a species, strain or isolate, genome build, edit class, delivery context, evidence snapshot, and model version.
-- 🔍 **Audit-ready provenance** — Preserve request hashes, model and source versions, reference accessions, evidence references, limitations, and machine-readable report notices.
-- 🐁 **Multi-species research contexts** — Validate registered contexts for mouse, rat, zebrafish, fruit fly, rhesus macaque, and cynomolgus macaque while reporting predictor maturity separately for each domain.
+| 方向 | v1.0.0 | v1.1.0 | 改进 |
+|------|--------|--------|------|
+| 效率模型 | 启发式（置信度约 0.35） | 38 特征 RuleSet2-Enhanced，物种校准 | 置信度 0.55–0.85 |
+| 脱靶搜索 | 纯 Python 字符串匹配 | k-mer 种子延伸 + 哈希索引 | 100 kb 以上参考序列约 10 倍加速 |
+| 基因组下载 | 手动下载 FASTA | Ensembl/NCBI 自动下载 + SHA-256 缓存 | 无需手动步骤 |
+| Web 应用 | CLI + 静态 HTML | Flask REST API + 交互式单页应用 | 完整浏览器交互体验 |
 
-## What's New in v1.1.0
+在线演示：https://kfat77.github.io/geneimpact-ai/
 
-Four major upgrades focused on prediction accuracy, search performance, workflow automation, and user experience:
+## 2. 技术栈
 
-| Area | Before (v1.0) | After (v1.1) | Improvement |
-|------|---------------|--------------|-------------|
-| **Efficiency model** | Heuristic (confidence ~0.35) | 38-feature RuleSet2-Enhanced with species calibration | Confidence **0.55–0.85** |
-| **Off-target search** | Pure Python string matching | K-mer seed-and-extend with hash index | **~10× faster** on 100 kb+ references |
-| **Genome download** | Manual FASTA download | Ensembl REST API + NCBI fallback + SHA-256 cache | **Zero manual steps** |
-| **Web application** | CLI + static HTML | Flask REST API + interactive dark-theme SPA | **Full browser UX** |
+- 编程语言：Python 3.11 及以上。
+- 构建与打包：hatchling。
+- 核心依赖：openpyxl、xlrd（Excel 数据读写）。
+- 可选依赖：Flask（Web 应用；当前需手动安装，详见第 3.2 节）。
+- 标准库模块：urllib（HTTP 下载）、gzip、hashlib、json、dataclasses、pathlib。
+- 测试框架：pytest。
+- 部署：GitHub Pages 与 Vercel 托管静态演示页面（配置见 vercel.json）。
+- 可视化：自包含 HTML 与 SVG 图表，无前端构建步骤。
 
-### New CLI Commands
+## 3. 安装与使用说明
 
-```bash
-# Auto-download a reference sequence from Ensembl
-geneimpact download-genome --species mouse --chrom 1 --start 100000 --end 200000
+### 3.1 环境依赖
 
-# Launch the interactive web app
-geneimpact webapp --host 0.0.0.0 --port 5000
+- Python 3.11 或更高版本。
+- pip 包管理器。
+- （可选）Flask，仅在使用 Web 应用时需要。
 
-# Inspect the 38-feature efficiency breakdown for a guide
-geneimpact predict-detail --guide GAGTCTGCTGACAGAGCTC --species mouse
-```
-
-### New Python API
-
-```python
-from geneimpact.advanced_models import score_ruleset2, compute_thermodynamics
-from geneimpact.fast_offtarget import fast_find_offtargets, build_seed_index
-from geneimpact.genome_downloader import download_sequence
-
-# 38-feature efficiency prediction
-result = score_ruleset2("GAGTCTGCTGACAGAGCTC", species="mouse")
-print(f"Score: {result.calibrated_score:.3f}  Confidence: {result.confidence:.3f}")
-
-# Auto-download genome and search off-targets
-seq = download_sequence("mouse", "1", 100000, 200000)
-index = build_seed_index({"chr1": seq}, k=12)
-offtargets = fast_find_offtargets("GAGTCTGCTGACAGAGCTCG", index, max_mismatches=4)
-```
-
-## Quick Start
-
-GeneImpact AI requires **Python 3.11 or later**.
+### 3.2 安装
 
 ```bash
 git clone https://github.com/kfat77/geneimpact-ai.git
 cd geneimpact-ai
 
 python -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
-python -m pip install --upgrade pip
-python -m pip install -e ".[dev]"
+pip install --upgrade pip
+pip install -e ".[dev]"
+
+# 如需使用 Web 应用，额外安装 Flask
+pip install flask
+```
+
+### 3.3 验证安装
+
+```bash
 pytest
 ```
 
-Run the included synthetic assessment and write a machine-readable report:
+### 3.4 基本用法（命令行）
 
 ```bash
-geneimpact assess examples/assessment-request.json \
-  --output assessment-report.json
+# 设计 sgRNA
+geneimpact design-sgrna --input target.fasta --species mouse
+
+# 预测编辑效率
+geneimpact predict --guide GAGTCTGCTGACAGAGCTC --species mouse
+
+# 检测脱靶位点
+geneimpact offtarget --guide GAGTCTGCTGACAGAGCTC --reference ref.fasta
+
+# 运行端到端流水线
+geneimpact pipeline --input target.fasta --species mouse --output report.json
+
+# 自动下载参考序列
+geneimpact download-genome --species mouse --chrom 1 --start 100000 --end 200000
+
+# 启动 Web 应用
+geneimpact webapp --host 0.0.0.0 --port 5000
 ```
 
-Build and verify the preferred unified research dossier:
-
-```bash
-geneimpact dossier examples/dossier-zebrafish-request.json \
-  --output research-dossier.json
-
-geneimpact verify-dossier research-dossier.json
-```
-
-Preview the bilingual Web Demo locally:
-
-```bash
-python -m http.server 8000 --directory demo
-```
-
-Then open `http://localhost:8000`.
-
-## Code Example / Usage
-
-The example below evaluates a **synthetic 35-nt SpCas9 context** with the version-locked CRISPRscan implementation and returns a provenance-bearing report. This predictor is deliberately limited to its declared zebrafish embryo domain.
+### 3.5 Python API 用法
 
 ```python
-import json
-from dataclasses import asdict
+from geneimpact.advanced_models import score_ruleset2
+from geneimpact.genome_downloader import download_sequence
+from geneimpact.fast_offtarget import build_seed_index, fast_find_offtargets
 
-from geneimpact.crisprscan import score_crisprscan
+# 效率预测
+result = score_ruleset2("GAGTCTGCTGACAGAGCTC", species="mouse")
+print(result.calibrated_score, result.confidence)
 
-request = {
-    "species_profile": "zebrafish",
-    "genome_build": "GRCz12tu",
-    "assembly_accession": "GCF_049306965.2",
-    "reference_strain_or_isolate": "Tuebingen",
-    "nuclease": "SpCas9",
-    "guide_expression": "t7_in_vitro_transcription",
-    "developmental_context": "zebrafish_embryo",
-    "guides": [
-        {
-            "guide_id": "zf-guide-001",
-            "context_35nt": "ACCTGGATCGATGCTGATGCTAGATAAGGTTGAGC",
-        }
-    ],
-}
-
-report = score_crisprscan(request)
-print(json.dumps(asdict(report), indent=2))
+# 下载序列并检索脱靶
+seq = download_sequence("mouse", "1", 100000, 200000)
+index = build_seed_index({"chr1": seq}, k=12)
+offtargets = fast_find_offtargets("GAGTCTGCTGACAGAGCTCG", index, max_mismatches=4)
 ```
 
-Equivalent CLI workflow:
+## 4. 项目结构概览
 
-```bash
-geneimpact score-crisprscan \
-  --input examples/crisprscan-zebrafish-request.json \
-  --output crisprscan-report.json
+```
+geneimpact-ai/
+├── src/geneimpact/          # 核心 Python 包
+│   ├── cli.py               # 命令行入口与子命令定义
+│   ├── pipeline.py          # 端到端分析流水线
+│   ├── sgrna_design.py      # sgRNA 设计与 PAM 扫描
+│   ├── offtarget.py         # 脱靶检测（暴力比对）
+│   ├── fast_offtarget.py    # 脱靶检测（k-mer 加速）
+│   ├── efficiency.py        # 效率预测接口
+│   ├── advanced_models.py   # 38 特征 RuleSet2-Enhanced 模型
+│   ├── genome_downloader.py # Ensembl/NCBI 序列自动下载
+│   ├── webapp.py            # Flask Web 应用
+│   ├── webapp_static/       # Web 应用前端资源
+│   ├── evidence.py          # 多维证据评分框架
+│   ├── visualization.py     # HTML/SVG 报告生成
+│   ├── crisprscan.py, crispritz.py, behive.py ...  # 预测器与验证适配器
+│   └── species.py, calibration.py, readiness.py ... # 物种注册与校准
+├── tests/                   # pytest 测试套件
+├── demo/                    # 静态演示页面
+├── docs/                    # 方法学、模型卡、治理策略文档
+├── examples/                # 示例请求与数据
+├── pyproject.toml           # 项目元数据与依赖
+└── vercel.json              # 静态部署配置
 ```
 
-The report retains the request checksum, implementation version and commit, coefficient checksum, declared biological context, score labels, and interpretation warnings. A guide-activity score is **not** a phenotype prediction, editing probability, off-target assessment, or safety claim.
+## 5. 配置说明
 
-## Architecture / Research Philosophy
+本项目不读取环境变量，也不依赖独立的配置文件。运行参数通过命令行参数传入。
 
-GeneImpact AI is designed around a simple principle: **a prediction is useful only when its evidence, applicability, uncertainty, and provenance remain visible**.
+### 5.1 download-genome 命令
 
-```mermaid
-flowchart LR
-    A["Declared study context"] --> B["Species & assembly validation"]
-    B --> C["Versioned evidence adapters"]
-    C --> D["Predictor applicability gates"]
-    D --> E["Biostatistical evaluation"]
-    E --> F["Audit-ready report"]
-    F --> G["Human, welfare & institutional review"]
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| --species | 物种键（mouse、rat、zebrafish、fruit_fly、macaque 等） | 必填 |
+| --chrom | 染色体标识 | 必填 |
+| --start / --end | 区域起止坐标（1-based） | 必填 |
+| --source | 数据源，ensembl 或 ncbi | ensembl |
+| --cache-dir | 本地缓存目录 | ./genome_cache |
+| --force-refresh | 忽略缓存，强制重新下载 | 关闭 |
+
+### 5.2 webapp 命令
+
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| --host | 监听地址 | 127.0.0.1 |
+| --port | 监听端口 | 5000 |
+| --debug | 启用调试模式 | 关闭 |
+
+### 5.3 缓存与部署
+
+- 下载的序列按 SHA-256 校验存入 --cache-dir（默认 ./genome_cache），命中缓存时跳过网络请求。
+- vercel.json 定义静态部署：构建命令为空，输出目录为 demo，适用于纯静态演示托管。
+
+## 6. 贡献指南
+
+### 6.1 代码规范
+
+- 遵循 PEP 8 风格，使用 4 空格缩进。
+- 公共接口提供类型注解。
+- 数据载体优先使用 dataclass。
+- 新增或修改行为必须附带 pytest 测试。
+- 新增预测器或适配器须记录生物域、证据来源、假设与局限。
+
+### 6.2 Pull Request 流程
+
+1. Fork 仓库并创建主题分支。
+2. 在分支上实现变更并补充测试。
+3. 本地运行 pytest 确保全部通过。
+4. 更新相关文档（方法学、模型卡或治理策略）。
+5. 提交 Pull Request，附简明的技术与科学依据说明。
+
+### 6.3 提交信息格式
+
+采用约定式提交（Conventional Commits）：
+
+```
+<type>: <subject>
 ```
 
-### Evidence-aware by construction
+- type：feat（新功能）、fix（缺陷修复）、docs（文档）、test（测试）、ci（持续集成）、refactor（重构）、chore（杂项）。
+- subject：祈使语气，简洁描述，不超过 72 字符，不以句号结尾。
+- 示例：feat: add k-mer seed-and-extend off-target search
 
-The system keeps empirical observations, model outputs, and biological hypotheses distinct. External predictors are accepted only through explicit adapter contracts, then checked against their supported species, edit class, experimental context, implementation version, and evidence reference. Out-of-domain outputs may remain visible for audit purposes, but they are not promoted to applicable evidence.
+### 6.4 数据合规
 
-### Biostatistical rigor
+禁止提交原始测序文件、受限研究数据、设施记录、动物个体标识或未经授权可再分发的第三方模型资产。
 
-GeneImpact AI favors bounded scores, held-out evaluation, gene-disjoint splits, Brier score, expected calibration error, Recall@K, and explicit transfer-evidence labels over unqualified accuracy claims. High-consequence or high-uncertainty signals cannot be averaged away by reassuring values elsewhere.
+## 7. 许可证
 
-### Reproducibility and bounded uncertainty
+本项目以 MIT 许可证发布，详见 LICENSE 文件。第三方数据集、出版物、服务与模型集成可能适用各自条款，再分发或投入运行前请查阅 docs/third-party-notices.md。
 
-Assessments are tied to exact reference assemblies, strains or isolates, evidence snapshots, model versions, and content hashes. The project treats uncertainty as a reportable result—not a defect to conceal—and requires prospective experimental validation before any operational interpretation.
+---
 
-> [!CAUTION]
-> GeneImpact AI is research decision-support software. It does not authorize an animal genome edit, establish safety, replace experimental validation, or substitute for ethics, biosafety, veterinary, animal-welfare, or regulatory review.
-
-For methodology and governance details, see the [research protocol](docs/research-protocol.md), [model card](docs/model-card.md), [multi-species registry](docs/multispecies-registry.md), [validation plan](docs/validation-plan.md), and [data-governance policy](docs/data-governance.md).
-
-## Contributing
-
-Contributions that improve scientific validity, reproducibility, documentation, test coverage, accessibility, or bounded species-specific validation are welcome.
-
-1. Fork the repository and create a focused branch.
-2. Add or update tests for behavioral changes.
-3. Run `pytest` locally.
-4. Document the biological domain, evidence source, assumptions, and limitations of any new predictor or adapter.
-5. Open a pull request with a concise scientific and technical rationale.
-
-Please do not commit raw sequencing files, restricted study data, facility records, animal identifiers, or third-party model assets without confirmed redistribution rights.
-
-## License
-
-GeneImpact AI is released under the [MIT License](LICENSE). Third-party datasets, publications, services, and model integrations may have separate terms; review the [third-party notices](docs/third-party-notices.md) before redistribution or operational use.
+免责声明：GeneImpact AI 为科研决策支持软件，不授权动物基因组编辑、不构成安全性认定、不替代实验验证，亦不替代伦理、生物安全、兽医、动物福利或监管审查。
