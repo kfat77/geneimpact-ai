@@ -42,8 +42,7 @@ CRISPR 基因编辑的预测工具常将模型输出呈现为不透明的"通过
 
 - 编程语言：Python 3.11 及以上。
 - 构建与打包：hatchling。
-- 核心依赖：openpyxl、xlrd（Excel 数据读写）。
-- 可选依赖：Flask（Web 应用；当前需手动安装，详见第 3.2 节）。
+- 核心依赖：openpyxl、xlrd（Excel 数据读写）、flask>=3.0（Web 应用 REST API 与单页前端）。
 - 标准库模块：urllib（HTTP 下载）、gzip、hashlib、json、dataclasses、pathlib。
 - 测试框架：pytest。
 - 部署：GitHub Pages 与 Vercel 托管静态演示页面（配置见 vercel.json）。
@@ -55,7 +54,6 @@ CRISPR 基因编辑的预测工具常将模型输出呈现为不透明的"通过
 
 - Python 3.11 或更高版本。
 - pip 包管理器。
-- （可选）Flask，仅在使用 Web 应用时需要。
 
 ### 3.2 安装
 
@@ -67,10 +65,8 @@ python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
 pip install --upgrade pip
-pip install -e ".[dev]"
-
-# 如需使用 Web 应用，额外安装 Flask
-pip install flask
+pip install -e .                  # 安装含 Flask 在内的全部运行时依赖
+pip install -e ".[dev]"           # 如需运行测试，追加 dev 可选依赖
 ```
 
 ### 3.3 验证安装
